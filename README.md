@@ -1,2 +1,4 @@
 # talks
-Collection of talks. Slides and the likes.
+
+Collection of talks.  
+Slides and the likes.
