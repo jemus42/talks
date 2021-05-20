@@ -1,0 +1,261 @@
+---
+title: "Semi-Structured Deep Distributional Regression"
+subtitle: "Emmy Lab"
+author: "Lukas Burk"
+contactauthor: "Lukas Burk"
+contactemail: "burk@leibniz-bips.de"
+date: "2021-05-26"
+slides: "https://jemus42.github.io/talks/emmylab/2105-SDDR.html"
+output:
+  xaringan::moon_reader:
+    css: [bips.css, default]
+    lib_dir: libs
+    nature:
+      beforeInit: "macros.js"
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      slideNumberFormat: "%current%" # Only show current slide number
+      ratio: "16:9" # Use "4:3" for old projectors etc.
+---
+
+```{r setup, include=FALSE}
+# This chunk is not visible in the presentation
+# Use it to set up misc. options for your code/output
+
+# knitr chunk options for all chunks
+knitr::opts_chunk$set(
+  echo = TRUE,          # Set FALSE to hide R code
+  messages = FALSE,
+  warning = FALSE,      # Don't show warnings from R code
+  dev = "ragg_png",     # Higher quality png graphics device
+  fig.align = "center", # Centered plots (recommended)
+  fig.retina = 2        # Higher image quality for high resolution screens
+)
+
+# xaringanExtra features, see https://pkg.garrickadenbuie.com/xaringanExtra/
+xaringanExtra::use_xaringan_extra(
+  c("tile_view", "panelset", "clipboard", "fit_screen")
+)
+```
+
+class: middle, inverse
+# Introduction
+
+---
+## Interpretability & Flexibility: Choose One
+
+.pull-left[
+- Linear Models: 
+    - Interpretable 🚀  
+    - Flexible 😐
+]
+
+--
+
+.pull-right[
+- Generalized Linear Model: 
+    - Interpretable 🚀  
+    - Flexible 🙂
+]
+
+--
+
+.pull-left[
+- Generalized Additive Model: 
+    - Interpretable 🚀 
+    - Flexible 😊
+]
+
+--
+
+.pull-right[
+- Neural Networks: 
+    - Interpretable 🧐 
+    - Flexible 🚀🚀🚀
+]
+
+--
+
+![:vspace 5]
+
+.center[How about the best of both worlds?]
+
+
+---
+## Literature
+
+.bipsblue[.font120[The Framework]]
+
+.font70[
+Rügamer D, Kolb C, Klein N.  
+**Semi-Structured Deep Distributional Regression: Combining Structured Additive Models and Deep Learning**.  
+arXiv:200205777. Published online February 8, 2021. http://arxiv.org/abs/2002.05777
+]
+
+.bipsblue[.font120[The Implementation]]
+
+.font70[
+Rügamer D, Shen R, Bukas C, et al.  
+**`deepregression`: A Flexible Neural Network Framework for Semi-Structured Deep Distributional Regression**.  
+arXiv:210402705. Published online April 6, 2021. http://arxiv.org/abs/2104.02705
+]
+
+.bipsblue[.font120[The Application]]
+
+.font70[
+Kopper P, Pölsterl S, Wachinger C, Bischl B, Bender A, Rügamer D.  
+**Semi-Structured Deep Piecewise Exponential Models**.  
+arXiv:201105824. Published online March 1, 2021. http://arxiv.org/abs/2011.05824
+]
+
+---
+class: middle, inverse
+# SDDR
+
+---
+class: middle
+## Implementations
+
+`R`: [davidruegamer/deepregression](https://github.com/davidruegamer/deepregression)
+
+`Python`: [HelmholtzAI-Consultants-Munich/PySDDR](https://github.com/HelmholtzAI-Consultants-Munich/PySDDR)
+
+---
+## Model Overview
+
+A distribution $\mathcal{D}$ with $K$ parameters $\theta_k$:  
+$\mathcal{D}(\theta_1, \ldots, \theta_K) \quad \theta_k \equiv \theta_k(\eta_k), \ \ k = 1, \ldots, K$
+
+--
+
+Additive predictors $\eta_k$, each consisting of  
+structured **linear**, **smooth**, or additional **unstructured** effects of predictors $\boldsymbol{x}, \boldsymbol{z}, \boldsymbol{u}$
+
+--
+
+$$\eta_k \equiv \eta_k(\boldsymbol{x}, \boldsymbol{z}, \boldsymbol{u}) = \underbrace{\boldsymbol{x}^\top \boldsymbol{w}}_{\text{Linear effects}} + 
+\underbrace{\sum_{j=1}^J f_{k,j}(\boldsymbol{z})}_{\text{Smooth effects (Splines)}} + 
+\underbrace{\sum_{l=1}^L d_{k,l}(\boldsymbol{u})}_{\text{Unstructured effects (DNN)}}$$
+
+--
+
+All transformations:  
+
+$$(\boldsymbol{x}, \boldsymbol{z}, \boldsymbol{u}) \longrightarrow \eta_k(\boldsymbol{x}, \boldsymbol{z}, \boldsymbol{u}) \xrightarrow{h_k} \theta_k(\eta_k) \longrightarrow \mathcal{D}(\theta_1, \ldots, \theta_k, \ldots, \theta_k)$$
+
+---
+## Motivation
+
+### Foundations
+
+- **Distributional Regression (DR)** models all parameter of a distribution
+
+- Counter-example: LM, GLM, GAM etc. only model the distribution **mean** $\mu = \mathbf{E}(Y \ |\ X)$
+
+- **Structured Additive Distributional Regression (SADR)** extend GAMs with DR
+
+- This work: **Semi-Structured Deep Distributional Regression (SDDR)** extends SADR
+
+---
+## Motivation
+
+### Interpretability
+
+Previous approaches (e.g. Deep GLM) encompass identifiability issue:
+
+--
+
+.pull-left[
+
+\begin{align}
+& \boldsymbol{\nu}^\top\boldsymbol{w} + d(\boldsymbol{\nu}) =& \\
+& \boldsymbol{\nu}^\top\boldsymbol{w} + \boldsymbol{\nu}^\top\boldsymbol{m} + f(\boldsymbol{\nu}) =& \\
+& \boldsymbol{\nu}^\top\boldsymbol{m} + \tilde{d}(\boldsymbol{\nu})
+\end{align}
+
+]
+
+.pull-right[
+Linear portions of $\boldsymbol{\nu}$ can be added / removed arbitrarily between linear part of the predictor and the unstructured predictor $d(\cdot)$
+]
+
+--
+
+![:vspace 5]
+
+.center[
+$\rightarrow$ Irrelevant for prediction, but relevant for interpretation!
+]
+
+---
+## Orthogonolization
+
+SDDR proposes solution to this problem: The Orthogonolization Cell
+
+.pull-left[
+
+```{r echo=FALSE, out.width="90%"}
+knitr::include_graphics("img/orthogonolization.png")
+```
+
+]
+
+.pull-right[
+
+> *Visualization of the orthogonalization operation*:  
+
+> Latent features $z$ learned in a neural network with two hidden layers are orthogonalized by the defined structured network part before being added to form 
+transformed distribution parameter.
+
+.footnote[Rügamer et al. 2021, Figure 5, p. 11]
+
+]
+
+---
+background-image: url(img/sddr-arch.png)
+background-size: contain
+background-position: left
+class: nologo
+
+.pull-right[
+### Example Architecture
+
+- Both structured predictors $\boldsymbol{x}$ and structured non-linear predictors $\boldsymbol{z}$ are embedded within a DNN
+
+- Unstructured predictors $\boldsymbol{u}$ are modeled in parallel
+
+- Orthogonolization cell allows identifiability of structured effects
+
+- $\eta$ represents the final additive predictor
+
+.footnote[Rügamer et al. 2021, Figure 1, p. 4]
+]
+
+---
+## Toy Example
+
+
+---
+class: center, middle, thanks
+background-image: none
+
+## Thank you for your attention
+
+`r rmarkdown::metadata$slides`
+
+.pull-left[.right[
+.font150[**Contact**]  
+.bipsblue[`r rmarkdown::metadata$contactauthor`]  
+Leibniz Institute for Prevention Research and Epidemiology - BIPS GmbH  
+Achterstraße 30  
+D-28359  
+.bipsblue[`r rmarkdown::metadata$contactemail`]
+]]
+.pull-right[
+
+```{r, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("bips-logo.png")
+```
+
+]
