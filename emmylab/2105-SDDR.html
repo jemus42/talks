@@ -227,6 +227,99 @@ class: nologo
 ## Toy Example
 
 
+```r
+library(deepregression) # Will also install Python dependencies on first load
+library(palmerpenguins) # For simple example data
+penguins &lt;- na.omit(penguins)
+
+penguins_lm &lt;- lm(bill_length_mm ~ bill_depth_mm + flipper_length_mm, data = penguins)
+broom::tidy(penguins_lm)
+```
+
+```
+## # A tibble: 3 x 5
+##   term              estimate std.error statistic  p.value
+##   &lt;chr&gt;                &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)        -28.0      5.60       -5.00 9.52e- 7
+## 2 bill_depth_mm        0.620    0.138       4.50 9.28e- 6
+## 3 flipper_length_mm    0.305    0.0193     15.8  3.55e-42
+```
+
+```r
+broom::glance(penguins_lm)$sigma
+```
+
+```
+## [1] 4.031767
+```
+
+---
+
+
+```r
+lof &lt;- list(
+  loc = ~ 1 + bill_depth_mm + deep(flipper_length_mm),
+  scale = ~ 1
+)
+
+lod &lt;- function(x) {
+  x %&gt;%
+    layer_dense(units = 16, activation = "relu") %&gt;%
+    layer_dropout(rate = 0.2) %&gt;%
+    layer_dense(units = 1, activation = "linear")
+}
+
+penguins_sddr &lt;- deepregression(
+  y = penguins$bill_length_mm,
+  data = penguins,
+  list_of_formulae = lof,
+  list_of_deep_models = list(deep = lod)
+)
+```
+
+```
+## Preparing additive formula(e)... Done.
+## Translating data into tensors... Done.
+```
+
+---
+
+
+```r
+penguins_sddr %&gt;%
+  fit(
+    epochs = 200,
+    validation_split = 0.2
+  )
+```
+
+
+
+```r
+c(coef(penguins_lm), sigma = broom::glance(penguins_lm)$sigma)
+```
+
+```
+##       (Intercept)     bill_depth_mm flipper_length_mm             sigma 
+##       -27.9761879         0.6200105         0.3051575         4.0317668
+```
+
+```r
+coef(penguins_sddr)
+```
+
+```
+## $loc
+##   (Intercept) bill_depth_mm 
+##   -0.02822512    1.19607890 
+## 
+## $scale
+## (Intercept) 
+##    1.266351
+```
+
+
+
 ---
 class: center, middle, thanks
 background-image: none

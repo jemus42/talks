@@ -28,6 +28,7 @@ knitr::opts_chunk$set(
   echo = TRUE,          # Set FALSE to hide R code
   messages = FALSE,
   warning = FALSE,      # Don't show warnings from R code
+  cache = FALSE,
   dev = "ragg_png",     # Higher quality png graphics device
   fig.align = "center", # Centered plots (recommended)
   fig.retina = 2        # Higher image quality for high resolution screens
@@ -234,6 +235,56 @@ class: nologo
 
 ---
 ## Toy Example
+
+```{r}
+library(deepregression) # Will also install Python dependencies on first load
+library(palmerpenguins) # For simple example data
+penguins <- na.omit(penguins)
+
+penguins_lm <- lm(bill_length_mm ~ bill_depth_mm + flipper_length_mm, data = penguins)
+broom::tidy(penguins_lm)
+broom::glance(penguins_lm)$sigma
+```
+
+---
+
+```{r}
+lof <- list(
+  loc = ~ 1 + bill_depth_mm + deep(flipper_length_mm),
+  scale = ~ 1
+)
+
+lod <- function(x) {
+  x %>%
+    layer_dense(units = 16, activation = "relu") %>%
+    layer_dropout(rate = 0.2) %>%
+    layer_dense(units = 1, activation = "linear")
+}
+
+penguins_sddr <- deepregression(
+  y = penguins$bill_length_mm,
+  data = penguins,
+  list_of_formulae = lof,
+  list_of_deep_models = list(deep = lod)
+)
+```
+
+---
+
+```{r}
+penguins_sddr %>%
+  fit(
+    epochs = 200,
+    validation_split = 0.2
+  )
+```
+
+
+```{r}
+c(coef(penguins_lm), sigma = broom::glance(penguins_lm)$sigma)
+coef(penguins_sddr)
+```
+
 
 
 ---
