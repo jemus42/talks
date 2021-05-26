@@ -250,7 +250,7 @@ broom::glance(penguins_lm)$sigma
 
 ```{r}
 lof <- list(
-  loc = ~ 1 + bill_depth_mm + deep(flipper_length_mm),
+  loc = ~ 1 + bill_depth_mm + flipper_length_mm + deep(flipper_length_mm),
   scale = ~ 1
 )
 

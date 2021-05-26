@@ -258,7 +258,7 @@ broom::glance(penguins_lm)$sigma
 
 ```r
 lof &lt;- list(
-  loc = ~ 1 + bill_depth_mm + deep(flipper_length_mm),
+  loc = ~ 1 + bill_depth_mm + flipper_length_mm + deep(flipper_length_mm),
   scale = ~ 1
 )
 
@@ -310,12 +310,12 @@ coef(penguins_sddr)
 
 ```
 ## $loc
-##   (Intercept) bill_depth_mm 
-##   -0.02822512    1.19607890 
+##       (Intercept)     bill_depth_mm flipper_length_mm 
+##         1.1647420         0.2877499         0.1791214 
 ## 
 ## $scale
 ## (Intercept) 
-##    1.266351
+##    1.211772
 ```
 
 
