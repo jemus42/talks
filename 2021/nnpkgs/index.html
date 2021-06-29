@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Neural Network Packages in R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Lukas Burk" />
+    <meta name="date" content="2021-06-30" />
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <script src="libs/clipboard-2.0.6/clipboard.min.js"></script>
+    <link href="libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.js"></script>
+    <script>window.xaringanExtraClipboard(null, {"button":"Copy Code","success":"Copied!","error":"Press Ctrl+C to Copy"})</script>
+    <script src="libs/xaringanExtra-progressBar-0.0.1/progress-bar.js"></script>
+    <link href="libs/xaringanExtra-extra-styles-0.2.6/xaringanExtra-extra-styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="bips.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Neural Network Packages in R
+## Wiesbaden UseR Coffee Break
+### Lukas Burk
+### 2021-06-30
+
+---
+
+
+
+
+class: middle
+
+## Hi 👋
+
+- Lukas, fresh PhD student @ BIPS Bremen &amp; LMU München (Since April '21) 
+
+--
+
+- Context: Something something biostatistics / {M,D}L / Data Science
+
+--
+
+- First steps in R: 2014
+
+--
+
+- First neural network: 2020
+
+---
+class: inverse, middle
+
+# Neural Network Packages
+
+---
+
+## The Three Biggies
+
+1. `{nnet}`: The grandpa of neural networks in R.
+
+    - Mostly historically relevant, less useful for state of the art tasks
+    - Limited to single-layer neural networks ("90s neural nets") 👴
+    
+--
+
+2. `{keras}` (as interface to `{tensorflow}`): Established go-to framework.
+
+    - You'll find *tons* of examples in `{keras}` 😁
+    - You'll likely run into issues that lead to the underlying Python implementation 🙃
+
+--
+
+3. `{torch}`: New(ish) kid on the block, the one to keep an eye on (imo)
+
+    - R bindings to `libtorch` (C++), same backend as `PyTorch`
+    - R package is still very young! Currently 0.4.0 👶
+
+---
+class: inverse, middle
+# Neural Networks in .bipsorange[nnet]
+
+---
+
+# Example Task: Penguins
+
+When in doubt, [palmer penguins](https://allisonhorst.github.io/palmerpenguins/) 🐧
+
+
+```r
+library(tidyverse); library(palmerpenguins)
+penguins &lt;- slice_sample(penguins, prop = 1)
+head(penguins, 2)
+```
+
+```
+## # A tibble: 2 x 8
+##   species island bill_length_mm bill_depth_mm flipper_length_… body_mass_g sex  
+##   &lt;fct&gt;   &lt;fct&gt;           &lt;dbl&gt;         &lt;dbl&gt;            &lt;int&gt;       &lt;int&gt; &lt;fct&gt;
+## 1 Chinst… Dream            42.5          16.7              187        3350 fema…
+## 2 Chinst… Dream            50.8          19                210        4100 male 
+## # … with 1 more variable: year &lt;int&gt;
+```
+
+Standard 80/20 train-test-split + scaling
+
+
+```r
+penguins_train &lt;- penguins[1:276, ]  # ~80%
+penguins_test &lt;- penguins[277:344, ] # ~20%
+
+penguins_train &lt;- penguins_train %&gt;% mutate(across(where(is.numeric), scale))
+penguins_test &lt;- penguins_test %&gt;% mutate(across(where(is.numeric), scale))
+```
+
+---
+
+## Model Fit
+
+- Familiar formula interface 👌 
+- No manual re-encoding of `factor` variable needed 👍
+
+
+```r
+library(nnet)
+mod_nnet &lt;- nnet(
+  island ~ bill_length_mm + bill_depth_mm + flipper_length_mm + body_mass_g, 
+  data = penguins_train,
+  size = 10
+)
+```
+
+```
+## # weights:  83
+## initial  value 314.115609 
+## iter  10 value 141.598638
+## iter  20 value 126.210350
+## iter  30 value 117.810355
+## iter  40 value 107.289982
+## iter  50 value 97.261067
+## iter  60 value 93.574240
+## iter  70 value 92.092118
+## iter  80 value 91.856045
+## iter  90 value 91.814009
+## iter 100 value 91.798027
+## final  value 91.798027 
+## stopped after 100 iterations
+```
+
+---
+## Prediction
+
+- Same familiar `predict` function
+
+
+```r
+pred_data &lt;- penguins_test %&gt;% select(island, bill_length_mm:body_mass_g)
+
+island_pred &lt;- predict(
+  mod_nnet,
+  newdata = select(pred_data, bill_length_mm:body_mass_g),
+  type = "class"
+  )
+```
+
+---
+## Evaluation
+
+
+```r
+pred_data %&gt;%
+  mutate(
+    island_pred = island_pred,
+    .before = island,
+  )
+```
+
+```
+## # A tibble: 68 x 6
+##    island_pred island    bill_length_mm[,1] bill_depth_mm[,… flipper_length_mm[…
+##    &lt;chr&gt;       &lt;fct&gt;                  &lt;dbl&gt;            &lt;dbl&gt;               &lt;dbl&gt;
+##  1 Dream       Dream                  1.31            1.14               -0.557 
+##  2 Biscoe      Dream                 -1.93           -0.547              -1.67  
+##  3 Biscoe      Biscoe                 2.15           -0.598               2.20  
+##  4 Dream       Torgersen             -0.265           0.986              -0.408 
+##  5 Biscoe      Biscoe                -1.08           -0.598              -1.30  
+##  6 Dream       Dream                  1.44            0.526              -0.259 
+##  7 Torgersen   Dream                 -0.618           1.50               -0.0351
+##  8 Biscoe      Biscoe                 0.551          -1.88                0.710 
+##  9 Dream       Torgersen             -1.27            1.09               -0.557 
+## 10 Dream       Dream                 -0.210           0.0661             -1.45  
+## # … with 58 more rows, and 1 more variable: body_mass_g &lt;dbl[,1]&gt;
+```
+
+
+
+```r
+# Accuracy
+sum(pred_data$island == island_pred) / length(island_pred)
+```
+
+```
+## [1] 0.7205882
+```
+
+
+---
+class: inverse, middle
+# Neural Networks in .bipsorange[keras]
+
+---
+## Beispieldaten
+
+- MNIST handwritten image classification
+- The "Hello World" of deep learning, apparently
+- 3D arrays of 60k images, 28x28 grayscale matrices (0-255)
+
+
+```r
+library(keras)
+mnist &lt;- dataset_mnist()
+str(mnist)
+```
+
+```
+## List of 2
+##  $ train:List of 2
+##   ..$ x: int [1:60000, 1:28, 1:28] 0 0 0 0 0 0 0 0 0 0 ...
+##   ..$ y: int [1:60000(1d)] 5 0 4 1 9 2 1 3 1 4 ...
+##  $ test :List of 2
+##   ..$ x: int [1:10000, 1:28, 1:28] 0 0 0 0 0 0 0 0 0 0 ...
+##   ..$ y: int [1:10000(1d)] 7 2 1 0 4 1 4 9 5 9 ...
+```
+
+---
+## Example Digit
+
+.pull-left[
+
+```r
+digit &lt;- mnist$train$x[1,,]
+dim(digit)
+```
+
+```
+## [1] 28 28
+```
+
+
+```r
+plot(as.raster(digit, max = 255))
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-3-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+## Preprocessing
+
+- Unpacking data from nested list via `%&lt;-%` (`{zeallot}`)
+- Reshaping via `array_reshape`
+- Images are matrices with 28x28 = 784 columns
+
+
+```r
+c(c(train_images, train_labels), c(test_images, test_labels)) %&lt;-% mnist
+
+train_images &lt;- array_reshape(train_images, c(60000, 28 * 28))
+test_images &lt;- array_reshape(test_images, c(10000, 28 * 28))
+str(train_images)
+```
+
+```
+##  int [1:60000, 1:784] 0 0 0 0 0 0 0 0 0 0 ...
+```
+
+---
+## Preprocessing (even more)
+
+- Scale images to 0-1
+- Encode labels to categorical shapes
+- Shuffle training data for good measure
+
+--
+
+
+```r
+train_images &lt;- train_images / 255
+test_images &lt;- test_images / 255
+
+train_labels &lt;- to_categorical(train_labels)
+test_labels &lt;- to_categorical(test_labels)
+
+obs &lt;- nrow(train_images)
+set.seed(123)
+randomize &lt;- sample(seq_len(obs), size = obs, replace = FALSE)
+train_images &lt;- train_images[randomize, ]
+train_labels &lt;- train_labels[randomize, ]
+```
+
+---
+## Build a Model
+
+
+```r
+# get number of features
+n_feat &lt;- ncol(train_images)
+
+# Define model architecture
+model &lt;- keras_model_sequential() %&gt;%
+  layer_dense(units = 128, activation = 'relu', input_shape = n_feat) %&gt;%
+  layer_dense(units = 64, activation = 'relu') %&gt;%
+  layer_dense(units = 10, activation = 'softmax')
+```
+
+---
+## Compile a Model
+
+- Define loss function, optimizer (with parameters), other metrics
+
+--
+
+
+```r
+# Compile: Loss, optimizer, metrics
+model %&gt;% compile(
+  loss = "categorical_crossentropy",
+  optimizer = optimizer_adam(),
+  metrics = "accuracy"
+)
+```
+
+---
+## Take a Look at a Model
+
+
+
+```r
+summary(model)
+```
+
+```
+## Model: "sequential"
+## ________________________________________________________________________________
+## Layer (type)                        Output Shape                    Param #     
+## ================================================================================
+## dense_2 (Dense)                     (None, 128)                     100480      
+## ________________________________________________________________________________
+## dense_1 (Dense)                     (None, 64)                      8256        
+## ________________________________________________________________________________
+## dense (Dense)                       (None, 10)                      650         
+## ================================================================================
+## Total params: 109,386
+## Trainable params: 109,386
+## Non-trainable params: 0
+## ________________________________________________________________________________
+```
+
+---
+## Fit a Model
+
+- Supply training images and labels
+- Set number of `epochs`, `batch_size`, ...
+
+--
+
+
+```r
+history &lt;- model %&gt;% fit(
+  x = train_images, y = train_labels,
+  epochs = 5,             # Very short run
+  batch_size = 64,        # Big batches for faster training
+  validation_split = 0.2, # Common default
+  # Suppress interactive output here
+  verbose = FALSE,
+  view_metrics = FALSE
+)
+```
+
+---
+## Look at the Model Fit
+
+Interactively, you'll get a live-updating plots 😎
+
+.pull-left[
+
+
+```r
+plot(history) +
+  geom_path() +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+]
+
+.pull-right[
+
+&lt;img src="index_files/figure-html/keras-view-history2-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+## Evaluate a Model
+
+
+```r
+model %&gt;% evaluate(test_images, test_labels, verbose = FALSE)
+```
+
+```
+## $loss
+## [1] 0.08232993
+## 
+## $accuracy
+## [1] 0.975
+```
+
+```r
+predictions &lt;- model %&gt;% predict_classes(test_images)
+actual &lt;- mnist$test$y
+caret::confusionMatrix(factor(predictions), factor(actual))
+```
+
+```
+## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    0    1    2    3    4    5    6    7    8    9
+##          0  968    0    5    0    1    4    6    0    6    3
+##          1    0 1128    3    0    0    0    3    3    0    3
+##          2    0    3 1014   12    4    1    2   12   13    1
+##          3    1    0    2  985    0   16    1    1    9    7
+##          4    1    0    2    0  957    1    3    4    2   11
+##          5    2    1    0    1    0  859    7    0    6    1
+##          6    3    2    2    1    5    2  933    0    2    0
+##          7    1    0    3    2    2    1    0 1000    2    6
+##          8    2    1    0    2    0    4    3    2  930    1
+##          9    2    0    1    7   13    4    0    6    4  976
+## 
+## Overall Statistics
+##                                          
+##                Accuracy : 0.975          
+##                  95% CI : (0.9717, 0.978)
+##     No Information Rate : 0.1135         
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
+##                                          
+##                   Kappa : 0.9722         
+##                                          
+##  Mcnemar's Test P-Value : NA             
+## 
+## Statistics by Class:
+## 
+##                      Class: 0 Class: 1 Class: 2 Class: 3 Class: 4 Class: 5
+## Sensitivity            0.9878   0.9938   0.9826   0.9752   0.9745   0.9630
+## Specificity            0.9972   0.9986   0.9946   0.9959   0.9973   0.9980
+## Pos Pred Value         0.9748   0.9895   0.9548   0.9638   0.9755   0.9795
+## Neg Pred Value         0.9987   0.9992   0.9980   0.9972   0.9972   0.9964
+## Prevalence             0.0980   0.1135   0.1032   0.1010   0.0982   0.0892
+## Detection Rate         0.0968   0.1128   0.1014   0.0985   0.0957   0.0859
+## Detection Prevalence   0.0993   0.1140   0.1062   0.1022   0.0981   0.0877
+## Balanced Accuracy      0.9925   0.9962   0.9886   0.9856   0.9859   0.9805
+##                      Class: 6 Class: 7 Class: 8 Class: 9
+## Sensitivity            0.9739   0.9728   0.9548   0.9673
+## Specificity            0.9981   0.9981   0.9983   0.9959
+## Pos Pred Value         0.9821   0.9833   0.9841   0.9635
+## Neg Pred Value         0.9972   0.9969   0.9951   0.9963
+## Prevalence             0.0958   0.1028   0.0974   0.1009
+## Detection Rate         0.0933   0.1000   0.0930   0.0976
+## Detection Prevalence   0.0950   0.1017   0.0945   0.1013
+## Balanced Accuracy      0.9860   0.9854   0.9766   0.9816
+```
+
+
+---
+class: inverse, middle
+# Neural Networks in .bipsorange[`torch`]
+
+---
+
+
+---
+class: center, middle, thanks
+background-image: none
+
+## Thank you for your attention
+
+https://jemus42.github.io/talks/2021/nnpkgs/
+
+.pull-left[.right[
+.font150[**Contact**]  
+.bipsblue[Lukas Burk]  
+Leibniz Institute for Prevention Research and Epidemiology - BIPS GmbH  
+Achterstraße 30  
+D-28359 Bremen  
+.bipsblue[burk@leibniz-bips.de]
+]]
+.pull-right[
+
+&lt;img src="bips-logo.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%",
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

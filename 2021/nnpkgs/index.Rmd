@@ -1,0 +1,520 @@
+---
+title: "Neural Network Packages in R"
+subtitle: "Wiesbaden UseR Coffee Break" # e.g. the occasion
+author: "Lukas Burk" # For the title slide
+slides: "https://jemus42.github.io/talks/2021/nnpkgs/"
+contactauthor: "Lukas Burk" # For the last slide
+contactemail: "burk@leibniz-bips.de" # For the last slide
+date: "2021-06-30" # Automatically evaluates to today
+output:
+  xaringan::moon_reader:
+    css: [bips.css, default]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      slideNumberFormat: "%current%" # Only show current slide number
+      ratio: "16:9" # Use "4:3" for old projectors etc.
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,          # Set FALSE to hide R code
+  messages = FALSE,     # Drops e.g. pkg startup messages on library() calls
+  warning = FALSE,      # Don't show warnings from R code
+  dev = "ragg_png",     # Higher quality png graphics device
+  fig.align = "center", # Centered plots (recommended)
+  fig.retina = 2,       # Higher image quality for high resolution screens
+  cache = TRUE
+)
+
+# xaringanExtra features, see https://pkg.garrickadenbuie.com/xaringanExtra/
+xaringanExtra::use_xaringan_extra(
+  c("tile_view", "panelset", "clipboard")
+)
+xaringanExtra::use_progress_bar(color = "#1763AA", location = "bottom")
+xaringanExtra::use_extra_styles(
+  hover_code_line = TRUE
+)
+```
+
+class: middle
+
+## Hi 👋
+
+- Lukas, fresh PhD student @ BIPS Bremen & LMU München (Since April '21) 
+
+--
+
+- Context: Something something biostatistics / {M,D}L / Data Science
+
+--
+
+- First steps in R: 2014
+
+--
+
+- First neural network: 2020
+
+---
+class: inverse, middle
+
+# Neural Network Packages
+
+---
+
+## The Three Biggies
+
+1. `{nnet}`: The grandpa of neural networks in R.
+
+    - Mostly historically relevant, less useful for state of the art tasks
+    - Limited to single-layer neural networks ("90s neural nets") 👴
+    
+--
+
+2. `{keras}` (as interface to `{tensorflow}`): Established go-to framework.
+
+    - You'll find *tons* of examples in `{keras}` 😁
+    - You'll likely run into issues that lead to the underlying Python implementation 🙃
+
+--
+
+3. `{torch}`: New(ish) kid on the block, the one to keep an eye on (imo)
+
+    - R bindings to `libtorch` (C++), same backend as `PyTorch`
+    - R package is still very young! Currently 0.4.0 👶
+
+---
+class: inverse, middle
+# Neural Networks in .bipsorange[nnet]
+
+---
+
+# Example Task: Penguins
+
+When in doubt, [palmer penguins](https://allisonhorst.github.io/palmerpenguins/) 🐧
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse); library(palmerpenguins)
+penguins <- slice_sample(penguins, prop = 1)
+head(penguins)
+```
+
+---
+## Penguin Preparation
+
+- Common 80/20 train-test-split
+- Scaling, to be nice to our gradients 🤗
+
+```{r peng-traintestsplit}
+penguins_train <- penguins[1:276, ]  # ~80%
+penguins_test <- penguins[277:344, ] # ~20%
+
+penguins_train <- penguins_train %>% mutate(across(where(is.numeric), scale))
+penguins_test <- penguins_test %>% mutate(across(where(is.numeric), scale))
+```
+
+---
+## Model Fit with `nnet`
+
+- Familiar formula interface 👌 
+- No manual re-encoding of `factor` variable needed 👍
+
+```{r nnet-class-fit, message=FALSE}
+library(nnet)
+mod_nnet <- nnet(
+  island ~ bill_length_mm + bill_depth_mm + flipper_length_mm + body_mass_g, 
+  data = penguins_train,
+  size = 10 # 10 Units in the hidden layer
+)
+```
+
+---
+## Prediction with `nnet`
+
+- Same familiar `predict` function
+
+```{r nnet-class-pred}
+pred_data <- penguins_test %>% select(island, bill_length_mm:body_mass_g)
+
+island_pred <- predict(
+  mod_nnet,
+  newdata = select(pred_data, bill_length_mm:body_mass_g),
+  type = "class"
+)
+
+# Individual class predictions
+island_pred[1:5]
+```
+
+---
+## Evaluating `nnet` Models (1)
+
+- Add our predictions to the original data for a glance
+
+```{r nnet-class-eval}
+pred_data %>%
+  mutate(
+    island_pred = island_pred, .before = island,
+  ) %>%
+  head(8)
+```
+
+---
+## Evaluating `nnet` Models (2)
+
+- Manual accuracy calculation
+- Nicer infrastructure might be available elsewhere?
+
+```{r nnet-class-acc}
+sum(pred_data$island == island_pred) / length(island_pred)
+```
+
+
+---
+class: inverse, middle
+# Neural Networks in .bipsorange[tensorflow] and .bipsorange[keras]
+
+---
+## Example Task: MNIST
+
+- MNIST handwritten image classification
+- The "Hello World" of deep learning, apparently
+- 3D arrays of 60k images, 28x28 grayscale matrices (0-255)
+
+-- 
+
+```{r keras-load-mnist}
+library(keras)
+mnist <- dataset_mnist()
+str(mnist)
+```
+
+---
+## Example Digit
+
+.pull-left[
+```{r keras-mnist-example-digit}
+digit <- mnist$train$x[1,,]
+dim(digit)
+```
+
+```{r, eval=FALSE}
+plot(as.raster(digit, max = 255))
+```
+]
+
+.pull-right[
+```{r, echo=FALSE}
+plot(as.raster(digit, max = 255))
+```
+
+]
+
+---
+## Preprocessing
+
+- Unpacking data from nested list via `%<-%` (`{zeallot}`)
+- Reshaping via `keras::array_reshape` (it's a long story)
+- Images are matrices with 28x28 = 784 columns
+
+--
+
+```{r keras-preprocess-1}
+c(c(train_images, train_labels), c(test_images, test_labels)) %<-% mnist
+
+train_images <- array_reshape(train_images, c(60000, 28 * 28))
+test_images <- array_reshape(test_images, c(10000, 28 * 28))
+```
+
+---
+## Preprocessing (even more)
+
+- Scale images to 0-1
+- Encode labels to categorical shapes (`keras::to_categorical`)
+- Shuffle training data for good measure
+
+--
+
+```{r keras-preprpcess-2}
+train_images <- train_images / 255
+test_images <- test_images / 255
+
+train_labels <- to_categorical(train_labels)
+test_labels <- to_categorical(test_labels)
+
+obs <- nrow(train_images)
+set.seed(123)
+randomize <- sample(seq_len(obs), size = obs, replace = FALSE)
+train_images <- train_images[randomize, ]
+train_labels <- train_labels[randomize, ]
+```
+
+---
+## Build a Model in `keras`
+
+- Define model either sequentially or with the functional API
+- `keras_model_sequential` is the easiest way to get started
+- `layer_dense` also defines activation function
+
+```{r keras-build-compile-1}
+# Number of input features
+n_feat <- ncol(train_images)
+
+# Define model architecture sequentially
+model <- keras_model_sequential(name = "MNIST MLP") %>%
+  layer_dense(units = 128, activation = "relu", input_shape = n_feat) %>%
+  layer_dense(units = 64, activation = "relu") %>%
+  layer_dense(units = 10, activation = "softmax", name = "Output")
+```
+
+---
+## Compile a `keras`  Model
+
+- Defines loss function, optimizer (with parameters), and other metrics
+- Use either `"adam"` or `optimizer_adam()` to set parameters
+
+--
+
+```{r keras-build-compile-2}
+# Compile: Loss, optimizer, metrics
+model %>% compile(
+  loss = "categorical_crossentropy",
+  optimizer = "adam",
+  metrics = "accuracy"
+)
+```
+
+---
+## Take a Look at a `keras` Model
+
+```{r keras-build-summary}
+summary(model)
+```
+
+---
+## Fit a `keras` Model
+
+- Supply training images and labels (distinct, no formula interface)
+- Set number of `epochs`, `batch_size`, ...
+
+--
+
+```{r keras-fit}
+history <- model %>% fit(
+  x = train_images, y = train_labels,
+  epochs = 5,             # Very short run
+  batch_size = 64,        # Big batches for faster training
+  validation_split = 0.2, # Common default
+  # Suppress interactive output here
+  verbose = FALSE,
+  view_metrics = FALSE
+)
+```
+
+---
+## Look at the Model Fit
+
+.pull-left[
+
+Interactively, you'll get a live-updating plots 😎
+
+```{r keras-view-history1, eval=FALSE}
+plot(history) +
+  geom_path() +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+]
+
+.pull-right[
+
+```{r keras-view-history2, echo=FALSE}
+plot(history) +
+  geom_path() +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+]
+
+---
+## Evaluate a Model
+
+- Very simple to get relevant metrics
+
+```{r keras-evaluate}
+model %>% evaluate(test_images, test_labels, verbose = FALSE)
+```
+
+- Further investigation via e.g. a confusion matrix
+
+```{r keras-evaluate-confmat, eval=FALSE}
+predictions <- model %>% predict_classes(test_images)
+actual <- mnist$test$y
+caret::confusionMatrix(factor(predictions), factor(actual))
+```
+
+
+---
+class: inverse, middle
+# Neural Networks in .bipsorange[torch] and .bipsorange[luz]
+
+---
+## Example Task: Cats and Dogs
+
+```{r}
+library(torch)
+library(torchvision)
+library(torchdatasets)
+library(luz) 
+```
+
+- Using a kaggle dataset requires account + phone verification!
+
+```{r torch-catdog-data, echo=FALSE}
+ds <- torchdatasets::dogs_vs_cats_dataset(
+  root = "data",
+  token = "~/.kaggle/kaggle.json",
+  transform = . %>%
+    torchvision::transform_to_tensor() %>%
+    torchvision::transform_resize(size = c(224, 224)) %>% 
+    torchvision::transform_normalize(rep(0.5, 3), rep(0.5, 3)),
+  target_transform = function(x) as.double(x) - 1
+)
+```
+
+---
+## Preprocessing in `torch`
+
+- Shuffle training data, split 80/20
+- `dataloaders` created from data for efficient loading
+
+```{r torch-dataset}
+train_ids <- sample(1:length(ds), size = 0.6 * length(ds))
+valid_ids <- sample(setdiff(1:length(ds), train_ids), size = 0.2 * length(ds))
+test_ids <- setdiff(1:length(ds), union(train_ids, valid_ids))
+
+train_ds <- dataset_subset(ds, indices = train_ids)
+valid_ds <- dataset_subset(ds, indices = valid_ids)
+test_ds <- dataset_subset(ds, indices = test_ids)
+
+train_dl <- dataloader(train_ds, batch_size = 64, shuffle = TRUE, num_workers = 4)
+valid_dl <- dataloader(valid_ds, batch_size = 64, num_workers = 4)
+test_dl <- dataloader(test_ds, batch_size = 64, num_workers = 4)
+```
+
+---
+## Building a `torch` Model with `luz`
+
+- Network components are `modules` in `torch`
+- Plugging in a pre-trained model is easy(ish)
+- Sequential layers similar to `keras` are a `luz` bonus 😎
+
+```{r torch-model}
+net <- nn_module(
+  initialize = function(output_size) {
+    self$model <- model_alexnet(pretrained = TRUE)
+    
+    for (par in self$parameters) par$requires_grad_(FALSE)
+    
+    self$model$classifier <- nn_sequential(
+      nn_dropout(0.5),
+      nn_linear(9216, 512),
+      nn_relu(),
+      nn_linear(512, 256),
+      nn_relu(),
+      nn_linear(256, output_size)
+    )
+  },
+  forward = function(x) {
+    self$model(x)[,1]
+  }
+)
+```
+
+
+---
+## Train `torch` Model with `luz`
+
+- `luz::setup` is similar to `keras::compile`
+- Both packages have a nice `fit` function
+
+
+```{r torch-train}
+fitted <- net %>%
+  setup(
+    loss = nn_bce_with_logits_loss(),
+    optimizer = optim_adam,
+    metrics = list(
+      luz_metric_binary_accuracy_with_logits()
+    )
+  ) %>%
+  set_hparams(output_size = 1) %>%
+  set_opt_hparams(lr = 0.01) %>%
+  fit(train_dl, epochs = 3, valid_data = valid_dl)
+
+# Optional saving
+luz_save(fitted, "dogs-and-cats.pt")
+```
+
+---
+## Predicting with `torch`
+
+```{r torch-predict}
+preds <- predict(fitted, test_dl)
+
+probs <- torch_sigmoid(preds)
+print(probs, n = 5)
+```
+
+
+---
+class: inverse, middle
+# Takeaways
+
+---
+## Long story short
+
+- `nnet` is easy but very limited
+
+--
+
+- `keras` is convenient but very abstract
+
+--
+
+- `torch` is very flexible but more involved, ``
+
+--
+
+- `torch` is about as low-level as `tensorflow` but without the Python dependency
+
+
+---
+class: center, middle, thanks
+background-image: none
+
+## Thank you for your attention
+
+`r rmarkdown::metadata$slides`
+
+.pull-left[.right[
+.font150[**Contact**]  
+.bipsblue[`r rmarkdown::metadata$contactauthor`]  
+Leibniz Institute for Prevention Research and Epidemiology - BIPS GmbH  
+Achterstraße 30  
+D-28359 Bremen  
+.bipsblue[`r rmarkdown::metadata$contactemail`]
+]]
+.pull-right[
+
+```{r, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("bips-logo.png")
+```
+
+]
