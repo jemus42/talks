@@ -68,24 +68,25 @@ class: inverse, middle
 
 ## The Three Biggies
 
-1. `{nnet}`: The grandpa of neural networks in R.
+- `{nnet}`: The grandpa of neural networks in R.
 
     - Mostly historically relevant, less useful for state of the art tasks
-    - Limited to single-layer neural networks ("90s neural nets") 👴
+    - Limited to single-layer neural networks ("90s neural nets") 
     
 --
 
-2. `{keras}` (as interface to `{tensorflow}`): Established go-to framework.
+- `{keras}` (as interface to `{tensorflow}`): Established go-to framework.
 
     - You'll find *tons* of examples in `{keras}` 😁
     - You'll likely run into issues that lead to the underlying Python implementation 🙃
 
 --
 
-3. `{torch}`: New(ish) kid on the block, the one to keep an eye on (imo)
+- `{torch}` with `{luz}`: New kid on the block, the one to keep an eye on (imo)
 
     - R bindings to `libtorch` (C++), same backend as `PyTorch`
     - R package is still very young! Currently 0.4.0 👶
+    - `{luz}` for `keras`-like convenience
 
 ---
 class: inverse, middle
@@ -128,7 +129,7 @@ library(nnet)
 mod_nnet <- nnet(
   island ~ bill_length_mm + bill_depth_mm + flipper_length_mm + body_mass_g, 
   data = penguins_train,
-  size = 10 # 10 Units in the hidden layer
+  size = 10 # Units in the hidden layer
 )
 ```
 
@@ -183,9 +184,9 @@ class: inverse, middle
 
 - MNIST handwritten image classification
 - The "Hello World" of deep learning, apparently
-- 3D arrays of 60k images, 28x28 grayscale matrices (0-255)
+- 3D arrays of 60k images, 28x28 greyscale matrices (0-255)
 
--- 
+--
 
 ```{r keras-load-mnist}
 library(keras)
@@ -215,7 +216,7 @@ plot(as.raster(digit, max = 255))
 ]
 
 ---
-## Preprocessing
+## Preprocessing with `keras` (1)
 
 - Unpacking data from nested list via `%<-%` (`{zeallot}`)
 - Reshaping via `keras::array_reshape` (it's a long story)
@@ -231,7 +232,7 @@ test_images <- array_reshape(test_images, c(10000, 28 * 28))
 ```
 
 ---
-## Preprocessing (even more)
+## Preprocessing with `keras` (2)
 
 - Scale images to 0-1
 - Encode labels to categorical shapes (`keras::to_categorical`)
@@ -243,8 +244,8 @@ test_images <- array_reshape(test_images, c(10000, 28 * 28))
 train_images <- train_images / 255
 test_images <- test_images / 255
 
-train_labels <- to_categorical(train_labels)
-test_labels <- to_categorical(test_labels)
+train_labels <- to_categorical(train_labels) #<<
+test_labels <- to_categorical(test_labels)   #<<
 
 obs <- nrow(train_images)
 set.seed(123)
@@ -259,13 +260,14 @@ train_labels <- train_labels[randomize, ]
 - Define model either sequentially or with the functional API
 - `keras_model_sequential` is the easiest way to get started
 - `layer_dense` also defines activation function
+- Note: No spaces in the `name` or you'll get unhelpful errors 🙃
 
 ```{r keras-build-compile-1}
 # Number of input features
 n_feat <- ncol(train_images)
 
 # Define model architecture sequentially
-model <- keras_model_sequential(name = "MNIST MLP") %>%
+model <- keras_model_sequential(name = "MNIST-MLP") %>%
   layer_dense(units = 128, activation = "relu", input_shape = n_feat) %>%
   layer_dense(units = 64, activation = "relu") %>%
   layer_dense(units = 10, activation = "softmax", name = "Output")
@@ -275,7 +277,7 @@ model <- keras_model_sequential(name = "MNIST MLP") %>%
 ## Compile a `keras`  Model
 
 - Defines loss function, optimizer (with parameters), and other metrics
-- Use either `"adam"` or `optimizer_adam()` to set parameters
+- Use either `"adam"` *or* `optimizer_adam(...)` and set parameters
 
 --
 
@@ -300,6 +302,7 @@ summary(model)
 
 - Supply training images and labels (distinct, no formula interface)
 - Set number of `epochs`, `batch_size`, ...
+- Save training `history` for inspection
 
 --
 
@@ -308,10 +311,7 @@ history <- model %>% fit(
   x = train_images, y = train_labels,
   epochs = 5,             # Very short run
   batch_size = 64,        # Big batches for faster training
-  validation_split = 0.2, # Common default
-  # Suppress interactive output here
-  verbose = FALSE,
-  view_metrics = FALSE
+  validation_split = 0.2
 )
 ```
 
@@ -320,7 +320,7 @@ history <- model %>% fit(
 
 .pull-left[
 
-Interactively, you'll get a live-updating plots 😎
+Interactively, you'll get a live-updating plot 😎
 
 ```{r keras-view-history1, eval=FALSE}
 plot(history) +
@@ -343,7 +343,7 @@ plot(history) +
 ]
 
 ---
-## Evaluate a Model
+## Evaluate a `keras` Model
 
 - Very simple to get relevant metrics
 
@@ -367,7 +367,7 @@ class: inverse, middle
 ---
 ## Example Task: Cats and Dogs
 
-```{r}
+```{r torch-pkgs}
 library(torch)
 library(torchvision)
 library(torchdatasets)
@@ -376,7 +376,7 @@ library(luz)
 
 - Using a kaggle dataset requires account + phone verification!
 
-```{r torch-catdog-data, echo=FALSE}
+```{r torch-catdog-data, eval=FALSE}
 ds <- torchdatasets::dogs_vs_cats_dataset(
   root = "data",
   token = "~/.kaggle/kaggle.json",
@@ -391,31 +391,38 @@ ds <- torchdatasets::dogs_vs_cats_dataset(
 ---
 ## Preprocessing in `torch`
 
-- Shuffle training data, split 80/20
-- `dataloaders` created from data for efficient loading
+- Shuffle training data, split train/test
+- `dataset_subset` for syntax sugar
+- `dataloader` created from data for efficiency
 
-```{r torch-dataset}
+```{r torch-dataset, eval=FALSE}
 train_ids <- sample(1:length(ds), size = 0.6 * length(ds))
 valid_ids <- sample(setdiff(1:length(ds), train_ids), size = 0.2 * length(ds))
 test_ids <- setdiff(1:length(ds), union(train_ids, valid_ids))
 
-train_ds <- dataset_subset(ds, indices = train_ids)
+train_ds <- dataset_subset(ds, indices = train_ids) #<<
 valid_ds <- dataset_subset(ds, indices = valid_ids)
 test_ds <- dataset_subset(ds, indices = test_ids)
 
-train_dl <- dataloader(train_ds, batch_size = 64, shuffle = TRUE, num_workers = 4)
+train_dl <- dataloader(train_ds, batch_size = 64, shuffle = TRUE, num_workers = 4) #<<
 valid_dl <- dataloader(valid_ds, batch_size = 64, num_workers = 4)
 test_dl <- dataloader(test_ds, batch_size = 64, num_workers = 4)
 ```
 
 ---
-## Building a `torch` Model with `luz`
+## Build `torch` Model with `luz`
 
-- Network components are `modules` in `torch`
-- Plugging in a pre-trained model is easy(ish)
+.pull-left[
+
+- Network components are called `modules` in `{torch}`
+- Plugging in a pre-trained model is easy(ish), where we disable gradients
 - Sequential layers similar to `keras` are a `luz` bonus 😎
 
-```{r torch-model}
+]
+
+.pull-right[
+
+```{r torch-model, eval=FALSE}
 net <- nn_module(
   initialize = function(output_size) {
     self$model <- model_alexnet(pretrained = TRUE)
@@ -437,6 +444,7 @@ net <- nn_module(
 )
 ```
 
+]
 
 ---
 ## Train `torch` Model with `luz`
@@ -444,20 +452,20 @@ net <- nn_module(
 - `luz::setup` is similar to `keras::compile`
 - Both packages have a nice `fit` function
 
-
-```{r torch-train}
+```{r torch-train, eval=FALSE}
 fitted <- net %>%
   setup(
-    loss = nn_bce_with_logits_loss(),
-    optimizer = optim_adam,
-    metrics = list(
-      luz_metric_binary_accuracy_with_logits()
-    )
+    loss = nn_bce_with_logits_loss(), #<<
+    optimizer = optim_adam,           #<<
+    metrics = list(luz_metric_binary_accuracy_with_logits())
   ) %>%
-  set_hparams(output_size = 1) %>%
-  set_opt_hparams(lr = 0.01) %>%
-  fit(train_dl, epochs = 3, valid_data = valid_dl)
+  set_hparams(output_size = 1) %>% # param for initialize method
+  set_opt_hparams(lr = 0.01) %>% # params for optimizer (adam)
+  fit(train_dl, epochs = 3, valid_data = valid_dl) #<<
+```
 
+
+```{r luz-save, eval=FALSE, include=FALSE}
 # Optional saving
 luz_save(fitted, "dogs-and-cats.pt")
 ```
@@ -465,7 +473,15 @@ luz_save(fitted, "dogs-and-cats.pt")
 ---
 ## Predicting with `torch`
 
-```{r torch-predict}
+- `predict` works as usual
+- Sigmoid-transformation required to get probabilities
+
+```{r luz-load, include=FALSE, eval=FALSE}
+fitted <- luz_load("dogs-and-cats.pt")
+```
+
+
+```{r torch-predict, eval=FALSE}
 preds <- predict(fitted, test_dl)
 
 probs <- torch_sigmoid(preds)
@@ -478,22 +494,49 @@ class: inverse, middle
 # Takeaways
 
 ---
+class: middle
+
 ## Long story short
 
 - `nnet` is easy but very limited
 
 --
 
-- `keras` is convenient but very abstract
+    - Ideal for "I just want to train **some** neural nets"
 
 --
 
-- `torch` is very flexible but more involved, ``
+- `{tensorflow}` and `{keras}` are established, very powerful, lots of examples available
 
 --
 
-- `torch` is about as low-level as `tensorflow` but without the Python dependency
+    - The Python dependency can cause headaches 
 
+--
+
+- `{torch}` and `{luz}` are very young, but also very promising
+
+--
+
+    - No Python dependency, less (or less painful) headaches 🙏🏻 
+
+--
+
+    - More assembly required than with `{keras}`, can be a good or a bad thing
+
+
+---
+class: middle
+
+## References
+
+- `{keras}` example: https://tensorflow.rstudio.com/guide/keras/examples/mnist_mlp/
+
+    - All things `{keras}` at https://keras.rstudio.com/ (Documentation may lag behind Pythin version 😕)
+
+- `{luz}` example: https://blogs.rstudio.com/ai/posts/2021-06-17-luz/
+
+    - All things `{torch}` at https://mlverse.github.io/ (Very much in movement!)
 
 ---
 class: center, middle, thanks
