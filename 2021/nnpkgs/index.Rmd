@@ -1,11 +1,11 @@
 ---
 title: "Neural Network Packages in R"
-subtitle: "Wiesbaden UseR Coffee Break" # e.g. the occasion
-author: "Lukas Burk" # For the title slide
-slides: "http://slides.lukasburk.de/2021/nnpkgs"
-contactauthor: "Lukas Burk" # For the last slide
-contactemail: "burk@leibniz-bips.de" # For the last slide
-date: "2021-06-30" # Automatically evaluates to today
+subtitle: "Wiesbaden UseR Coffee Break"
+author: "Lukas Burk"
+slides: "https://slides.lukasburk.de/2021/nnpkgs"
+contactauthor: "Lukas Burk"
+contactemail: "burk@leibniz-bips.de"
+date: "2021-06-30"
 output:
   xaringan::moon_reader:
     css: [bips.css, default]
