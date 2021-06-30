@@ -35,13 +35,13 @@ class: center, middle, inverse, title-slide
 
 class: middle
 
-## Hi 👋
+## Hi, I'm Lukas 👋
 
-- Lukas, fresh PhD student @ BIPS Bremen &amp; LMU München (Since April '21) 
+- Fresh PhD student @ BIPS Bremen &amp; LMU München (Since April '21) 
 
 --
 
-- Context: Something something biostatistics / {M,D}L / Data Science
+- Context: Biostatistics / {M,D}L / Data Science
 
 --
 
@@ -62,7 +62,7 @@ class: inverse, middle
 
 - `{nnet}`: The grandpa of neural networks in R.
 
-    - Mostly historically relevant, less useful for state of the art tasks
+    - Mostly historically relevant, less useful for modern tasks
     - Limited to single-layer neural networks ("90s neural nets") 
     
 --
@@ -101,27 +101,28 @@ head(penguins)
 ## # A tibble: 6 x 8
 ##   species island bill_length_mm bill_depth_mm flipper_length_… body_mass_g sex  
 ##   &lt;fct&gt;   &lt;fct&gt;           &lt;dbl&gt;         &lt;dbl&gt;            &lt;int&gt;       &lt;int&gt; &lt;fct&gt;
-## 1 Adelie  Dream            36            17.9              190        3450 fema…
-## 2 Gentoo  Biscoe           46.9          14.6              222        4875 fema…
-## 3 Chinst… Dream            50.9          17.9              196        3675 fema…
-## 4 Gentoo  Biscoe           49.4          15.8              216        4925 male 
-## 5 Adelie  Dream            36.9          18.6              189        3500 fema…
-## 6 Gentoo  Biscoe           50.5          15.9              225        5400 male 
+## 1 Gentoo  Biscoe           46.2          14.5              209        4800 fema…
+## 2 Gentoo  Biscoe           44.5          14.7              214        4850 fema…
+## 3 Gentoo  Biscoe           45.1          14.4              210        4400 fema…
+## 4 Adelie  Dream            40.3          18.5              196        4350 male 
+## 5 Chinst… Dream            45.2          16.6              191        3250 fema…
+## 6 Adelie  Dream            40.8          18.4              195        3900 male 
 ## # … with 1 more variable: year &lt;int&gt;
 ```
 
 ---
 ## Penguin Preparation
 
-- Common 80/20 train-test-split
-- Scaling, to be nice to our gradients 🤗
+- 80/20 train-test-split
+
+- Scaling for more manageable gradients
 
 
 ```r
-penguins_train &lt;- penguins[1:276, ]  # ~80%
+*penguins_train &lt;- penguins[1:276, ]  # ~80%
 penguins_test &lt;- penguins[277:344, ] # ~20%
 
-penguins_train &lt;- penguins_train %&gt;% mutate(across(where(is.numeric), scale))
+*penguins_train &lt;- penguins_train %&gt;% mutate(across(where(is.numeric), scale))
 penguins_test &lt;- penguins_test %&gt;% mutate(across(where(is.numeric), scale))
 ```
 
@@ -129,48 +130,33 @@ penguins_test &lt;- penguins_test %&gt;% mutate(across(where(is.numeric), scale)
 ## Model Fit with `nnet`
 
 - Familiar formula interface 👌 
-- No manual re-encoding of `factor` variable needed 👍
+- Automatic handling of `factor` variables 👍
+- Similar to `lm()` and friends
 
 
 ```r
 library(nnet)
 mod_nnet &lt;- nnet(
-  island ~ bill_length_mm + bill_depth_mm + flipper_length_mm + body_mass_g, 
+* island ~ bill_length_mm + bill_depth_mm + flipper_length_mm + body_mass_g,
   data = penguins_train,
-  size = 10 # Units in the hidden layer
+* size = 10,    # Units in the hidden layer
+  trace = FALSE # Shut up about it
 )
 ```
 
-```
-## # weights:  83
-## initial  value 394.348405 
-## iter  10 value 141.996620
-## iter  20 value 117.959218
-## iter  30 value 100.424258
-## iter  40 value 90.575148
-## iter  50 value 82.155739
-## iter  60 value 79.133002
-## iter  70 value 78.781438
-## iter  80 value 78.311187
-## iter  90 value 77.399593
-## iter 100 value 77.281558
-## final  value 77.281558 
-## stopped after 100 iterations
-```
+
 
 ---
-## Prediction with `nnet`
+## Predictions with `nnet`
 
-- Same familiar `predict` function
+- No surprises here
 
 
 ```r
-pred_data &lt;- penguins_test %&gt;% select(island, bill_length_mm:body_mass_g)
-
-island_pred &lt;- predict(
-  mod_nnet,
-  newdata = select(pred_data, bill_length_mm:body_mass_g),
-  type = "class"
+*island_pred &lt;- predict(
+  mod_nnet, 
+* type = "class",
+  newdata = select(penguins_test, bill_length_mm:body_mass_g)
 )
 
 # Individual class predictions
@@ -178,51 +164,7 @@ island_pred[1:5]
 ```
 
 ```
-## [1] "Dream"     "Dream"     "Dream"     "Dream"     "Torgersen"
-```
-
----
-## Evaluating `nnet` Models (1)
-
-- Add our predictions to the original data for a glance
-
-
-```r
-pred_data %&gt;%
-  mutate(
-    island_pred = island_pred, .before = island,
-  ) %&gt;%
-  head(8)
-```
-
-```
-## # A tibble: 8 x 6
-##   island_pred island    bill_length_mm[,1] bill_depth_mm[,… flipper_length_mm[,…
-##   &lt;chr&gt;       &lt;fct&gt;                  &lt;dbl&gt;            &lt;dbl&gt;                &lt;dbl&gt;
-## 1 Dream       Dream                 -0.147            0.626               -0.532
-## 2 Dream       Dream                  1.64             1.40                 0.342
-## 3 Dream       Torgersen             -0.668           -0.201               -1.61 
-## 4 Dream       Torgersen             -1.19             1.12                -1.07 
-## 5 Torgersen   Biscoe                -1.57             0.295               -0.667
-## 6 Dream       Dream                  0.860            1.18                 0.679
-## 7 Dream       Biscoe                -1.33            -0.146               -1.07 
-## 8 Biscoe      Biscoe                 0.964           -0.753                1.69 
-## # … with 1 more variable: body_mass_g &lt;dbl[,1]&gt;
-```
-
----
-## Evaluating `nnet` Models (2)
-
-- Manual accuracy calculation
-- Nicer infrastructure might be available elsewhere?
-
-
-```r
-sum(pred_data$island == island_pred) / length(island_pred)
-```
-
-```
-## [1] 0.6323529
+## [1] "Biscoe" "Dream"  "Biscoe" "Biscoe" "Dream"
 ```
 
 
@@ -233,8 +175,10 @@ class: inverse, middle
 ---
 ## Example Task: MNIST
 
-- MNIST handwritten image classification
-- The "Hello World" of deep learning, apparently
+- Handwritten image recognition
+
+- The "Hello World" of deep learning
+
 - 3D arrays of 60k images, 28x28 greyscale matrices (0-255)
 
 --
@@ -242,6 +186,7 @@ class: inverse, middle
 
 ```r
 library(keras)
+
 mnist &lt;- dataset_mnist()
 str(mnist)
 ```
@@ -277,16 +222,16 @@ plot(as.raster(digit, max = 255))
 ]
 
 .pull-right[
-&lt;img src="index_files/figure-html/unnamed-chunk-3-1.png" width="504" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/mnist-digit-1.png" width="504" style="display: block; margin: auto;" /&gt;
 
 ]
 
 ---
 ## Preprocessing with `keras` (1)
 
-- Unpacking data from nested list via `%&lt;-%` (`{zeallot}`)
-- Reshaping via `keras::array_reshape` (it's a long story)
-- Images are matrices with 28x28 = 784 columns
+- Reshaping via `keras::array_reshape()`
+
+- Images are a matrix with 28x28 = **784 colums**, one row per image
 
 --
 
@@ -294,7 +239,7 @@ plot(as.raster(digit, max = 255))
 ```r
 c(c(train_images, train_labels), c(test_images, test_labels)) %&lt;-% mnist
 
-train_images &lt;- array_reshape(train_images, c(60000, 28 * 28))
+*train_images &lt;- array_reshape(train_images, c(60000, 28 * 28))
 test_images &lt;- array_reshape(test_images, c(10000, 28 * 28))
 ```
 
@@ -302,61 +247,56 @@ test_images &lt;- array_reshape(test_images, c(10000, 28 * 28))
 ## Preprocessing with `keras` (2)
 
 - Scale images to 0-1
-- Encode labels to categorical shapes (`keras::to_categorical`)
-- Shuffle training data for good measure
 
---
+- Encode labels to categorical shapes (`keras::to_categorical`)
+
 
 
 ```r
-train_images &lt;- train_images / 255
+*train_images &lt;- train_images / 255
 test_images &lt;- test_images / 255
 
 *train_labels &lt;- to_categorical(train_labels)
-*test_labels &lt;- to_categorical(test_labels)
-
-obs &lt;- nrow(train_images)
-set.seed(123)
-randomize &lt;- sample(seq_len(obs), size = obs, replace = FALSE)
-train_images &lt;- train_images[randomize, ]
-train_labels &lt;- train_labels[randomize, ]
+test_labels &lt;- to_categorical(test_labels)
 ```
+
+
+
 
 ---
 ## Build a Model in `keras`
 
-- Define model either sequentially or with the functional API
 - `keras_model_sequential` is the easiest way to get started
+
 - `layer_dense` also defines activation function
-- Note: No spaces in the `name` or you'll get unhelpful errors 🙃
+
 
 
 ```r
-# Number of input features
-n_feat &lt;- ncol(train_images)
-
-# Define model architecture sequentially
 model &lt;- keras_model_sequential(name = "MNIST-MLP") %&gt;%
-  layer_dense(units = 128, activation = "relu", input_shape = n_feat) %&gt;%
-  layer_dense(units = 64, activation = "relu") %&gt;%
-  layer_dense(units = 10, activation = "softmax", name = "Output")
+* layer_dense(units = 64, activation = "relu", input_shape = 784) %&gt;%
+  layer_dropout(rate = 0.2) %&gt;%
+  layer_dense(units = 32, activation = "relu") %&gt;%
+  layer_dropout(rate = 0.2) %&gt;%
+* layer_dense(units = 10, activation = "softmax", name = "Output")
 ```
 
+.footnote[Note: No spaces in the `name` or you'll get unhelpful errors 🙃]
+
 ---
-## Compile a `keras`  Model
+## `compile()` a `keras`  Model
 
 - Defines loss function, optimizer (with parameters), and other metrics
+
 - Use either `"adam"` *or* `optimizer_adam(...)` and set parameters
 
---
 
 
 ```r
-# Compile: Loss, optimizer, metrics
 model %&gt;% compile(
-  loss = "categorical_crossentropy",
-  optimizer = "adam",
-  metrics = "accuracy"
+* loss = "categorical_crossentropy",
+* optimizer = "adam",
+  metrics = "accuracy" # Optional
 )
 ```
 
@@ -370,86 +310,113 @@ summary(model)
 
 ```
 ## Model: "MNIST-MLP"
-## ________________________________________________________________________________
-## Layer (type)                        Output Shape                    Param #     
-## ================================================================================
-## dense_1 (Dense)                     (None, 128)                     100480      
-## ________________________________________________________________________________
-## dense (Dense)                       (None, 64)                      8256        
-## ________________________________________________________________________________
-## Output (Dense)                      (None, 10)                      650         
-## ================================================================================
-## Total params: 109,386
-## Trainable params: 109,386
+## _________________________________________________________________________________________________________________________
+## Layer (type)                                          Output Shape                                    Param #            
+## =========================================================================================================================
+## dense_1 (Dense)                                       (None, 64)                                      50240              
+## _________________________________________________________________________________________________________________________
+## dropout_1 (Dropout)                                   (None, 64)                                      0                  
+## _________________________________________________________________________________________________________________________
+## dense (Dense)                                         (None, 32)                                      2080               
+## _________________________________________________________________________________________________________________________
+## dropout (Dropout)                                     (None, 32)                                      0                  
+## _________________________________________________________________________________________________________________________
+## Output (Dense)                                        (None, 10)                                      330                
+## =========================================================================================================================
+## Total params: 52,650
+## Trainable params: 52,650
 ## Non-trainable params: 0
-## ________________________________________________________________________________
+## _________________________________________________________________________________________________________________________
 ```
 
 ---
 ## Fit a `keras` Model
 
 - Supply training images and labels (distinct, no formula interface)
+
 - Set number of `epochs`, `batch_size`, ...
+
 - Save training `history` for inspection
 
---
 
 
 ```r
-history &lt;- model %&gt;% fit(
-  x = train_images, y = train_labels,
-  epochs = 5,             # Very short run
-  batch_size = 64,        # Big batches for faster training
-  validation_split = 0.2
-)
+history &lt;- model %&gt;% 
+* fit(
+*   x = train_images, y = train_labels,
+*   epochs = 3,             # Very short run
+    batch_size = 128,        # Big batches for faster training
+    validation_split = 0.2
+  )
 ```
 
 ---
-## Look at the Model Fit
+## Look at the Training History
 
 .pull-left[
 
-Interactively, you'll get a live-updating plot 😎
+- Interactively, you'll get a live-updating plot 😎
+
+- `history` can has a helpful `plot` method for `{ggplot2}`
 
 
 ```r
-plot(history) +
-  geom_path() +
-  theme_minimal() +
-  theme(legend.position = "top")
+plot(history)
 ```
 
 ]
 
 .pull-right[
 
-&lt;img src="index_files/figure-html/keras-view-history2-1.png" width="504" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/keras-view-history2-1.png" width="85%" style="display: block; margin: auto;" /&gt;
 
 ]
 
 ---
 ## Evaluate a `keras` Model
 
+.pull-left[
+
 - Very simple to get relevant metrics
 
 
 ```r
-model %&gt;% evaluate(test_images, test_labels, verbose = FALSE)
+model %&gt;% 
+  evaluate(
+    test_images, test_labels, 
+    verbose = FALSE
+  )
 ```
 
 ```
-##       loss   accuracy 
-## 0.08540654 0.97420001
+## $loss
+## [1] 0.153862
+## 
+## $accuracy
+## [1] 0.9545
 ```
+
+]
+
+--
+
+.pull-right[
 
 - Further investigation via e.g. a confusion matrix
 
 
 ```r
-predictions &lt;- model %&gt;% predict_classes(test_images)
+preds &lt;- model %&gt;% 
+* predict_classes(test_images)
+
 actual &lt;- mnist$test$y
-caret::confusionMatrix(factor(predictions), factor(actual))
+caret::confusionMatrix(
+  factor(preds), 
+  factor(actual)
+)
 ```
+
+]
 
 
 ---
@@ -471,10 +438,10 @@ library(luz)
 
 
 ```r
-ds &lt;- torchdatasets::dogs_vs_cats_dataset(
+*ds &lt;- torchdatasets::dogs_vs_cats_dataset(
   root = "data",
-  token = "~/.kaggle/kaggle.json",
-  transform = . %&gt;%
+* token = "~/.kaggle/kaggle.json",
+* transform = . %&gt;%
     torchvision::transform_to_tensor() %&gt;%
     torchvision::transform_resize(size = c(224, 224)) %&gt;% 
     torchvision::transform_normalize(rep(0.5, 3), rep(0.5, 3)),
@@ -510,55 +477,65 @@ test_dl &lt;- dataloader(test_ds, batch_size = 64, num_workers = 4)
 .pull-left[
 
 - Network components are called `modules` in `{torch}`
-- Plugging in a pre-trained model is easy(ish), where we disable gradients
+
+- Plugging in a pre-trained model is easy(ish)
+
 - Sequential layers similar to `keras` are a `luz` bonus 😎
 
 ]
 
+--
+
 .pull-right[
+
+.code70[
 
 
 ```r
-net &lt;- nn_module(
-  initialize = function(output_size) {
+*net &lt;- nn_module(
+* initialize = function(output_size) {
     self$model &lt;- model_alexnet(pretrained = TRUE)
-    
     for (par in self$parameters) par$requires_grad_(FALSE)
     
-    self$model$classifier &lt;- nn_sequential(
+*   self$model$classifier &lt;- nn_sequential(
       nn_dropout(0.5),
-      nn_linear(9216, 512),
-      nn_relu(),
+*     nn_linear(9216, 512),
+*     nn_relu(),
       nn_linear(512, 256),
       nn_relu(),
       nn_linear(256, output_size)
     )
   },
-  forward = function(x) {
+* forward = function(x) {
     self$model(x)[,1]
   }
 )
 ```
 
 ]
+]
 
 ---
 ## Train `torch` Model with `luz`
 
 - `luz::setup` is similar to `keras::compile`
-- Both packages have a nice `fit` function
+
+- Both packages have a nice `fit` method
 
 
 ```r
 fitted &lt;- net %&gt;%
-  setup(
+* setup(
 *   loss = nn_bce_with_logits_loss(),
 *   optimizer = optim_adam,
     metrics = list(luz_metric_binary_accuracy_with_logits())
   ) %&gt;%
   set_hparams(output_size = 1) %&gt;% # param for initialize method
   set_opt_hparams(lr = 0.01) %&gt;% # params for optimizer (adam)
-* fit(train_dl, epochs = 3, valid_data = valid_dl)
+* fit(
+*   data = train_dl, valid_data = valid_dl
+    epochs = 3
+  )
 ```
 
 
@@ -568,7 +545,8 @@ fitted &lt;- net %&gt;%
 ## Predicting with `torch`
 
 - `predict` works as usual
-- Sigmoid-transformation required to get probabilities
+
+- Explicit sigmoid-transformation required to get class-probabilities
 
 
 
@@ -577,8 +555,7 @@ fitted &lt;- net %&gt;%
 ```r
 preds &lt;- predict(fitted, test_dl)
 
-probs &lt;- torch_sigmoid(preds)
-print(probs, n = 5)
+*probs &lt;- torch_sigmoid(preds)
 ```
 
 
@@ -612,9 +589,6 @@ class: middle
 --
 
     - No Python dependency, less (or less painful) headaches 🙏🏻 
-
---
-
     - More assembly required than with `{keras}`, can be a good or a bad thing
 
 
@@ -625,11 +599,13 @@ class: middle
 
 - `{keras}` example: https://tensorflow.rstudio.com/guide/keras/examples/mnist_mlp/
 
-    - All things `{keras}` at https://keras.rstudio.com/ (Documentation may lag behind Pythin version 😕)
+    - All things `{keras}` at https://keras.rstudio.com/  
+    (Documentation may lag behind Python version 😕)
 
 - `{luz}` example: https://blogs.rstudio.com/ai/posts/2021-06-17-luz/
 
-    - All things `{torch}` at https://mlverse.github.io/ (Very much in movement!)
+    - All things `{torch}` at https://mlverse.github.io/  
+    (Very much in active development!)
 
 ---
 class: center, middle, thanks
@@ -637,7 +613,7 @@ background-image: none
 
 ## Thank you for your attention
 
-https://jemus42.github.io/talks/2021/nnpkgs/
+http://slides.lukasburk.de/2021/nnpkgs
 
 .pull-left[.right[
 .font150[**Contact**]  
