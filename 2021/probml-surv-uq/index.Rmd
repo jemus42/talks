@@ -177,7 +177,7 @@ class: middle, center
 --
 
 $$\begin{align}
-\lambda(t) &:= \lim_{\Delta t \to 0} \frac{\mathrm{Pr}(t \leq T < \Delta t\ |\ T \geq t)}{\Delta t}
+\color{red}{\lambda(t)} &:= \lim_{\Delta t \to 0} \frac{\mathrm{Pr}(t \leq T < \Delta t\ |\ T \geq t)}{\Delta t}
 \end{align}$$
 
 --
@@ -188,7 +188,7 @@ $$\begin{align}
 
 Hazard gives us $S(t)$
 
-$$S(t) = \exp\left(-\int_0^t \lambda(u) \mathrm{d}u\right)$$
+$$S(t) = \exp\left(-\int_0^t \color{red}{\lambda(u)} \mathrm{d}u\right)$$
 
 ]
 
@@ -199,7 +199,7 @@ $$S(t) = \exp\left(-\int_0^t \lambda(u) \mathrm{d}u\right)$$
 ...And even $f(t)$
 
 $$
-f(t) = \lambda(t) \exp\left(-\int_0^t \lambda(u) \mathrm{d}u\right)
+f(t) = \color{red}{\lambda(t)} \exp\left(-\int_0^t \color{red}{\lambda(u)} \mathrm{d}u\right)
 $$
 ...Which lets us construct a Likelihood
 
