@@ -5,8 +5,9 @@ author: "Lukas Burk" # For the title slide
 date: "2021-07-02" # Automatically evaluates to today
 output:
   xaringan::moon_reader:
-    css: [bips.css, default]
-    lib_dir: libs
+    # css: [bips.css, default]
+    css: [xaringan-themer.css, custom-sizing.css]
+    lib_dir: js
     nature:
       beforeInit: macros.js
       highlightStyle: github
@@ -19,23 +20,34 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-# This chunk is not visible in the presentation
-# Use it to set up misc. options for your code/output
-
-# knitr chunk options for all chunks
 knitr::opts_chunk$set(
-  echo = FALSE,          # Set FALSE to hide R code
-  warning = FALSE,      # Don't show warnings from R code
-  dev = "ragg_png",     # Higher quality png graphics device
-  fig.align = "center", # Centered plots (recommended)
+  echo = FALSE,
+  warning = FALSE,
+  dev = "ragg_png",
+  fig.align = "center",
   fig.retina = 2,
   fig.height = 5,
   fig.width = 7
 )
 
+library(xaringanthemer)
+style_mono_accent(
+  base_color = "#006633",
+  header_font_google = google_font("Lato"),
+  text_font_google   = google_font("Source Sans Pro", "400", "400i"),
+  code_font_google   = google_font("Fira Mono"),
+  header_color = lighten_color("#006633", strength = .2),
+  link_color = lighten_color("#006633", strength = .5),
+  base_font_size = "25px",
+  black_color = "#0A0A0A"
+)
+
 # xaringanExtra features, see https://pkg.garrickadenbuie.com/xaringanExtra/
 xaringanExtra::use_xaringan_extra(
   c("tile_view", "panelset")
+)
+xaringanExtra::use_progress_bar(
+  color = "red", location = "bottom", height = "10px"
 )
 
 library(survival)
@@ -44,7 +56,7 @@ library(tidyverse)
 library(kableExtra)
 
 theme_local <- function(...) {
-  theme_minimal(base_size = 14) +
+  theme_xaringan() +
   theme(
     axis.line = element_line(color = "black"),
     panel.grid.major = element_blank(),
@@ -156,7 +168,7 @@ veteran %>%
 
 ---
 
-```{r survplot-full}
+```{r survplot-full, fig.height = 9, fig.width = 9, out.width = "45%"}
 veteranmod <- survfit(Surv(time, status) ~ trt, data = veteran)
 ggsurvplot(
   veteranmod, 
