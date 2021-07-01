@@ -1,0 +1,206 @@
+---
+title: "Survival Analysis"
+subtitle: "It's Uncertainty All the Way Down" # e.g. the occasion
+author: "Lukas Burk" # For the title slide
+date: "2021-07-02" # Automatically evaluates to today
+output:
+  xaringan::moon_reader:
+    css: [bips.css, default]
+    lib_dir: libs
+    nature:
+      beforeInit: macros.js
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      slideNumberFormat: "%current%" # Only show current slide number
+      ratio: "16:9" # Use "4:3" for old projectors etc.
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+# This chunk is not visible in the presentation
+# Use it to set up misc. options for your code/output
+
+# knitr chunk options for all chunks
+knitr::opts_chunk$set(
+  echo = FALSE,          # Set FALSE to hide R code
+  warning = FALSE,      # Don't show warnings from R code
+  dev = "ragg_png",     # Higher quality png graphics device
+  fig.align = "center", # Centered plots (recommended)
+  fig.retina = 2,
+  fig.height = 5,
+  fig.width = 7
+)
+
+# xaringanExtra features, see https://pkg.garrickadenbuie.com/xaringanExtra/
+xaringanExtra::use_xaringan_extra(
+  c("tile_view", "panelset")
+)
+
+library(survival)
+library(survminer)
+library(tidyverse)
+library(kableExtra)
+
+theme_local <- function(...) {
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.line = element_line(color = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    ...
+  )
+}
+
+veteran <- veteran %>%
+  mutate(id = row_number()) %>%
+  tibble::remove_rownames()
+```
+
+layout: true
+## Survival Data
+
+.pull-left[
+
+```{r faux-survtbl}
+veteran %>%
+  group_by(status) %>%
+  slice_head(n = 4) %>%
+  ungroup() %>%
+  arrange(id) %>%
+  select(id, time, trt, age) %>%
+  kable() %>%
+  kable_styling() %>%
+  column_spec(2, bold = TRUE)
+```
+
+]
+
+---
+
+--
+
+- `time` looks like a continuous variable
+
+--
+
+- Seems fine 🧐
+
+--
+
+- That's because this is a lie 😭
+
+
+---
+layout: true 
+## Actual Survival Data
+
+.pull-left[
+
+```{r actual-survtbl}
+veteran %>%
+  group_by(status) %>%
+  slice_head(n = 4) %>%
+  arrange(id) %>%
+  select(id, time, status, trt, age) %>%
+  head() %>%
+  mutate(
+    status = cell_spec(status, color = ifelse(status == 0, "red", "black"))
+  ) %>%
+  kable(escape = FALSE) %>%
+  kable_styling() %>%
+  column_spec(2, bold = TRUE) %>%
+  column_spec(3, bold = TRUE)
+```
+
+]
+
+---
+
+--
+
+```{r cumfplot}
+veteran <- veteran %>%
+  arrange(time) %>%
+  mutate(
+    Fhat = cumsum(time)/sum(time),
+    Shat = 1 - Fhat
+  )
+
+veteran %>%
+  ggplot(aes(x = time, y = Fhat)) +
+  geom_step(size = 1.5) +
+  labs(
+    x = "Time",
+    y = expression(hat(F)(t))
+  ) +
+  theme_local()
+```
+
+---
+
+$$S(t) := 1 - F(t)$$
+
+```{r survplot}
+veteran %>%
+  ggplot(aes(x = time, y = Shat)) +
+  geom_step(size = 1.5) +
+  labs(
+    x = "Time",
+    y = expression(hat(S)(t))
+  ) +
+  theme_local()
+```
+
+---
+
+```{r survplot-full}
+veteranmod <- survfit(Surv(time, status) ~ trt, data = veteran)
+ggsurvplot(
+  veteranmod, 
+  data = veteran,
+  conf.int = TRUE,
+  palette = "Dark2",
+  ggtheme = theme_local(),
+  surv.median.line = "hv",
+  risk.table = "absolute"
+)
+```
+
+
+---
+layout: false
+class: middle, center
+## Estimating Hazards Instead
+
+--
+
+$$\begin{align}
+\lambda(t) &:= \lim_{\Delta t \to 0} \frac{\mathrm{Pr}(t \leq T < \Delta t\ |\ T \geq t)}{\Delta t}
+\end{align}$$
+
+--
+
+![:vspace 5]
+
+.pull-left[
+
+Hazard gives us $S(t)$
+
+$$S(t) = \exp\left(-\int_0^t \lambda(u) \mathrm{d}u\right)$$
+
+]
+
+--
+
+.pull-right[
+
+...And even $f(t)$
+
+$$
+f(t) = \lambda(t) \exp\left(-\int_0^t \lambda(u) \mathrm{d}u\right)
+$$
+...Which lets us construct a Likelihood
+
+]
