@@ -53,9 +53,11 @@ theme_local <- function(...) {
   )
 }
 
+set.seed(1)
 veteran <- veteran %>%
   mutate(id = row_number()) %>%
-  tibble::remove_rownames()
+  tibble::remove_rownames() %>%
+  slice_sample(prop = 1)
 ```
 
 layout: true
@@ -104,7 +106,6 @@ veteran %>%
   slice_head(n = 4) %>%
   arrange(id) %>%
   select(id, time, status, trt, age) %>%
-  head() %>%
   mutate(
     status = cell_spec(status, color = ifelse(status == 0, "red", "black"))
   ) %>%
@@ -196,11 +197,9 @@ $$S(t) = \exp\left(-\int_0^t \color{red}{\lambda(u)} \mathrm{d}u\right)$$
 
 .pull-right[
 
-...And even $f(t)$
+...and also $f(t)$
 
 $$
 f(t) = \color{red}{\lambda(t)} \exp\left(-\int_0^t \color{red}{\lambda(u)} \mathrm{d}u\right)
 $$
-...Which lets us construct a Likelihood
-
 ]
