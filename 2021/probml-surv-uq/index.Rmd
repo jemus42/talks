@@ -9,7 +9,7 @@ output:
     css: [xaringan-themer.css, custom-sizing.css]
     lib_dir: js
     nature:
-      beforeInit: macros.js
+      beforeInit: [macros.js, progress.js]
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
@@ -30,6 +30,7 @@ knitr::opts_chunk$set(
   fig.width = 7
 )
 
+# remotes::install_github("gadenbuie/xaringanthemer")
 library(xaringanthemer)
 style_mono_accent(
   base_color = "#006633",
@@ -45,9 +46,6 @@ style_mono_accent(
 # xaringanExtra features, see https://pkg.garrickadenbuie.com/xaringanExtra/
 xaringanExtra::use_xaringan_extra(
   c("tile_view", "panelset")
-)
-xaringanExtra::use_progress_bar(
-  color = "red", location = "bottom", height = "10px"
 )
 
 library(survival)
@@ -215,3 +213,10 @@ $$
 f(t) = \color{red}{\lambda(t)} \exp\left(-\int_0^t \color{red}{\lambda(u)} \mathrm{d}u\right)
 $$
 ]
+
+
+```{r xe-progress, echo=FALSE}
+# Doesn't work if it's in an include=FALSE chunk
+# Creates unwanted space when included at the beginning
+xaringanExtra::use_progress_bar(color = "#006633", location = "bottom", height = "1px")
+```

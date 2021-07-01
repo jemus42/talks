@@ -10,9 +10,9 @@
     <script src="js/tile-view-0.2.6/tile-view.js"></script>
     <link href="js/panelset-0.2.6/panelset.css" rel="stylesheet" />
     <script src="js/panelset-0.2.6/panelset.js"></script>
-    <script src="js/xaringanExtra-progressBar-0.0.1/progress-bar.js"></script>
     <script src="js/kePrint-0.0.1/kePrint.js"></script>
     <link href="js/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <script src="js/xaringanExtra-progressBar-0.0.1/progress-bar.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
     <link rel="stylesheet" href="custom-sizing.css" type="text/css" />
   </head>
@@ -241,6 +241,28 @@ $$
 f(t) = \color{red}{\lambda(t)} \exp\left(-\int_0^t \color{red}{\lambda(u)} \mathrm{d}u\right)
 $$
 ]
+
+
+<style>.xe__progress-bar__container {
+  bottom:0;
+  opacity: 1;
+  position:absolute;
+  right:0;
+  left: 0;
+}
+.xe__progress-bar {
+  height: 1px;
+  background-color: #006633;
+  width: calc(var(--slide-current) / var(--slide-total) * 100%);
+}
+.remark-visible .xe__progress-bar {
+  animation: xe__progress-bar__wipe 200ms forwards;
+  animation-timing-function: cubic-bezier(.86,0,.07,1);
+}
+@keyframes xe__progress-bar__wipe {
+  0% { width: calc(var(--slide-previous) / var(--slide-total) * 100%); }
+  100% { width: calc(var(--slide-current) / var(--slide-total) * 100%); }
+}</style>
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
