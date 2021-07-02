@@ -24,23 +24,34 @@ knitr::opts_chunk$set(
   echo = FALSE,
   warning = FALSE,
   dev = "ragg_png",
+  dev.args = list(background = "transparent"),
   fig.align = "center",
   fig.retina = 2,
   fig.height = 5,
-  fig.width = 7
+  fig.width = 7,
+  cache = TRUE
 )
 
 # remotes::install_github("gadenbuie/xaringanthemer")
 library(xaringanthemer)
 style_mono_accent(
   base_color = "#006633",
+  background_color = "#FAF9F9",
   header_font_google = google_font("Lato"),
   text_font_google   = google_font("Source Sans Pro", "400", "400i"),
   code_font_google   = google_font("Fira Mono"),
   header_color = lighten_color("#006633", strength = .2),
-  link_color = lighten_color("#006633", strength = .5),
+  link_color = lighten_color("#006633", strength = .2),
   base_font_size = "25px",
-  black_color = "#0A0A0A"
+  black_color = "#0A0A0A",
+  white_color = "#FAFAFA",
+  code_font_size = "0.8rem", # Default is 0.9rem
+  title_slide_background_image = "lmu-black.png",
+  title_slide_background_position = "bottom -200px right -200px",
+  title_slide_background_size = "40%",
+  background_image = "lmu-gray.png",
+  background_position = "bottom -200px right -200px",
+  background_size = "40%"
 )
 
 # xaringanExtra features, see https://pkg.garrickadenbuie.com/xaringanExtra/
@@ -56,9 +67,13 @@ library(kableExtra)
 theme_local <- function(...) {
   theme_xaringan() +
   theme(
-    axis.line = element_line(color = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "#0A0A0A"),
+    panel.background = element_rect(fill = "transparent"), # transparent panel bg
+    plot.background = element_rect(fill = "transparent", color = NA), # transparent plot bg
+    panel.grid.major = element_blank(), # remove major gridlines
+    panel.grid.minor = element_blank(), # remove minor gridlines
+    legend.background = element_rect(fill = "transparent"), # transparent legend bg
+    legend.box.background = element_rect(fill = "transparent"), # transparent legend panel
     ...
   )
 }
@@ -213,6 +228,20 @@ $$
 f(t) = \color{red}{\lambda(t)} \exp\left(-\int_0^t \color{red}{\lambda(u)} \mathrm{d}u\right)
 $$
 ]
+
+---
+
+# Thanks
+
+Slides [are here](https://slides.lukasburk.de/2021/probml-surv-uq)
+
+This `is some code`
+
+```r
+f <- function(x) {
+  x^2
+}
+```
 
 
 ```{r xe-progress, echo=FALSE}

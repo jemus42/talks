@@ -36,7 +36,7 @@
   --code-font-is-google: 1;
   --base-font-size: 25px;
   --text-font-size: 1rem;
-  --code-font-size: 0.9rem;
+  --code-font-size: 0.8rem;
   --code-inline-font-size: 1em;
   --header-h1-font-size: 2.75rem;
   --header-h2-font-size: 2.25rem;
@@ -45,20 +45,20 @@
   /* Colors */
   --text-color: #0A0A0A;
   --header-color: #33845B;
-  --background-color: #FFFFFF;
-  --link-color: #7FB299;
+  --background-color: #FAF9F9;
+  --link-color: #33845B;
   --text-bold-color: #006633;
   --code-highlight-color: rgba(255,255,0,0.5);
-  --inverse-text-color: #FFFFFF;
+  --inverse-text-color: #FAFAFA;
   --inverse-background-color: #006633;
-  --inverse-header-color: #FFFFFF;
-  --inverse-link-color: #7FB299;
+  --inverse-header-color: #FAFAFA;
+  --inverse-link-color: #33845B;
   --title-slide-background-color: #006633;
-  --title-slide-text-color: #FFFFFF;
+  --title-slide-text-color: #FAFAFA;
   --header-background-color: #33845B;
-  --header-background-text-color: #FFFFFF;
+  --header-background-text-color: #FAF9F9;
   --base: #006633;
-  --white: #FFFFFF;
+  --white: #FAFAFA;
   --black: #0A0A0A;
 }
 
@@ -79,6 +79,9 @@ h1, h2, h3 {
 .remark-slide-content {
   background-color: var(--background-color);
   font-size: 1rem;
+  background-image: url(lmu-gray.png);
+  background-size: 40%;
+  background-position: bottom -200px right -200px;
   padding: 16px 64px 16px 64px;
   width: 100%;
   height: 100%;
@@ -140,6 +143,9 @@ a, a > code {
 }
 .title-slide {
   background-color: var(--title-slide-background-color);
+  background-image: url("lmu-black.png");
+  background-size: 40%;
+  background-position: bottom -200px right -200px;
 }
 .title-slide .remark-slide-number {
   display: none;
