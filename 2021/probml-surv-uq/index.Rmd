@@ -46,11 +46,12 @@ style_mono_accent(
   black_color = "#0A0A0A",
   white_color = "#FAFAFA",
   code_font_size = "0.8rem", # Default is 0.9rem
+  # Experimental LMU logo stuff, it's hard
   title_slide_background_image = "lmu-black.png",
   title_slide_background_position = "bottom -200px right -200px",
   title_slide_background_size = "40%",
   background_image = "lmu-gray.png",
-  background_position = "bottom -200px right -200px",
+  background_position = "bottom -250px right -250px",
   background_size = "40%"
 )
 
@@ -228,20 +229,6 @@ $$
 f(t) = \color{red}{\lambda(t)} \exp\left(-\int_0^t \color{red}{\lambda(u)} \mathrm{d}u\right)
 $$
 ]
-
----
-
-# Thanks
-
-Slides [are here](https://slides.lukasburk.de/2021/probml-surv-uq)
-
-This `is some code`
-
-```r
-f <- function(x) {
-  x^2
-}
-```
 
 
 ```{r xe-progress, echo=FALSE}
