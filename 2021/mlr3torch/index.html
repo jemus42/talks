@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>{mlr3torch}</title>
+    <title>{mlr3torch}: First Look</title>
     <meta charset="utf-8" />
     <meta name="author" content="Lukas Burk" />
-    <meta name="date" content="2021-07-02" />
-    <script src="js/header-attrs-2.9/header-attrs.js"></script>
+    <meta name="date" content="2021-09-14" />
+    <script src="js/header-attrs-2.10/header-attrs.js"></script>
     <link href="js/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="js/tile-view-0.2.6/tile-view.js"></script>
     <link href="js/panelset-0.2.6/panelset.css" rel="stylesheet" />
@@ -17,21 +17,104 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# {mlr3torch}
+# {mlr3torch}: First Look
 ## Let’s see how this goes
 ### Lukas Burk
-### 2021-07-02
+### 2021-09-14
 
 ---
 
 
 
 
-# Hello World
+## First Impressions
 
-Testing
+- Basic idea: Do what {mlr3keras} does, but s/keras/torch/
 
-# Okay then
+--
+
+### Pros
+
+- {torch} is purely based on R and C++
+- Heavy lifting is done by `libtorch` in C++ (currently v1.9)
+- `\(\Rightarrow\)` No Python dependency, no reticulate mess with conda/venvs
+
+### Cons
+
+- Still very early for {torch} (currently 0.5.0)
+- Concerns about performance (will get better, but probably not equal PyTorch)
+
+---
+
+## {mlr3torch}
+
+- Current minimal working example at `jemus42/mlr3torch` (private as of now)
+
+--
+
+- Inside the tin:
+    - `LearnerRegrTorchTabnet` + `LearnerClassifTorchTabnet`
+    - Wrapping *TabNet* learner from {tabnet} package (`mlverse/tabnet`)
+    - `\(\rightarrow\)` simple fitting fun (`tabnet_fit`), hyperparams as simple arguments
+    
+- Motivation:
+    1. Easier to wrap than custom {torch} model building architecture
+    2. Allows comparison to similar wrapper in {mlr3keras} for TensorFlow version
+    
+---
+
+## TabNet in `{mlr3torch}` &amp; `{mlr3keras}`
+
+No extensive comparison so far, purely a proof-of-concept.
+
+- Compared (aggregate) time to
+    1. Instantiate learner
+    2. Train on `german_credit` classif. task for 10 epochs
+    3. Calculate training accuarcy (to ensure reasonably similar results)
+- Attempted to set relevant hyperparams to same values (implementation details may vary)
+
+&lt;img src="index_files/figure-html/keras-tabnet-bench-1.png" width="864" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Tuning Experiment
+
+- Simple grid search over `decision_width` ( `\(n_d\)` ) and `num_steps`
+- Search space configuration seems to work fine with
+- Quirk: Authors recommend `\(n_d = n_a\)`, which `{tabnet}` achieves by setting either value appropriately if `NULL`
+
+
+
+### Caveats
+
+Current limitations in {torch}:
+
+1. CPU: No obvious way to limit CPU threads (?)
+2. GPU: No multi-GPU training (yet, this is WIP apparently)
+3. GPU: Assigning a specific GPU for training may be possible via env vars?
+
+`\(\Rightarrow\)` No (little?) control over hardware utilization may complicate benchmarking?
+
+---
+
+## Elephant in the Room: {torch} vs. PyTorch
+
+Small benchmark from said [mlverse/torch#268](https://github.com/mlverse/torch/issues/268) compares training loop runtime of small MLP for 
+
+1. {torch}
+2. PyTorch imported via {reticulate}
+3. Native PyTorch, called from R
+
+
+&lt;img src="index_files/figure-html/pytorch-bench-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+`\(\Rightarrow\)` Native PyTorch outperforms {torch} by a factor of ~16
+
+---
+
+## Outlook
+
+.center[It *could* be really cool at *some point*.]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
