@@ -266,7 +266,7 @@ knitr::include_graphics("img/pam-workflow.png")
 
 --
 
-- 2) PAM: Expand PAM to GAM framework, gain flexible effects 
+- 2) PAM: Expand PEM to GAM framework, gain flexible effects 
     
 --
 
@@ -275,8 +275,9 @@ knitr::include_graphics("img/pam-workflow.png")
 --
 
 - 4) DeepPAM = SDDR + PAM
-  - Minimize Poisson likelihood through DL
-  - Incorporate unstructured data (e.g. images)
+  - (Pre-) Convert data to PED format
+  - Minimize Poisson likelihood with Deep Learning
+  - Incorporate unstructured data (e.g. images, text)
   - Retain identifiability of effects
 
 ---
@@ -309,7 +310,11 @@ class: middle, inverse
 
 - ...But results on simulated data are promising w.r.t further development
 
+--
 
+![:vspace 10]
+
+.center[.font120[Lots to try with many possible applications!]]
 
 ---
 # Literature
