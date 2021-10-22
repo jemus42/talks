@@ -2,7 +2,7 @@
 title: "{mlr3torch}: First Look"
 subtitle: "Let's see how this goes" # e.g. the occasion
 author: "Lukas Burk" # For the title slide
-date: "2021-09-14" # Automatically evaluates to today
+date: "2021-09-29" # Automatically evaluates to today
 output:
   xaringan::moon_reader:
     # css: [bips.css, default]
@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
   fig.retina = 2,
   fig.height = 5,
   fig.width = 7,
-  cache = TRUE
+  cache = FALSE
 )
 
 # remotes::install_github("gadenbuie/xaringanthemer")
@@ -50,10 +50,10 @@ style_mono_accent(
   # Experimental LMU logo stuff, it's hard
   title_slide_background_image = "lmu-black.png",
   title_slide_background_position = "bottom -200px right -200px",
-  title_slide_background_size = "40%",
-  background_image = "lmu-gray.png",
-  background_position = "bottom -250px right -250px",
-  background_size = "40%"
+  title_slide_background_size = "40%"
+  #background_image = "lmu-gray.png",
+  # background_position = "bottom -250px right -250px",
+  # background_size = "40%"
 )
 
 # xaringanExtra features, see https://pkg.garrickadenbuie.com/xaringanExtra/
@@ -176,7 +176,6 @@ Small benchmark from said [mlverse/torch#268](https://github.com/mlverse/torch/i
 2. PyTorch imported via {reticulate}
 3. Native PyTorch, called from R
 
-
 ```{r pytorch-bench, fig.width = 8, fig.height = 3}
 torchbench <- readRDS(here::here("2021/mlr3torch/results-tiny.rds"))
 
@@ -199,6 +198,128 @@ $\Rightarrow$ Native PyTorch outperforms {torch} by a factor of ~`r round(ratio)
 
 ---
 
+### LeNet (simulated data)
+
+```{r bench-lenet, fig.width=9, fig.height=5, out.width = "80%"}
+results_lenet <- readRDS(here::here("2021/mlr3torch/results_lenet.rds"))
+
+ratio_lenet <- results_lenet %>%
+  select(implementation, epochs, median) %>%
+  tidyr::pivot_wider(names_from = implementation, values_from = median) %>%
+  arrange(epochs) %>%
+  mutate(ratio = rtorch / native_pytorch)
+
+ggplot(results_lenet, aes(x = factor(epochs), y = median, color = implementation)) +
+  geom_errorbar(aes(ymin = lq, ymax = uq), width = .5) +
+  geom_path(aes(group = implementation)) +
+  scale_color_manual(
+    values = c(rtorch = "#377EB8", native_pytorch = "#4DAF4A"),
+    labels = c(rtorch = "{torch}", native_pytorch = "PyTorch")
+  ) +
+  scale_y_log10(
+    sec.axis = sec_axis(~./1000, name = "Seconds")
+  ) +
+  labs(
+    title = "LeNet: Training Loop Execution Times",
+    subtitle = paste0("{torch} to PyTorch ratio: ≈ ", round(mean(ratio_lenet$ratio), 1)),
+    x = "# of Epochs",
+    y = "Median [log10(ms)] + LQ/UQ",
+    color = "Implementation",
+    caption = "Runs within microbenchmark at 5 evals"
+  ) + 
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+---
+
+### ResNet18 + CIFAR10 image classif.
+
+```{r bench-resnetcifar, fig.width=9, fig.height=5, out.width = "80%"}
+results_resnetcifar <- readRDS(here::here("2021/mlr3torch/results_resnet18-cifar10.rds"))
+
+ratio_cifar <- results_resnetcifar %>%
+  group_by(implementation, batch_size, epochs) %>%
+  summarize(mean_time = mean(elapsed), .groups = 'drop') %>%
+  tidyr::pivot_wider(names_from = implementation, values_from = mean_time) %>%
+  mutate(ratio = rtorch / native_pytorch)
+
+
+results_resnetcifar %>%
+  filter(epochs == 10) %>%
+  ggplot(aes(x = factor(batch_size), y = elapsed, color = implementation)) +
+  geom_point(size = 4) +
+  scale_color_manual(
+    values = c(rtorch = "#377EB8", native_pytorch = "#4DAF4A"),
+    labels = c(rtorch = "{torch}", native_pytorch = "PyTorch")
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 2000, 120),
+    sec.axis = sec_axis(~./60, name = "Minutes", breaks = seq(0, 20, 2))
+  ) +
+  labs(
+    title = "ResNet18 - CIFAR10: Training Loop Execution Times (10 epochs)",
+    subtitle = paste0("{torch} to PyTorch ratio: ≈ ", round(mean(ratio_cifar$ratio), 1)),
+    x = "Batch Size",
+    y = "Runtime [s]",
+    color = "Implementation",
+    caption = "Timed manually with tictoc"
+  ) + 
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+---
+### LeNet
+
+```{r results-resnetcifar-tab0}
+ratiotab <- bind_rows(
+  ratio_lenet %>% 
+    mutate(
+      model = "LeNet", .before = 1,
+      native_pytorch = round(native_pytorch / 1000, 2),
+      rtorch = round(rtorch / 1000, 2)
+    ),
+  ratio_cifar %>% 
+    mutate(
+      model = "ResNet18 + CIFAR10", .before = 1,
+      native_pytorch = round(native_pytorch, 2),
+      rtorch = round(rtorch, 2)
+    )
+) %>%
+  mutate(
+    ratio = round(ratio, 1)
+  )
+```
+
+
+```{r results-resnetcifar-tab1}
+ratiotab %>%
+  select(-batch_size) %>%
+  filter(model == "LeNet") %>%
+  kable(caption = "LeNet") %>%
+  kable_styling()
+```
+
+---
+### ResNet18 + CIFAR10
+
+```{r results-resnetcifar-tab2}
+ratiotab %>%
+  select(model, epochs, batch_size, everything()) %>%
+  filter(model == "ResNet18 + CIFAR10") %>%
+  arrange(epochs, batch_size) %>%
+  kable(caption = "ResNet18 + CIFAR10") %>%
+  kable_styling()
+```
+
+---
+
 ## Outlook
 
-.center[It *could* be really cool at *some point*.]
+- Primary pain points: `dataloader()` & optimizer steps
+
+- See also [#694](https://github.com/mlverse/torch/issues/694)
+
+> We still need to make performance improvements in the R side. Specially related to **dataloading** and in the **optimizers** code.
+

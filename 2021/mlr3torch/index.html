@@ -4,12 +4,14 @@
     <title>{mlr3torch}: First Look</title>
     <meta charset="utf-8" />
     <meta name="author" content="Lukas Burk" />
-    <meta name="date" content="2021-09-14" />
-    <script src="js/header-attrs-2.10/header-attrs.js"></script>
+    <meta name="date" content="2021-09-29" />
+    <script src="js/header-attrs-2.11/header-attrs.js"></script>
     <link href="js/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="js/tile-view-0.2.6/tile-view.js"></script>
     <link href="js/panelset-0.2.6/panelset.css" rel="stylesheet" />
     <script src="js/panelset-0.2.6/panelset.js"></script>
+    <script src="js/kePrint-0.0.1/kePrint.js"></script>
+    <link href="js/lightable-0.0.1/lightable.css" rel="stylesheet" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
     <link rel="stylesheet" href="custom-sizing.css" type="text/css" />
   </head>
@@ -20,7 +22,7 @@ class: center, middle, inverse, title-slide
 # {mlr3torch}: First Look
 ## Let’s see how this goes
 ### Lukas Burk
-### 2021-09-14
+### 2021-09-29
 
 ---
 
@@ -105,16 +107,155 @@ Small benchmark from said [mlverse/torch#268](https://github.com/mlverse/torch/i
 2. PyTorch imported via {reticulate}
 3. Native PyTorch, called from R
 
-
 &lt;img src="index_files/figure-html/pytorch-bench-1.png" width="576" style="display: block; margin: auto;" /&gt;
 
 `\(\Rightarrow\)` Native PyTorch outperforms {torch} by a factor of ~16
 
 ---
 
+### LeNet (simulated data)
+
+&lt;img src="index_files/figure-html/bench-lenet-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+### ResNet18 + CIFAR10 image classif.
+
+&lt;img src="index_files/figure-html/bench-resnetcifar-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+### LeNet
+
+
+
+
+&lt;table class="table" style="margin-left: auto; margin-right: auto;"&gt;
+&lt;caption&gt;LeNet&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; model &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; epochs &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; native_pytorch &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; rtorch &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; ratio &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; LeNet &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.19 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.31 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; LeNet &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.94 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; LeNet &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 100 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.88 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.93 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; LeNet &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 500 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9.51 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 14.72 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; LeNet &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19.04 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 29.52 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.6 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+### ResNet18 + CIFAR10
+
+&lt;table class="table" style="margin-left: auto; margin-right: auto;"&gt;
+&lt;caption&gt;ResNet18 + CIFAR10&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; model &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; epochs &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; batch_size &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; native_pytorch &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; rtorch &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; ratio &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ResNet18 + CIFAR10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 100 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 197.85 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1304.62 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ResNet18 + CIFAR10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 256 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 136.59 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1039.04 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ResNet18 + CIFAR10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 512 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 137.45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 958.95 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ResNet18 + CIFAR10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 138.86 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 940.72 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.8 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ResNet18 + CIFAR10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 138.59 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 938.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.8 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ResNet18 + CIFAR10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 679.36 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4694.17 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.9 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
 ## Outlook
 
-.center[It *could* be really cool at *some point*.]
+- Primary pain points: `dataloader()` &amp; optimizer steps
+
+- See also [#694](https://github.com/mlverse/torch/issues/694)
+
+&gt; We still need to make performance improvements in the R side. Specially related to **dataloading** and in the **optimizers** code.
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

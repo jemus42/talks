@@ -143,9 +143,6 @@ a, a > code {
 }
 .title-slide {
   background-color: var(--title-slide-background-color);
-  background-image: url("lmu-black.png");
-  background-size: 40%;
-  background-position: bottom -200px right -200px;
 }
 .title-slide .remark-slide-number {
   display: none;
