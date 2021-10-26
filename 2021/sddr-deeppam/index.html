@@ -80,14 +80,6 @@ class: middle, inverse
 # SDDR
 
 ---
-class: middle
-## Implementations
-
-`R`: [davidruegamer/deepregression](https://github.com/davidruegamer/deepregression)
-
-`Python`: [HelmholtzAI-Consultants-Munich/PySDDR](https://github.com/HelmholtzAI-Consultants-Munich/PySDDR)
-
----
 ## Model Overview
 
 A distribution `\(\mathcal{D}\)` with `\(K\)` parameters `\(\theta_k\)`:  
@@ -197,6 +189,17 @@ class: nologo
 ]
 
 ---
+class:
+## Implementations
+
+![:vspace 15]
+
+- `R`: [davidruegamer/deepregression](https://github.com/davidruegamer/deepregression)
+
+- `Python`: [HelmholtzAI-Consultants-Munich/PySDDR](https://github.com/HelmholtzAI-Consultants-Munich/PySDDR)
+
+
+---
 class: middle, inverse
 # DeepPAM
 
@@ -212,19 +215,66 @@ class: middle, inverse
 
 --
 
-- Basic idea: Equivalence of Poisson Regression and CoxPH (with assumptions)
+- Basic idea: Equivalence of Poisson Regression and CoxPH (with assumptions)  
+  Gain flexibility exceeding the Cox model
 
 --
 
 - Procedure:
     1. Transform time to event data into intervals at chosen split points
     2. Count observed events within these intervals `\(\rightarrow\)` Poisson problem
-    3. Minimize Poisson likelihood with algorithm of choice (e.g. GAM, Boosting)
+    3. Maximize Poisson likelihood with algorithm of choice   
+    (e.g. GAM, Boosting, Neural Network...)
 
 --
 
 R implementation for data transformation and analysis tasks: [`{pammtools}`](https://adibender.github.io/pammtools/)
 
+---
+## Survival Data Format
+
+
+
+
+```r
+tumor |&gt; head(5) |&gt; knitr::kable()
+```
+
+
+
+| days| status| charlson_score| age|sex    |transfusion |complications |metastases |resection |
+|----:|------:|--------------:|---:|:------|:-----------|:-------------|:----------|:---------|
+|  579|      0|              2|  58|female |yes         |no            |yes        |no        |
+| 1192|      0|              2|  52|male   |no          |yes           |yes        |no        |
+|  308|      1|              2|  74|female |yes         |no            |yes        |no        |
+|   33|      1|              2|  57|male   |yes         |yes           |yes        |yes       |
+|  397|      1|              2|  30|female |yes         |no            |yes        |yes       |
+
+
+---
+## PED Format
+
+
+```r
+tumor |&gt; 
+  as_ped(Surv(days, status) ~ age + sex + transfusion, cut = c(0, 500, 1000)) |&gt; 
+  head(5) |&gt; knitr::kable()
+```
+
+
+
+| id| tstart| tend|interval   |   offset| ped_status| age|sex    |transfusion |
+|--:|------:|----:|:----------|--------:|----------:|---:|:------|:-----------|
+|  1|      0|  500|(0,500]    | 6.214608|          0|  58|female |yes         |
+|  1|    500| 1000|(500,1000] | 4.369448|          0|  58|female |yes         |
+|  2|      0|  500|(0,500]    | 6.214608|          0|  52|male   |no          |
+|  2|    500| 1000|(500,1000] | 6.214608|          0|  52|male   |no          |
+|  3|      0|  500|(0,500]    | 5.730100|          1|  74|female |yes         |
+
+.font90[
+`\(\rightarrow\)` `gam(ped_status ~ s(tend) + age *...,
+    family = "poisson", offset = offset)`
+]
 ---
 
 ## PAM Overview
@@ -261,7 +311,7 @@ R implementation for data transformation and analysis tasks: [`{pammtools}`](htt
 
 - 4) DeepPAM = SDDR + PAM
   - (Pre-) Convert data to PED format
-  - Minimize Poisson likelihood with Deep Learning
+  - Maximize Poisson likelihood with Deep Learning
   - Incorporate unstructured data (e.g. images, text)
   - Retain identifiability of effects
 
@@ -300,7 +350,7 @@ class: middle, inverse
 .center[.font120[Lots to try with many possible applications!]]
 
 ---
-# Literature
+## Literature
 
 .font70[
 1. Rügamer D, Kolb C, Klein N.  
@@ -333,7 +383,7 @@ https://slides.lukasburk.de/2021/sddr-deeppam/
 .bipsblue[Lukas Burk]  
 Leibniz Institute for Prevention Research and Epidemiology - BIPS GmbH  
 Achterstraße 30  
-D-28359 Germany
+D-28359 Germany  
 .bipsblue[burk@leibniz-bips.de]
 ]]
 .pull-right[

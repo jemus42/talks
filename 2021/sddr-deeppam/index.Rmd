@@ -91,14 +91,6 @@ class: middle, inverse
 # SDDR
 
 ---
-class: middle
-## Implementations
-
-`R`: [davidruegamer/deepregression](https://github.com/davidruegamer/deepregression)
-
-`Python`: [HelmholtzAI-Consultants-Munich/PySDDR](https://github.com/HelmholtzAI-Consultants-Munich/PySDDR)
-
----
 ## Model Overview
 
 A distribution $\mathcal{D}$ with $K$ parameters $\theta_k$:  
@@ -210,6 +202,17 @@ class: nologo
 ]
 
 ---
+class:
+## Implementations
+
+![:vspace 15]
+
+- `R`: [davidruegamer/deepregression](https://github.com/davidruegamer/deepregression)
+
+- `Python`: [HelmholtzAI-Consultants-Munich/PySDDR](https://github.com/HelmholtzAI-Consultants-Munich/PySDDR)
+
+
+---
 class: middle, inverse
 # DeepPAM
 
@@ -225,19 +228,46 @@ class: middle, inverse
 
 --
 
-- Basic idea: Equivalence of Poisson Regression and CoxPH (with assumptions)
+- Basic idea: Equivalence of Poisson Regression and CoxPH (with assumptions)  
+  Gain flexibility exceeding the Cox model
 
 --
 
 - Procedure:
     1. Transform time to event data into intervals at chosen split points
     2. Count observed events within these intervals $\rightarrow$ Poisson problem
-    3. Minimize Poisson likelihood with algorithm of choice (e.g. GAM, Boosting)
+    3. Maximize Poisson likelihood with algorithm of choice   
+    (e.g. GAM, Boosting, Neural Network...)
 
 --
 
 R implementation for data transformation and analysis tasks: [`{pammtools}`](https://adibender.github.io/pammtools/)
 
+---
+## Survival Data Format
+
+```{r, echo=FALSE}
+library(pammtools)
+```
+
+```{r}
+tumor |> head(5) |> knitr::kable()
+```
+
+
+---
+## PED Format
+
+```{r}
+tumor |> 
+  as_ped(Surv(days, status) ~ age + sex + transfusion, cut = c(0, 500, 1000)) |> 
+  head(5) |> knitr::kable()
+```
+
+.font90[
+$\rightarrow$ `gam(ped_status ~ s(tend) + age *...,
+    family = "poisson", offset = offset)`
+]
 ---
 
 ## PAM Overview
@@ -276,7 +306,7 @@ knitr::include_graphics("img/pam-workflow.png")
 
 - 4) DeepPAM = SDDR + PAM
   - (Pre-) Convert data to PED format
-  - Minimize Poisson likelihood with Deep Learning
+  - Maximize Poisson likelihood with Deep Learning
   - Incorporate unstructured data (e.g. images, text)
   - Retain identifiability of effects
 
@@ -317,7 +347,7 @@ class: middle, inverse
 .center[.font120[Lots to try with many possible applications!]]
 
 ---
-# Literature
+## Literature
 
 .font70[
 1. Rügamer D, Kolb C, Klein N.  
@@ -350,7 +380,7 @@ background-image: none
 .bipsblue[`r rmarkdown::metadata$contactauthor`]  
 Leibniz Institute for Prevention Research and Epidemiology - BIPS GmbH  
 Achterstraße 30  
-D-28359 Germany
+D-28359 Germany  
 .bipsblue[`r rmarkdown::metadata$contactemail`]
 ]]
 .pull-right[
