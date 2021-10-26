@@ -88,7 +88,7 @@ class: middle, inverse
 
 ---
 class: middle, inverse
-# SDDR
+# Semi-Structured Deep Distributional Regression
 
 ---
 ## Model Overview
@@ -260,12 +260,12 @@ tumor |> head(5) |> knitr::kable()
 
 ```{r}
 tumor |> 
-  as_ped(Surv(days, status) ~ age + sex + transfusion, cut = c(0, 500, 1000)) |> 
+  as_ped(Surv(days, status) ~ age + sex + transfusion, cut = c(0, 500, 1250)) |> 
   head(5) |> knitr::kable()
 ```
 
 .font90[
-$\rightarrow$ `gam(ped_status ~ s(tend) + age *...,
+$\rightarrow$ `gam(ped_status ~ s(tend) + age + ...,
     family = "poisson", offset = offset)`
 ]
 ---

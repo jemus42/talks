@@ -77,7 +77,7 @@ class: middle, inverse
 
 ---
 class: middle, inverse
-# SDDR
+# Semi-Structured Deep Distributional Regression
 
 ---
 ## Model Overview
@@ -257,7 +257,7 @@ tumor |&gt; head(5) |&gt; knitr::kable()
 
 ```r
 tumor |&gt; 
-  as_ped(Surv(days, status) ~ age + sex + transfusion, cut = c(0, 500, 1000)) |&gt; 
+  as_ped(Surv(days, status) ~ age + sex + transfusion, cut = c(0, 500, 1250)) |&gt; 
   head(5) |&gt; knitr::kable()
 ```
 
@@ -266,13 +266,13 @@ tumor |&gt;
 | id| tstart| tend|interval   |   offset| ped_status| age|sex    |transfusion |
 |--:|------:|----:|:----------|--------:|----------:|---:|:------|:-----------|
 |  1|      0|  500|(0,500]    | 6.214608|          0|  58|female |yes         |
-|  1|    500| 1000|(500,1000] | 4.369448|          0|  58|female |yes         |
+|  1|    500| 1250|(500,1250] | 4.369448|          0|  58|female |yes         |
 |  2|      0|  500|(0,500]    | 6.214608|          0|  52|male   |no          |
-|  2|    500| 1000|(500,1000] | 6.214608|          0|  52|male   |no          |
+|  2|    500| 1250|(500,1250] | 6.539586|          0|  52|male   |no          |
 |  3|      0|  500|(0,500]    | 5.730100|          1|  74|female |yes         |
 
 .font90[
-`\(\rightarrow\)` `gam(ped_status ~ s(tend) + age *...,
+`\(\rightarrow\)` `gam(ped_status ~ s(tend) + age + ...,
     family = "poisson", offset = offset)`
 ]
 ---
