@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>XAI-Bench</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Lukas Burk" />
+    <meta name="date" content="2022-02-23" />
+    <script src="js/header-attrs-2.11/header-attrs.js"></script>
+    <link href="js/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="js/tile-view-0.2.6/tile-view.js"></script>
+    <link href="js/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="js/panelset-0.2.6/panelset.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="custom-sizing.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# XAI-Bench
+## IML JC
+### Lukas Burk
+### 2022-02-23
+
+---
+
+
+
+
+background-image: url(img/20220215162228-bv1ke.png)
+
+---
+class: middle
+## Motivation
+
+- No widely adopted methods to compare/evaluate feature attribution methods
+
+--
+
+- Proposed methods often computationally prohibitive or require strong assumptions
+
+--
+
+- Example: Comparing to ground-truth Shapley values
+
+--
+
+**Goal**:  
+Fast development of feature attribution methods as a precursor for human trials
+
+---
+## What's Inside the Tin
+
+&lt;img src="img/XAIBench-Figure1.png" width="711" height="50%" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle, inverse
+# Feature Attribution Evaluation Metrics
+
+---
+class: middle
+## Metrics Overview
+
+- **Faithfulness**
+
+- **Monotonicity**
+
+- **ROAR** ('Remove and retrain')
+
+- **GT-Shapley**: Pearson correlation between `\(\boldsymbol{w}\)` and ground-truth Shapley values
+
+--
+
+- **Infidelity**: Considers effect of replacing each feature with noisy baseline conditional expectation
+
+  - Difference between change in function value and dot product of change in feate value with `\(\boldsymbol{w}\)`, in expectation over the noise
+  - Can pick up nonlinear trends in feature importances better than *faithfulness* or *monotinicity*
+
+---
+class: middle
+## Setup
+
+- Datapoints of the form `\((\boldsymbol{x}, y) \sim \mathcal{D}\)`
+
+- Feature attribution method `\(g(\boldsymbol{x}, f)\)` 
+
+  - Generates weights `\(\boldsymbol{w}\)` from `\(\boldsymbol{x}\)` and model `\(f\)`
+
+- Features `\(i \in S \subseteq \{1, \ldots, D\}\)`
+
+- Conditional pdf `\(x' \sim \mathcal{D}\)`, such that `\(x'_i = x_i\)` for all `\(i \in S\)`
+
+  - `\(\Rightarrow \mathcal{D}(x_\emptyset) = \mathcal{D}\)`
+  - `\(\Rightarrow\)` If `\(F = \{1, \ldots, D\}\)`, then `\(x' \sim \mathcal{D}(\boldsymbol{x}_F)\)` is equal to `\(\boldsymbol{x}\)` with probability 1
+
+---
+class: middle
+## Faithfulness
+
+- Pearson correlation between weight vector `\(\boldsymbol{w}\)` and approximate marginal contribution for each feature `\(i\)`
+
+--
+
+&gt; "a lightweight metric that is especially useful for comparing which feature would have the most impact on the model output when individually changed."
+
+--
+
+`$$\text{faithfulness} = \text{Pearson}\left(
+  \left|
+    \mathbb{E}_{\boldsymbol{x}' \sim \mathcal{D}(\boldsymbol{x}_{F \setminus i})}
+    [f(\boldsymbol{x}') - f(\boldsymbol{x})]
+  \right|_{1 \leq i \leq D}, [w_i]_{1 \leq i \leq D}
+\right)$$`
+
+---
+class: middle
+## Monotonicity
+
+&gt; "[...] computes the marginal improvement of each feature ordered by the weight vector w **without replacement**, [...]"
+
+--
+
+- Fraction of indices `\(i\)` such that the marginal improvement for feature `\(i\)` is greater than marginal improvement of feature `\(i+1\)`
+
+--
+
+&gt; "[...] useful when comparing the effect of features as they are added sequentially."
+
+--
+
+- `\(S^+(\boldsymbol{w}, i)\)`: Set of `\(i\)` most important weights
+
+`$$\text{monotonicity} = \frac{1}{D - 1} \sum_{i = 0}^{D-2} \mathbb{I}_{|\delta_i^+| \leq |\delta_{i+1}^+|}$$`
+
+`$$\delta^+_i = \mathbb{E}_{\boldsymbol{x'} \sim \mathcal{D} \left( \boldsymbol{x}_{S^+(\boldsymbol{w}, i+1)} \right)}
+ [f(\boldsymbol{x'})] -
+ \mathbb{E}_{\boldsymbol{x'} \sim \mathcal{D} \left( \boldsymbol{x}_{S^+(\boldsymbol{w}, i)} \right)}
+ [f(\boldsymbol{x'})]$$`
+
+---
+class: middle
+## ROAR (Remove and Retrain)
+
+- Issue: Comparing marginal improvement requires evaluation `\(f\)` on different combinations of features, could be unstable for lack of data points in training data
+
+- ROAR: Alternative paradigm proposed by [Hooker (2018) *A benchmark for interpretability methods in deep neural networks*](https://arxiv.org/pdf/1806.10758.pdf)
+
+--
+
+- Retrain model with new dataset `\((= f^*)\)` with features (with highest weight) removed, then evaluate
+
+`$$|f^*(\mathbb{E}_{\boldsymbol{x}' \sim \mathcal{D}(\boldsymbol{x}_{F\setminus i})}) [\boldsymbol{x'}]) - f(\boldsymbol{x}) |$$`
+
+--
+
+- Plot performance of `\(f^*\)` against number of removed features
+
+  - Compare steepness of plots
+  
+  - Calculate AUC statistic (used in this paper)
+
+
+---
+class: middle
+## GT-Shapley
+
+
+- Pearson correlation of `\(\boldsymbol{w}\)` and ground-truth Shapley values
+
+--
+
+### Caveat
+
+--
+
+The bit about knowing "ground-truth Shapley values"
+
+
+---
+class: middle
+## Infidelity
+
+&gt; "[...] computed by considering the effects of replacing each feature with a *noisy* baseline conditional expectation."
+
+--
+
+- Computes difference between change in `\(f()\)` and dot-product of change in feature value with `\(\boldsymbol{w}\)`, in expectation over the noise
+
+--
+
+- Would be similar to faithfulness if noise was only added one feature at a time
+
+--
+
+&gt; "[...] can pick up nonlinear trends in feature importances better than faithfulness or monotonicity."
+
+---
+## Choosing Metrics
+
+- **ROAR**, **GT-Shapley**: Expensive
+
+--
+
+- **Faithfulness**: Iteratively removing most important features _with replacement_   
+  - Q: Which individual features would change output most if removed?
+  - Less suitable if features are correlated
+
+--
+
+- **Monotonicity**: Removing features _without replacement_
+  - Q: Effect of cumulatively adding features
+  - Better if correlated features are present
+
+--
+
+- **Infidelity**: 
+    - Considers ablations of subsets of features instead of individual features
+    - More appropriate for highly nonlinear feature interactions
+
+---
+class: middle, inverse
+# Synthetic Datasets
+
+---
+class: middle
+## Motivation
+
+- In real data, `\(\mathcal{D}(\boldsymbol{x}_S)\)` can only be approximated
+
+- Approximation can be very poor for low-density regions
+  
+- `\(\Rightarrow\)` Synthetic datasets have known conditional distributions
+
+---
+class: middle
+## Synthetic Data Generation
+
+- Two steps: Label `\(y = h(\boldsymbol{x})\)`, feature vector `\(\boldsymbol{x}\)`
+
+- Included feature distributions: Multivariate Gaussian, Gaussian mixtures, multinomial
+
+- Label distributions: Linear, piece-wise constant, nonliniear additive, piecewise linear
+
+- Labels are normalized to zero mean and unit variance, so featureless learner has MSE of 1
+
+- Datasets can be parameterized, e.g. through `\(\rho\)` to control global feature dependence in Gaussian case
+
+---
+class: middle, inverse
+# Experiments
+
+---
+class: middle
+## Setup
+
+- 8 methods: SHAP, SHAPR, BF-SHAP, LIME, MAPLE, L2X, breakDown, (baseline RANDOM)
+
+- 5 evaluation metrics
+
+- Experiments run by varying 1 or 2 dimensions in (metric, model, (dataset, ML model))
+
+---
+class: middle
+## Results: Performance across metrics
+
+&lt;img src="img/tab1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+- SHAPR best, MAPLE most consistent
+- breakDOWN well suited for monotonicity metric
+
+---
+class: middle
+## Results: Across datasets
+
+
+&lt;img src="img/fig2.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+
+- LIME fails for highly correlated features
+
+- BF-SHAP assumes independence
+
+- MAPLE once again consistent
+
+---
+class: middle
+## Results: Across ML models
+
+
+&lt;img src="img/fig3.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+
+- Explainer performance drops with higher correlations
+
+- MAPLE doesn't like trees
+
+---
+class: middle
+## Simulating real datasets
+
+- Two real-world datasets (wine quality, forest fires)
+  
+  - Real features, labels: `\(\boldsymbol{x}_\text{real}\)`, `\(y_\text{real}\)`
+  
+  - Synthetic `\(\boldsymbol{x}_\text{sim}\)` generated via multiv. Gaussian based on empirical covariance matrix
+  
+  - `\(y_\text{sim}\)` labelled via kNN
+  
+- Evaluate simulation quality via Jensen-Shannon-DIvergence (JSD)
+
+  - `\(\mathrm{JSD} \in [0, 1]\)`, the lower value = higher similarity
+  
+  - For wine dataset: ~0.2 for features/labels each, "good fit"
+
+---
+class: middle
+## Results: Simulated real datasets
+
+
+&lt;img src="img/tab2-3.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle, inverse
+# Conclusions &amp; Limitations
+
+---
+## Conclusions &amp; Limitations
+
+--
+
+&gt; Despite the fact that the synthetic datasets aim to cover a broad range of feature distributions [...], **there is almost certainly a gap between synthetic and real-world datasets**
+
+--
+
+Like categorical features.
+
+--
+
+&gt; Hence there is a trade-off between data realism and ground truth availability.
+
+Fair enough.
+
+--
+
+&gt; Note that our library is **not meant to be a replacement for human interpretability studies**. Since the goals of explainability methods are inherently human-centric, **the only foolproof method of evaluating explanation methods are to use human trials**.
+
+--
+
+&gt; [...] we recommend developing new explainability methods in this library, and then conducting human trials on real data.
+
+---
+class: middle
+## Links
+
+.font200[
+- Paper: https://arxiv.org/abs/2106.12543
+
+- Code: https://github.com/abacusai/xai-bench
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script src="progress.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%",
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
