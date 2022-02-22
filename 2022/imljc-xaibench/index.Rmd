@@ -164,7 +164,7 @@ $$\text{faithfulness} = \text{Pearson}\left(
 class: middle
 ## Monotonicity
 
-> "[...] computes the marginal improvement of each feature ordered by the weight vector w **without replacement**, [...]"
+> "[...] computes the marginal improvement of each feature ordered by the weight vector $\boldsymbol{w}$ **without replacement**, [...]"
 
 --
 
@@ -190,6 +190,8 @@ class: middle
 ## ROAR (Remove and Retrain)
 
 - Issue: Comparing marginal improvement requires evaluation $f$ on different combinations of features, could be unstable for lack of data points in training data
+
+--
 
 - ROAR: Alternative paradigm proposed by [Hooker (2018) *A benchmark for interpretability methods in deep neural networks*](https://arxiv.org/pdf/1806.10758.pdf)
 
