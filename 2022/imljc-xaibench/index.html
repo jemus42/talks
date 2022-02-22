@@ -69,12 +69,7 @@ class: middle
 
 - **GT-Shapley**: Pearson correlation between `\(\boldsymbol{w}\)` and ground-truth Shapley values
 
---
-
-- **Infidelity**: Considers effect of replacing each feature with noisy baseline conditional expectation
-
-  - Difference between change in function value and dot product of change in feate value with `\(\boldsymbol{w}\)`, in expectation over the noise
-  - Can pick up nonlinear trends in feature importances better than *faithfulness* or *monotinicity*
+- **Infidelity**
 
 ---
 class: middle
@@ -184,7 +179,7 @@ class: middle
 
 --
 
-- Computes difference between change in `\(f()\)` and dot-product of change in feature value with `\(\boldsymbol{w}\)`, in expectation over the noise
+- Computes difference between change in `\(f()\)` and dot-product of change in feature value and `\(\boldsymbol{w}\)`, in expectation over the noise
 
 --
 
