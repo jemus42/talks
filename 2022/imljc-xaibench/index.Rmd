@@ -136,7 +136,7 @@ class: middle
 
 - Features $i \in S \subseteq \{1, \ldots, D\}$
 
-- Conditional pdf $x' \sim \mathcal{D}$, such that $x'_i = x_i$ for all $i \in S$
+- $\mathcal{D}(\boldsymbol{x}_S)$: Conditional pdf $x' \sim \mathcal{D}$, such that $x'_i = x_i$ for all $i \in S$
 
   - $\Rightarrow \mathcal{D}(x_\emptyset) = \mathcal{D}$
   - $\Rightarrow$ If $F = \{1, \ldots, D\}$, then $x' \sim \mathcal{D}(\boldsymbol{x}_F)$ is equal to $\boldsymbol{x}$ with probability 1
