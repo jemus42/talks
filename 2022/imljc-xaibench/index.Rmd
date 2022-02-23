@@ -107,8 +107,58 @@ knitr::include_graphics("img/XAIBench-Figure1.png")
 ```
 
 ---
+class: middle
+## Setup
+
+- Datapoints of the form $(\boldsymbol{x}, y) \sim \mathcal{D}$
+
+- Feature attribution method $g(\boldsymbol{x}, f)$ 
+
+- Generates weights $\boldsymbol{w}$ from $\boldsymbol{x}$ and model $f$
+
+
+---
+class: middle
+## Feature Attribution Metrics (Explainers)
+
+- **SHAP**: "Official implementation of SHAP"
+
+--
+
+- **BF-SHAP**: Brute-force kernel SHAP. Assumes model linearity & feature independence (Lundberg et al.)
+
+--
+
+- **SHAPR**: Relaxes assumptions of BF-SHAP (Aas et al.), reimplemented from R in Python
+
+--
+
+- **LIME**: As implemented in SHAP repository
+
+
+--
+
+- **MAPLE**: Combines local neighborhood selection with local selection, also from SHAP
+
+
+--
+
+- **L2X**: Mutual information-based approach. Has hyperparam $k$: No. of most important features. Modified to output
+$\boldsymbol{w} = \frac{2}{k(k+1)} \sum^D_{k=1} I_k$ instead of binary vector of length $k$
+
+
+--
+
+- **breakDown**: Decomposes model predictions into parts attributable to features, uses `MI2DataLab/pyBreakDown` implementation
+
+
+--
+
+- (baseline: **RANDOM**): Randomly assigns $\boldsymbol{w} \sim \mathcal{N}(0, 1)$
+
+---
 class: middle, inverse
-# Feature Attribution Evaluation Metrics
+# Feature Attribution _Evaluation_ Metrics
 
 ---
 class: middle
@@ -118,28 +168,11 @@ class: middle
 
 - **Monotonicity**
 
-- **ROAR** ('Remove and retrain')
+- **ROAR**
 
-- **GT-Shapley**: Pearson correlation between $\boldsymbol{w}$ and ground-truth Shapley values
+- **GT-Shapley**
 
 - **Infidelity**
-
----
-class: middle
-## Setup
-
-- Datapoints of the form $(\boldsymbol{x}, y) \sim \mathcal{D}$
-
-- Feature attribution method $g(\boldsymbol{x}, f)$ 
-
-  - Generates weights $\boldsymbol{w}$ from $\boldsymbol{x}$ and model $f$
-
-- Features $i \in S \subseteq \{1, \ldots, D\}$
-
-- $\mathcal{D}(\boldsymbol{x}_S)$: Conditional pdf $x' \sim \mathcal{D}$, such that $x'_i = x_i$ for all $i \in S$
-
-  - $\Rightarrow \mathcal{D}(x_\emptyset) = \mathcal{D}$
-  - $\Rightarrow$ If $F = \{1, \ldots, D\}$, then $x' \sim \mathcal{D}(\boldsymbol{x}_F)$ is equal to $\boldsymbol{x}$ with probability 1
 
 ---
 class: middle
@@ -150,6 +183,15 @@ class: middle
 --
 
 > "a lightweight metric that is especially useful for comparing which feature would have the most impact on the model output when individually changed."
+
+--
+
+- Features $i \in S \subseteq \{1, \ldots, D\}$
+
+- $\mathcal{D}(\boldsymbol{x}_S)$: Conditional pdf $x' \sim \mathcal{D}$, such that $x'_i = x_i$ for all $i \in S$
+
+  - $\Rightarrow \mathcal{D}(x_\emptyset) = \mathcal{D}$
+  - $\Rightarrow$ If $F = \{1, \ldots, D\}$, then $x' \sim \mathcal{D}(\boldsymbol{x}_F)$ is equal to $\boldsymbol{x}$ with probability 1
 
 --
 
@@ -307,7 +349,7 @@ class: middle
 
 - 5 evaluation metrics
 
-- Experiments run by varying 1 or 2 dimensions in (metric, model, (dataset, ML model))
+- Experiments run by varying 1 or 2 dimensions in (metric, method, dataset, ML model)
 
 ---
 class: middle
@@ -321,7 +363,6 @@ knitr::include_graphics("img/tab1.png")
 - breakDOWN well suited for monotonicity metric
 
 ---
-class: middle
 ## Results: Across datasets
 
 
@@ -337,7 +378,6 @@ knitr::include_graphics("img/fig2.png")
 - MAPLE once again consistent
 
 ---
-class: middle
 ## Results: Across ML models
 
 
@@ -361,10 +401,14 @@ class: middle
   - Synthetic $\boldsymbol{x}_\text{sim}$ generated via multiv. Gaussian based on empirical covariance matrix
   
   - $y_\text{sim}$ labelled via kNN
-  
-- Evaluate simulation quality via Jensen-Shannon-DIvergence (JSD)
 
-  - $\mathrm{JSD} \in [0, 1]$, the lower value = higher similarity
+--
+
+- Evaluate simulation quality via Jensen-Shannon-Divergence (JSD)
+
+  - $\mathrm{JSD}(P\ ||\ Q) = \frac{\mathrm{KL}(P\ ||\ M)}{2}  + \frac{\mathrm{KL}(Q\ ||\ M)}{2} , \quad M = \frac{P + Q}{2}$
+
+  - $\mathrm{JSD} \in [0, 1]$, lower value = higher similarity
   
   - For wine dataset: ~0.2 for features/labels each, "good fit"
 
@@ -395,6 +439,8 @@ Like categorical features.
 --
 
 > Hence there is a trade-off between data realism and ground truth availability.
+
+--
 
 Fair enough.
 
