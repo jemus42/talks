@@ -1,0 +1,163 @@
+---
+title: "Feature-Weighted Elastic Net for Competing Risk Outcomes"
+author: "Lukas Burk"
+format:
+    revealjs:
+      reference-location: document
+      incremental: true
+      theme: [default, style.scss]
+    beamer:
+      incremental: true
+bibliography: references.bib
+---
+
+## Context
+
+The elastic net objective function is given as:
+
+$$
+J(\beta_0, \beta) = \frac 1 2 || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + \color{green}{\lambda} \sum_{j=1}^p \left( \color{red}{\alpha} |\beta_j| + \frac{1 - \color{red}{\alpha}}{2} \beta^2_j \right)
+$$
+
+::: columns
+::: {.column width="50%"}
+-   $\color{green}{\lambda} \in \mathbb{R}$ controls overall sparsity
+- Higher $\Rightarrow$ larger penalty on all $\beta_j$, *equally*
+:::
+
+::: {.column width="50%"}
+-   $\color{red}{\alpha} \in [0, 1]$ is the mixing parameter
+-   $1 \Rightarrow$ only $\ell^1$ penalty (LASSO)
+-   $0 \Rightarrow$ only $\ell^2_2$ penalty
+:::
+:::
+
+::: footer
+[@zou2005regularizationvariable]
+:::
+
+
+## Feature-Weighted Elastic Net (`fwelnet`)
+
+-   Introduced by @tay2020featureweightedelastic
+-   Multiple applications: External information & feature-grouping
+-   Sometimes it's desirable to adjust penalization weights on individual or groups of coefficients
+-   Assign groups via matrix $\mathbf{Z} \in \mathbb{R}_{\geq 0}^{p \times K}$
+
+## Feature Weighting: Groups
+
+::: columns
+::: {.column width="40%"}
+$$
+\mathbf{Z} = 
+\begin{pmatrix} 
+1 & 0 \\
+1 & 0 \\
+0 & 1 \\
+0 & 1 \\
+\end{pmatrix}
+$$
+:::
+
+::: {.column width="60%"}
+-   Features 1, 2 ➔ group 1
+-   Features 3, 4 ➔ group 2
+:::
+:::
+
+. . .
+
+Now imagine this, but with $p >> 1000$ and e.g. genetic data.
+
+## Feature-Weighting
+
+$$
+J(\beta_0, \beta) = \frac{1}{2} || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + \lambda \sum_{j=1}^p \color{blue}{w_j(\theta)}\left( \alpha |\beta_j| + \frac{1 - \alpha}{2} \beta^2_j \right)
+$$
+
+. . .
+
+$$
+\color{blue}{w_j(\theta)} = \frac{\sum_{l=1}^p \exp(\mathbf{z}_l^T \theta)}{p \exp(\mathbf{z}_j^T \theta)}
+$$
+
+. . .
+
+- Defines the **penalization weight** of $\beta_j$ based on its corresponding value in $\mathbf{Z}$ and hyper-parameter $\theta \in \mathbb{R}^{K \times 1}$
+- $\mathbf{z}_j^T$: Row $j$ of $\mathbf{Z}$ as row-vector
+
+## Penalization Weights
+
+-   $w_j(\theta)$ is chosen heuristically, suggested by the authors for desirable properties
+-   $\mathbf{z}_j^T \theta$ functions as a *score*
+    -   $= 0$, reduces to original elastic net
+    -   Higher score $\rightarrow$ lower $w_j$, feature is "more important"
+
+. . .
+
+-   In the "feature grouping" setting, this just allows group-specific penalization weights.
+
+-   Related to the "group lasso" [@jacob2009grouplasso]
+
+## Feature-Weighting: Single Group
+
+- $\mathbf{Z}$ can also be $p \times 1$: No groups, just weights
+- Example from paper: $\mathbf{Z}$ set to noisy version of true $|\beta|$ in simulation study
+
+. . .
+
+- Higher $|\beta_j| \Rightarrow$ lower penalization for $\hat{\beta}_j$
+- $|\beta_j| \approx 0 \Rightarrow$ higher penalization for $\hat{\beta}_j$
+
+## Application for Multi-Task Learning
+
+- Authors suggest multi-task learning algorithm, outline:
+
+1. Set $\beta_1^{(0)}, \beta_2^{(0)}$ to `glmnet` solution for $(\mathbf{X}, \mathbf{y}_1), (\mathbf{X}, \mathbf{y}_2)$ respectively
+
+2. For $k = 0, 1, \ldots$:
+    
+    a) $\mathbf{Z}_2 = \left|\beta_1^{(k)}\right|$. Fit `fwelnet` with $(\mathbf{X}, \mathbf{y}_2, \mathbf{Z}_2)$
+        - Set $\left|\beta_2^{(k+1)}\right|$ to solution with optimal `lambda`
+
+    b) $\mathbf{Z}_1 = \left|\beta_2^{(k+1)}\right|$. Fit `fwelnet` with $(\mathbf{X}, \mathbf{y}_1, \mathbf{Z}_1)$
+        - Set $\left|\beta_1^{(k+1)}\right|$ to solution with optimal `lambda`
+
+## Transfer to Competing Risks
+
+- Setting with two causes: $(\mathbf{t}_1, \mathbf{y}_1), (\mathbf{t}_2, \mathbf{y}_2)$
+- Assumption: Shared information for both causes:
+    - If $\mathbf{x}_j$ is important for cause 1, may also be relevant for cause 2
+    - $\Rightarrow$ lower its penalty in cause-specific models
+    
+- Basic idea: Adapt previous algorithm to Cox regression
+- Multi-task $\Rightarrow$ "Multi-cause"
+
+
+## What We Have
+
+- 1: Adapt `fwelnet` for Coxnet/`Surv` endpoint via `glmnet`
+- 2: Implement algorithm for Cox/CR setting
+- 3: Apply algorithm to some "easy" simulated data settings:
+    - Large effects ($\beta_j = 1$ or $0.25$ for "small effect")
+    - $N = 1000$
+    - 11-14 noise variables
+
+. . .
+
+First goal: See if we find some improvement over cause-specific `glmnet`
+
+
+## {background-image="img/fwel-a-box.png" background-size="95%"}
+## {background-image="img/fwel-b-box.png" background-size="95%"}
+## {background-image="img/fwel-c-box.png" background-size="95%"}
+## {background-image="img/fwel-d-box.png" background-size="95%"}
+
+
+## What Comes Next
+
+- Wider set of simulation cases
+- Evaluate predictive performance (non-trivial in CR/censored setting)
+
+
+## References

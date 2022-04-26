@@ -1,4 +1,3 @@
-# talks
+# Just some slides
 
-Collection of talks.  
-Slides and the likes.
+- [`fwelnet` for survival outcomes with competing risks](/2022/fwelnet-cr/fwelnet-cr.html)
