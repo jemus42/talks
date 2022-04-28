@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
   <meta charset="utf-8">
-  <meta name="generator" content="quarto-0.9.295">
+  <meta name="generator" content="quarto-0.9.309">
 
   <meta name="author" content="Lukas Burk">
   <title>Feature-Weighted Elastic Net for Competing Risk Outcomes</title>
@@ -348,12 +348,12 @@
 <h2>Context</h2>
 <p>The elastic net objective function is given as:</p>
 <p><span class="math display">\[
-J(\beta_0, \beta) = \frac 1 2 || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + \color{green}{\lambda} \sum_{j=1}^p \left( \color{red}{\alpha} |\beta_j| + \frac{1 - \color{red}{\alpha}}{2} \beta^2_j \right)
+J(\beta_0, \beta) = \frac 1 2 || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + {\color{green}\lambda} \sum_{j=1}^p \left( {\color{red}\alpha} |\beta_j| + \frac{1 - {\color{red}\alpha}}{2} \beta^2_j \right)
 \]</span></p>
 <div class="columns">
 <div class="column" style="width:50%;">
 <ul>
-<li class="fragment"><span class="math inline">\(\color{green}{\lambda} \in \mathbb{R}\)</span> controls overall sparsity</li>
+<li class="fragment"><span class="math inline">\(\color{green}{\lambda} \in \mathbb{R}_+\)</span> controls overall sparsity</li>
 <li class="fragment">Higher <span class="math inline">\(\Rightarrow\)</span> larger penalty on all <span class="math inline">\(\beta_j\)</span>, <em>equally</em></li>
 </ul>
 </div><div class="column" style="width:50%;">
@@ -372,13 +372,15 @@ J(\beta_0, \beta) = \frac 1 2 || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\bet
 <h2>Feature-Weighted Elastic Net (<code>fwelnet</code>)</h2>
 <ul>
 <li class="fragment">Introduced by <span class="citation" data-cites="tay2020featureweightedelastic">Tay et al. (<a href="#/ref-tay2020featureweightedelastic" role="doc-biblioref" onclick="return false;">2020</a>)</span></li>
-<li class="fragment">Multiple applications: External information &amp; feature-grouping</li>
-<li class="fragment">Sometimes it’s desirable to adjust penalization weights on individual or groups of coefficients</li>
+<li class="fragment">Motivation: Using external information &amp; feature-grouping</li>
+<li class="fragment">Adjust penalization weights on individual or groups of coefficients</li>
 <li class="fragment">Assign groups via matrix <span class="math inline">\(\mathbf{Z} \in \mathbb{R}_{\geq 0}^{p \times K}\)</span></li>
 </ul>
 </section>
 <section id="feature-weighting-groups" class="slide level2">
 <h2>Feature Weighting: Groups</h2>
+<p>Example for <span class="math inline">\(p = 4\)</span> features <span class="math inline">\(X_{1,2,3,4}\)</span> and <span class="math inline">\(K = 2\)</span> groups</p>
+<div class="fragment">
 <div class="columns">
 <div class="column" style="width:40%;">
 <p><span class="math display">\[
@@ -392,9 +394,10 @@ J(\beta_0, \beta) = \frac 1 2 || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\bet
 \]</span></p>
 </div><div class="column" style="width:60%;">
 <ul>
-<li class="fragment">Features 1, 2 ➔ group 1</li>
-<li class="fragment">Features 3, 4 ➔ group 2</li>
+<li class="fragment"><span class="math inline">\(X_1, X_2\)</span> ➔ group 1</li>
+<li class="fragment"><span class="math inline">\(X_3, X_4\)</span> ➔ group 2</li>
 </ul>
+</div>
 </div>
 </div>
 <div class="fragment">
@@ -404,17 +407,15 @@ J(\beta_0, \beta) = \frac 1 2 || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\bet
 <section id="feature-weighting" class="slide level2">
 <h2>Feature-Weighting</h2>
 <p><span class="math display">\[
-J(\beta_0, \beta) = \frac{1}{2} || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + \lambda \sum_{j=1}^p \color{blue}{w_j(\theta)}\left( \alpha |\beta_j| + \frac{1 - \alpha}{2} \beta^2_j \right)
+J(\beta_0, \beta) = \frac{1}{2} || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + \lambda \sum_{j=1}^p {\color{blue}w_j(\theta)}\left( \alpha |\beta_j| + \frac{1 - \alpha}{2} \beta^2_j \right)
 \]</span></p>
 <div class="fragment">
 <p><span class="math display">\[
-\color{blue}{w_j(\theta)} = \frac{\sum_{l=1}^p \exp(\mathbf{z}_l^T \theta)}{p \exp(\mathbf{z}_j^T \theta)}
+{\color{blue}w_j(\theta)} = \frac{\sum_{l=1}^p \exp(\mathbf{z}_l^T \theta)}{p \exp(\mathbf{z}_j^T \theta)}
 \]</span></p>
-</div>
-<div class="fragment">
 <ul>
 <li class="fragment">Defines the <strong>penalization weight</strong> of <span class="math inline">\(\beta_j\)</span> based on its corresponding value in <span class="math inline">\(\mathbf{Z}\)</span> and hyper-parameter <span class="math inline">\(\theta \in \mathbb{R}^{K \times 1}\)</span></li>
-<li class="fragment"><span class="math inline">\(\mathbf{z}_j^T\)</span>: Row <span class="math inline">\(j\)</span> of <span class="math inline">\(\mathbf{Z}\)</span> as row-vector</li>
+<li class="fragment"><span class="math inline">\(\mathbf{z}_j\)</span>: Row <span class="math inline">\(j\)</span> of <span class="math inline">\(\mathbf{Z}\)</span> as column vector</li>
 </ul>
 </div>
 </section>
@@ -439,7 +440,7 @@ J(\beta_0, \beta) = \frac{1}{2} || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\b
 <h2>Feature-Weighting: Single Group</h2>
 <ul>
 <li class="fragment"><span class="math inline">\(\mathbf{Z}\)</span> can also be <span class="math inline">\(p \times 1\)</span>: No groups, just weights</li>
-<li class="fragment">Example from paper: <span class="math inline">\(\mathbf{Z}\)</span> set to noisy version of true <span class="math inline">\(|\beta|\)</span> in simulation study</li>
+<li class="fragment">Simulation example from <span class="citation" data-cites="tay2020featureweightedelastic">Tay et al. (<a href="#/ref-tay2020featureweightedelastic" role="doc-biblioref" onclick="return false;">2020</a>)</span>: <span class="math inline">\(\mathbf{Z}\)</span> set to noisy version of true <span class="math inline">\(|\beta|\)</span></li>
 </ul>
 <div class="fragment">
 <ul>
@@ -467,14 +468,17 @@ J(\beta_0, \beta) = \frac{1}{2} || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\b
 </ul></li>
 </ol></li>
 </ol>
+<ul>
+<li class="fragment">Side note: <span class="math inline">\(\beta_2^{(0)}\)</span> is never used. Weird.</li>
+</ul>
 </section>
 <section id="transfer-to-competing-risks" class="slide level2">
 <h2>Transfer to Competing Risks</h2>
 <ul>
-<li class="fragment">Setting with two causes: <span class="math inline">\((\mathbf{t}_1, \mathbf{y}_1), (\mathbf{t}_2, \mathbf{y}_2)\)</span></li>
+<li class="fragment">Setting with two outcomes/causes: <span class="math inline">\((\mathbf{t}_1, \mathbf{y}_1), (\mathbf{t}_2, \mathbf{y}_2)\)</span></li>
 <li class="fragment">Assumption: Shared information for both causes:
 <ul>
-<li class="fragment">If <span class="math inline">\(\mathbf{x}_j\)</span> is important for cause 1, may also be relevant for cause 2</li>
+<li class="fragment">If <span class="math inline">\(X_j\)</span> is important for cause 1, may also be relevant for cause 2</li>
 <li class="fragment"><span class="math inline">\(\Rightarrow\)</span> lower its penalty in cause-specific models</li>
 </ul></li>
 <li class="fragment">Basic idea: Adapt previous algorithm to Cox regression</li>
@@ -485,16 +489,19 @@ J(\beta_0, \beta) = \frac{1}{2} || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\b
 <h2>What We Have</h2>
 <ul>
 <li class="fragment">1: Adapt <code>fwelnet</code> for Coxnet/<code>Surv</code> endpoint via <code>glmnet</code></li>
-<li class="fragment">2: Implement algorithm for Cox/CR setting</li>
+<li class="fragment">2: Implement multi-task algorithm for Cox/CR setting</li>
 <li class="fragment">3: Apply algorithm to some “easy” simulated data settings:
 <ul>
 <li class="fragment">Large effects (<span class="math inline">\(\beta_j = 1\)</span> or <span class="math inline">\(0.25\)</span> for “small effect”)</li>
 <li class="fragment"><span class="math inline">\(N = 1000\)</span></li>
-<li class="fragment">11-14 noise variables</li>
+<li class="fragment">11-13 noise variables</li>
 </ul></li>
 </ul>
 <div class="fragment">
-<p>First goal: See if we find some improvement over cause-specific <code>glmnet</code></p>
+<ul>
+<li class="fragment">First goal: See if we find some improvement over cause-specific <code>glmnet</code></li>
+<li class="fragment">Caveat: Prediction NYI, so only looking at <span class="math inline">\(\hat{\beta}_j\)</span></li>
+</ul>
 </div>
 </section>
 <section id="section" class="slide level2" data-background-image="img/fwel-a-box.png" data-background-size="95%">
@@ -513,7 +520,11 @@ J(\beta_0, \beta) = \frac{1}{2} || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\b
 <h2>What Comes Next</h2>
 <ul>
 <li class="fragment">Wider set of simulation cases</li>
-<li class="fragment">Evaluate predictive performance (non-trivial in CR/censored setting)</li>
+<li class="fragment">Evaluate predictive performance
+<ul>
+<li class="fragment">(non-trivial in CR/censored setting)</li>
+</ul></li>
+<li class="fragment">Try on real data</li>
 </ul>
 </section>
 <section id="references" class="slide level2 smaller scrollable">

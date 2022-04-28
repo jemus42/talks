@@ -16,12 +16,12 @@ bibliography: references.bib
 The elastic net objective function is given as:
 
 $$
-J(\beta_0, \beta) = \frac 1 2 || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + \color{green}{\lambda} \sum_{j=1}^p \left( \color{red}{\alpha} |\beta_j| + \frac{1 - \color{red}{\alpha}}{2} \beta^2_j \right)
+J(\beta_0, \beta) = \frac 1 2 || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + {\color{green}\lambda} \sum_{j=1}^p \left( {\color{red}\alpha} |\beta_j| + \frac{1 - {\color{red}\alpha}}{2} \beta^2_j \right)
 $$
 
 ::: columns
 ::: {.column width="50%"}
--   $\color{green}{\lambda} \in \mathbb{R}$ controls overall sparsity
+-   $\color{green}{\lambda} \in \mathbb{R}_+$ controls overall sparsity
 - Higher $\Rightarrow$ larger penalty on all $\beta_j$, *equally*
 :::
 
@@ -40,11 +40,15 @@ $$
 ## Feature-Weighted Elastic Net (`fwelnet`)
 
 -   Introduced by @tay2020featureweightedelastic
--   Multiple applications: External information & feature-grouping
--   Sometimes it's desirable to adjust penalization weights on individual or groups of coefficients
+-   Motivation: Using external information & feature-grouping
+-   Adjust penalization weights on individual or groups of coefficients
 -   Assign groups via matrix $\mathbf{Z} \in \mathbb{R}_{\geq 0}^{p \times K}$
 
 ## Feature Weighting: Groups
+
+Example for $p = 4$ features $X_{1,2,3,4}$ and $K = 2$ groups
+
+. . .
 
 ::: columns
 ::: {.column width="40%"}
@@ -60,8 +64,8 @@ $$
 :::
 
 ::: {.column width="60%"}
--   Features 1, 2 ➔ group 1
--   Features 3, 4 ➔ group 2
+-   $X_1, X_2$ ➔ group 1
+-   $X_3, X_4$ ➔ group 2
 :::
 :::
 
@@ -69,22 +73,22 @@ $$
 
 Now imagine this, but with $p >> 1000$ and e.g. genetic data.
 
+
 ## Feature-Weighting
 
 $$
-J(\beta_0, \beta) = \frac{1}{2} || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + \lambda \sum_{j=1}^p \color{blue}{w_j(\theta)}\left( \alpha |\beta_j| + \frac{1 - \alpha}{2} \beta^2_j \right)
+J(\beta_0, \beta) = \frac{1}{2} || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + \lambda \sum_{j=1}^p {\color{blue}w_j(\theta)}\left( \alpha |\beta_j| + \frac{1 - \alpha}{2} \beta^2_j \right)
 $$
 
 . . .
 
 $$
-\color{blue}{w_j(\theta)} = \frac{\sum_{l=1}^p \exp(\mathbf{z}_l^T \theta)}{p \exp(\mathbf{z}_j^T \theta)}
+{\color{blue}w_j(\theta)} = \frac{\sum_{l=1}^p \exp(\mathbf{z}_l^T \theta)}{p \exp(\mathbf{z}_j^T \theta)}
 $$
 
-. . .
 
 - Defines the **penalization weight** of $\beta_j$ based on its corresponding value in $\mathbf{Z}$ and hyper-parameter $\theta \in \mathbb{R}^{K \times 1}$
-- $\mathbf{z}_j^T$: Row $j$ of $\mathbf{Z}$ as row-vector
+- $\mathbf{z}_j$: Row $j$ of $\mathbf{Z}$ as column vector
 
 ## Penalization Weights
 
@@ -102,7 +106,7 @@ $$
 ## Feature-Weighting: Single Group
 
 - $\mathbf{Z}$ can also be $p \times 1$: No groups, just weights
-- Example from paper: $\mathbf{Z}$ set to noisy version of true $|\beta|$ in simulation study
+- Simulation example from @tay2020featureweightedelastic: $\mathbf{Z}$ set to noisy version of true $|\beta|$
 
 . . .
 
@@ -123,11 +127,15 @@ $$
     b) $\mathbf{Z}_1 = \left|\beta_2^{(k+1)}\right|$. Fit `fwelnet` with $(\mathbf{X}, \mathbf{y}_1, \mathbf{Z}_1)$
         - Set $\left|\beta_1^{(k+1)}\right|$ to solution with optimal `lambda`
 
+
+- Side note: $\beta_2^{(0)}$ is never used. Weird.
+
+
 ## Transfer to Competing Risks
 
-- Setting with two causes: $(\mathbf{t}_1, \mathbf{y}_1), (\mathbf{t}_2, \mathbf{y}_2)$
+- Setting with two outcomes/causes: $(\mathbf{t}_1, \mathbf{y}_1), (\mathbf{t}_2, \mathbf{y}_2)$
 - Assumption: Shared information for both causes:
-    - If $\mathbf{x}_j$ is important for cause 1, may also be relevant for cause 2
+    - If $X_j$ is important for cause 1, may also be relevant for cause 2
     - $\Rightarrow$ lower its penalty in cause-specific models
     
 - Basic idea: Adapt previous algorithm to Cox regression
@@ -137,15 +145,16 @@ $$
 ## What We Have
 
 - 1: Adapt `fwelnet` for Coxnet/`Surv` endpoint via `glmnet`
-- 2: Implement algorithm for Cox/CR setting
+- 2: Implement multi-task algorithm for Cox/CR setting
 - 3: Apply algorithm to some "easy" simulated data settings:
     - Large effects ($\beta_j = 1$ or $0.25$ for "small effect")
     - $N = 1000$
-    - 11-14 noise variables
+    - 11-13 noise variables
 
 . . .
 
-First goal: See if we find some improvement over cause-specific `glmnet`
+- First goal: See if we find some improvement over cause-specific `glmnet`
+- Caveat: Prediction NYI, so only looking at $\hat{\beta}_j$
 
 
 ## {background-image="img/fwel-a-box.png" background-size="95%"}
@@ -157,7 +166,8 @@ First goal: See if we find some improvement over cause-specific `glmnet`
 ## What Comes Next
 
 - Wider set of simulation cases
-- Evaluate predictive performance (non-trivial in CR/censored setting)
-
+- Evaluate predictive performance 
+    - (non-trivial in CR/censored setting)
+- Try on real data
 
 ## References
