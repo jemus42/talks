@@ -1,0 +1,97 @@
+---
+title: "WiMium 2022 Quick Intro"
+author: "Lukas Burk"
+format:
+    revealjs:
+      reference-location: document
+      incremental: true
+      theme: [default, style.scss]
+      logo: bips-logo.png
+    beamer:
+      incremental: true
+---
+
+## "The Main Thing"
+
+Basis: The elastic net regression regularization (`glmnet`):
+
+$$
+J(\beta_0, \beta) = \frac 1 2 || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + {\color{green}\lambda} \sum_{j=1}^p \left( {\color{red}\alpha} |\beta_j| + \frac{1 - {\color{red}\alpha}}{2} \beta^2_j \right)
+$$
+
+. . .
+
+Extended by Tay et.
+al. (2020) (`fwelnet`)
+
+$$
+J(\beta_0, \beta) = \ldots + \lambda \sum_{j=1}^p {\color{blue}w_j(\theta)}\left( \alpha |\beta_j| + \frac{1 - \alpha}{2} \beta^2_j \right)
+$$
+
+. . .
+
+::: columns
+::: {.column width="50%"}
+$$
+{\color{blue}w_j(\theta)} = \frac{\sum_{l=1}^p \exp(\mathbf{z}_l^T \theta)}{p \exp(\mathbf{z}_j^T \theta)}
+$$
+:::
+
+::: {.column width="50%"}
+-   $\mathbf{Z}$: Matrix (given)
+-   $\theta$: Hyper-parameter (optimized)
+:::
+:::
+
+## "The Main Thing" (cont'd)
+
+-   Intended application: Survival analysis with competing risks
+-   Broad idea:
+    -   Fit cause-specific models for each competing event (`glmnet`)
+    -   Use $\mathbf{Z} := |\hat{\beta}|$ as prior information in other event (`fwelnet`)
+-   Intended outcome: Increase in predictive performance due to sharing of information
+-   Assumptions:
+    -   Shared information is present & useful
+    -   Estimation is reasonably stable
+
+## "The Other Things"
+
+Things I'm involved with (in)directly
+
+### Research
+
+-   Benchmark comparison of survival prediction algorithms (LMU)
+
+### Software
+
+-   R 📦 for Random Forest-related method (w/ Marvin, externals)
+-   R 📦 in `mlr3` ecosystem `mlr3torch` (LMU/mlr)
+
+### Teaching
+
+- "Programming with R" (LMU, SoSe 2022)
+
+## The Gist
+
+::: {.nonincremental}
+
+### PhD position: 50/50 Split {style="padding-top: 100px;"}
+
+::: columns
+::: {.column width="50%"}
+BIPS: BioEDV / Emmy Noether Junior Research Group
+
+:::
+
+::: {.column width="50%"}
+LMU: Statistical Learning & Data Science
+:::
+:::
+
+### Topics {style="padding-top: 100px;"}
+
+- Statistics & Machine Learning
+- Survival Analysis
+- Software
+
+:::
