@@ -1,0 +1,130 @@
+---
+title: "Feature-Weighted Elastic Net for Competing Risk Outcomes"
+subtitle: "...and other things I plan to fill a dissertation with"
+author: "Lukas Burk"
+format:
+    revealjs:
+      reference-location: document
+      incremental: true
+      theme: [default, style.scss]
+    beamer:
+      incremental: true
+bibliography: references.bib
+---
+
+## PhD: Basic Outline
+
+-   Main context: **Survival analysis** base **Machine Learning** topping 🍰
+
+-   Projects (started/planned)
+
+    -   Neutral **benchmark** comparison study of algorithms for survival analysis (existing LMU collab)
+    -   Extension of `{ranger}` **R package** for Random Forests with a survival-specific split rule (planned)
+
+-   Current project: Extension of regularized Cox regression to competing risk settings
+
+## Context: Regularized Regression
+
+In a linear regression setting, we minimize the following expression to estimate $\beta$, referred to as ordinary least squares (OLS):
+
+$$
+J(\beta_0, \beta) = \frac 1 2 || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2
+$$
+
+This is *fine* in many, but not sufficient in some settings:
+
+-   Not stable if $p \approx N$, not solvable in high dimensional settings ($p >> N$), e.g. with genetic data
+-   Predictive models: Focus not on $\beta$ estimates as long as predictions are good
+
+## Context: Regularized Regression
+
+The elastic net objective function is given as:
+
+$$
+J(\beta_0, \beta) = \frac 1 2 || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + {\color{green}\lambda} \sum_{j=1}^p \left( {\color{red}\alpha} |\beta_j| + \frac{1 - {\color{red}\alpha}}{2} \beta^2_j \right)
+$$
+
+::: columns
+::: {.column width="50%"}
+-   $\color{green}{\lambda} \in \mathbb{R}_+$ controls overall sparsity
+-   Higher $\Rightarrow$ larger penalty on all $\beta_j$, *equally*
+:::
+
+::: {.column width="50%"}
+-   $\color{red}{\alpha} \in [0, 1]$ is the mixing parameter
+:::
+:::
+
+. . .
+
+-   Benefits: Allows use in high-dimensional ($p > N$) settings, can be used for variable selection.
+-   Caveats: Not suitable for effect estimates (coefficients are generally biased towards 0)
+
+::: footer
+[@zou2005regularizationvariable]
+:::
+
+## Feature-Weighted Elastic Net (`fwelnet`)
+
+-   Introduced by @tay2020featureweightedelastic
+-   Motivation: Using external information & feature-grouping
+-   Adjust penalization weights on individual or groups of coefficients
+-   Assign groups/weights via matrix $\mathbf{Z} \in \mathbb{R}_{\geq 0}^{p \times K}$
+    -   (I'll spare you most of the mathy details)
+
+## Feature-Weighting
+
+$$
+J(\beta_0, \beta) = \frac{1}{2} || \mathbf{y} - \beta_0\mathbf{1} - \mathbf{X}\beta||^2_2 + \lambda \sum_{j=1}^p {\color{blue}w_j(\theta)}\left( \alpha |\beta_j| + \frac{1 - \alpha}{2} \beta^2_j \right)
+$$
+
+-   Defines the **penalization weight** of $\beta_j$ based on its corresponding value in $\mathbf{Z}$ and hyper-parameter $\theta \in \mathbb{R}^{K \times 1}$
+
+## Feature-Weighting: Single Group
+
+-   $\mathbf{Z}$ can be $p \times 1$: No grouping, just weights
+
+-   Simulation example from @tay2020featureweightedelastic: $\mathbf{Z}$ set to noisy version of true $|\beta|$
+
+-   Higher $|\beta_j| \Rightarrow$ lower penalization for $\hat{\beta}_j$
+
+-   $|\beta_j| \approx 0 \Rightarrow$ higher penalization for $\hat{\beta}_j$
+
+-   Long story short:
+
+    -   We can use information from model A and use it as prior information in model B
+    -   E.g. "We know variable K is likely relevant -\> don't penalize it as much"
+
+## Application for Multi-Task Learning
+
+-   Authors suggest multi-task learning algorithm, outline:
+
+1.  Set $\beta_1^{(0)}, \beta_2^{(0)}$ to `glmnet` solution for $(\mathbf{X}, \mathbf{y}_1), (\mathbf{X}, \mathbf{y}_2)$ respectively
+
+2.  For $k = 0, 1, \ldots$:
+
+    a)  $\mathbf{Z}_2 = \left|\beta_1^{(k)}\right|$. Fit `fwelnet` with $(\mathbf{X}, \mathbf{y}_2, \mathbf{Z}_2)$
+        -   Set $\left|\beta_2^{(k+1)}\right|$ to solution with optimal `lambda`
+    b)  $\mathbf{Z}_1 = \left|\beta_2^{(k+1)}\right|$. Fit `fwelnet` with $(\mathbf{X}, \mathbf{y}_1, \mathbf{Z}_1)$
+        -   Set $\left|\beta_1^{(k+1)}\right|$ to solution with optimal `lambda`
+
+## Transfer to Competing Risks
+
+-   Setting with two outcomes/causes: $(\mathbf{t}_1, \mathbf{y}_1), (\mathbf{t}_2, \mathbf{y}_2)$
+-   Assumption: Shared information for both causes:
+    -   If $X_j$ is important for cause 1, may also be relevant for cause 2
+    -   $\Rightarrow$ lower its penalty in cause-specific models
+-   Basic idea: Adapt previous algorithm to Cox regression
+-   Multi-task $\Rightarrow$ "Multi-cause"
+
+## Current Status & Outlook
+
+-   ✔ Implement basic method (extension to Cox model, multi-task algorithm)
+-   ✔ Preliminary tests on simulated data
+-   Current task:
+    -   Simulation experiment to evaluate variable selection
+-   To do:
+    -   Assessment of predictive performance
+    -   Real-world data application
+
+## References
