@@ -1,0 +1,246 @@
+---
+title: "Accelerated Oblique Random Survival Forests"
+subtitle: "`{aorsf}`: Like ORSF, but A"
+author: "Lukas Burk"
+format:
+    revealjs:
+      reference-location: document
+      incremental: false
+      theme: [default, style.scss]
+    beamer:
+      incremental: false
+bibliography: references.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(aorsf)
+library(ggplot2)
+```
+
+
+## What is `{aorsf}`?
+
+-   Improvement on `{obliqueRSF}` (*Oblique Random Survival Forests*) by the original author
+-   `{obliqueRSF}` is orders of magnitude slower than other RSF implementations, did not scale to larger datasets
+-   `{obliqueRSF}` explicitly states it's superseded by `{aorsf}`
+- -> More of a software improvement rather than a new method
+
+## Why is it interesting?
+
+-   Extensive [benchmark](https://github.com/bcjaeger/aorsf-bench) shows improved speed and good predictive accuracy
+-   Includes multiple interpretability methods
+-   Underwent [rOpenSci software peer Rreview](https://github.com/ropensci/software-review/issues/532/), reviewers included Marvin and me
+-   Author proactively [submitted learner to `mlr3extralearners`](https://github.com/mlr-org/mlr3extralearners/pull/233) and integrates with `tidymodels` framework
+
+## A Quick Overview of Oblique RSF
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+#### Regular splitting
+Orthogonal decision boundaries
+![](img/fig_penguins_part2-1.png)
+:::
+
+::: {.column width="50%"}
+::: {.fragment}
+
+#### Oblique splitting 
+Linear but not orthogonal
+![](img/fig_penguins_part2_oblique-1.png)
+:::
+:::
+
+::::
+
+::: aside
+**oblique** (_adj_): Slanted, diagonal
+:::
+
+## Accelerating ORSF
+
+- Oblique splits are based on linear combinations of predictors
+- Splits based on Cox regression model in (non-leaf) nodes
+- Uses `glmnet` to identify linear combinations
+- -> Adds flexibility, increases computational cost
+
+. . .
+
+- `{aorsf}` applies Newton-Raphson scoring to partial Cox-likelihood
+- Fastest (default) version: Only _one_ NR iteration
+- Also available:
+    - Using NR until convergence
+    - Using `{glmnet}`, similar to `{obliqueRSF}`
+
+## Interface
+
+```{r}
+#| echo: true
+#| cache: true
+library(aorsf)
+
+fit <- orsf(data = pbc_orsf, # Built-in variant of survival::pbc
+            formula = Surv(time, status) ~ . - id,
+            oobag_pred_horizon = 365.25 * 5)
+fit
+```
+
+## Variable importance methods
+
+### `importance = "anova"` (default)
+
+`orsf_vi_anova(fit)`
+
+> A **p-value** is computed for each coefficient **in each linear combination of variables** in each decision tree. 
+
+> Importance for an individual predictor variable is the **proportion of times a p-value for its coefficient is < 0.01**.
+
+> This technique is **very efficient computationally**, but may not be as effective as permutation or negation in terms of selecting signal over noise variables.
+
+
+## Variable importance methods {.scrollable}
+
+### `importance = "negation"`
+
+`orsf_vi_negate(fit)`
+
+> Each variable is assessed separately by **multiplying the variable’s coefficients by -1** and then determining how much the model’s performance changes.
+
+> The worse the model’s performance after negating coefficients for a given variable, the more important the variable.
+
+> This technique is **promising b/c it does not require permutation and it emphasizes variables with larger coefficients** in linear combinations,
+
+> but it is also **relatively new and hasn’t been studied as much** as permutation importance.
+
+## Variable importance methods
+
+### `importance = "permutation"`
+
+`orsf_vi_permute(fit)`
+
+::: {.absolute top=50%}
+Standard permutation feature importance,  
+as known from other R(S)F implementations
+:::
+
+## Variable importance methods
+
+
+```{r}
+#| echo: false
+#| cache: true
+vi_anova   <- orsf_vi_anova(fit, group_factors = TRUE)
+vi_permute <- orsf_vi_permute(fit, group_factors = TRUE)
+vi_negate  <- orsf_vi_negate(fit, group_factors = TRUE)
+
+vi_anova <- vi_anova[order(names(vi_anova))]
+vi_permute <- vi_permute[order(names(vi_permute))]
+vi_negate <- vi_negate[order(names(vi_negate))]
+
+
+vis <- tibble::tibble(
+  Variable = names(vi_anova),
+  anova = vi_anova,
+  permute = vi_permute,
+  negate = vi_negate
+)
+
+vis |>
+  tidyr::gather(anova:negate, key = "Method", value = "Importance") |>
+  ggplot(aes(y = Variable, x = Importance, fill = Method)) +
+  facet_wrap(~Method, scales = "free") +
+  geom_col() +
+  scale_fill_brewer(palette = "Dark2", guide = "none") +
+  theme_minimal(base_size = 14)
+```
+
+
+## Interpretibility tools: Partial Dependence Plots
+
+- Using either in-bag, OOB or test-data
+
+```{r}
+#| echo: true
+#| cache: true
+pd_sex_tv <- orsf_pd_oob(fit, pred_spec = list(sex = c("m", "f")),
+                         pred_horizon = seq(365, 365*5))
+```
+
+
+```{r}
+#| fig-align: "center"
+ggplot(pd_sex_tv, aes(x = pred_horizon, y = mean, color = sex)) + 
+  geom_line() +
+  labs(x = 'Time since baseline',
+       y = 'Expected risk') +
+  theme_minimal(base_size = 14)
+```
+
+## Interpretibility tools: ICE curves
+
+```{r}
+#| echo: true
+#| cache: true
+pred_spec <- list(bili = seq(1, 10, length.out = 25))
+ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
+```
+
+```{r}
+#| cache: true
+ice_oob[, pred_subtract := rep(pred[id_variable==1], times=25)]
+ice_oob[, pred := pred - pred_subtract]
+```
+
+```{r}
+#| fig-align: "center"
+ggplot(ice_oob, aes(x = bili, 
+                    y = pred, 
+                    group = id_row)) + 
+ geom_line(alpha = 0.15) + 
+ labs(y = 'Change in predicted risk') +
+ geom_smooth(se = FALSE, aes(group = 1)) +
+ theme_minimal()
+```
+
+
+
+
+## From Benchmark: Runtime 
+
+```{r}
+#| out-width: "70%"
+#| fig-align: "center"
+knitr::include_graphics("img/fig-bm-time-1.png")
+```
+
+
+
+## From Benchmark: Performance
+
+- Evaluated on IPA, based on IBS over q25 and q75 of survival times.  
+- Uses Bayesian LMM: $\mathrm{IPA} = \hat{\gamma} \cdot \mathrm{learner} + (1|\mathrm{data}/\mathrm{run})$
+
+```{r}
+#| out-width: "70%"
+#| fig-align: "center"
+knitr::include_graphics("img/fig-bm-ibs-1.png")
+```
+
+## Further Reading
+
+- Package website with great documentation and vignettes [docs.ropensci.org/aorsf](https://docs.ropensci.org/aorsf)
+-   [Author's slides on method and benchmark](https://bcjaeger.github.io/aorsf-bench)
+
+### Literature
+
+-   Original paper on ORSF: @jaeger2019oblique: "Oblique random survival forests"
+-   Preprint on **arXiv**: @jaeger2022arxiv: "Accelerated and interpretable oblique random survival forests"
+-   Software paper on **JOSS**: @Jaeger2022joss
+
+## References
+
+::: {#refs}
+:::
