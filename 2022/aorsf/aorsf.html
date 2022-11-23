@@ -419,12 +419,6 @@ Lukas Burk
 </div>
 
 </section>
-<section class="slide level2">
-
-<div class="cell">
-
-</div>
-</section>
 <section id="what-is-aorsf" class="slide level2">
 <h2>What is <code>{aorsf}</code>?</h2>
 <ul>
@@ -461,14 +455,21 @@ Lukas Burk
 <aside><div>
 <p><strong>oblique</strong> (<em>adj</em>): Slanted, diagonal</p>
 </div></aside></section>
-<section id="accelerating-orsf" class="slide level2">
+<section id="accelerating-orsf" class="slide level2 smaller">
 <h2>Accelerating ORSF</h2>
+<div class="columns">
+<div class="column" style="width:&quot;50%;">
+<h3 id="obliquersf"><code>{obliqueRSF}</code></h3>
+<div class="fragment">
 <ul>
 <li>Oblique splits are based on linear combinations of predictors</li>
 <li>Splits based on Cox regression model in (non-leaf) nodes</li>
 <li>Uses <code>glmnet</code> to identify linear combinations</li>
-<li>-&gt; Adds flexibility, increases computational cost</li>
+<li>Adds flexibility, increases computational cost</li>
 </ul>
+</div>
+</div><div class="column" style="width:&quot;50%;">
+<h3 id="aorsf"><code>{aorsf}</code></h3>
 <div class="fragment">
 <ul>
 <li><code>{aorsf}</code> applies Newton-Raphson scoring to partial Cox-likelihood</li>
@@ -480,9 +481,14 @@ Lukas Burk
 </ul></li>
 </ul>
 </div>
+</div>
+</div>
 </section>
 <section id="interface" class="slide level2">
 <h2>Interface</h2>
+<div class="cell">
+
+</div>
 <div class="cell" data-hash="aorsf_cache/revealjs/unnamed-chunk-2_cb8f7c6a2c4ad992de9751342982358b">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(aorsf)</span>
 <span id="cb1-2"><a href="#cb1-2"></a></span>
@@ -512,7 +518,7 @@ Min observations in leaf: 5
 </section>
 <section id="variable-importance-methods" class="slide level2">
 <h2>Variable importance methods</h2>
-<h3 id="importance-anova-default"><code>importance = "anova"</code> (default)</h3>
+<p><code>importance = "anova"</code> (default)</p>
 <p><code>orsf_vi_anova(fit)</code></p>
 <blockquote>
 <p>A <strong>p-value</strong> is computed for each coefficient <strong>in each linear combination of variables</strong> in each decision tree.</p>
@@ -524,11 +530,10 @@ Min observations in leaf: 5
 <p>This technique is <strong>very efficient computationally</strong>, but may not be as effective as permutation or negation in terms of selecting signal over noise variables.</p>
 </blockquote>
 </section>
-<section id="variable-importance-methods-1" class="slide level2">
+<section id="variable-importance-methods-1" class="slide level2 scrollable">
 <h2>Variable importance methods</h2>
-<h3 id="importance-negation"><code>importance = "negation"</code></h3>
+<p><code>importance = "negation"</code></p>
 <p><code>orsf_vi_negate(fit)</code></p>
-<div class="smaller">
 <blockquote>
 <p>Each variable is assessed separately by <strong>multiplying the variable’s coefficients by -1</strong> and then determining how much the model’s performance changes.</p>
 </blockquote>
@@ -541,11 +546,10 @@ Min observations in leaf: 5
 <blockquote>
 <p>but it is also <strong>relatively new and hasn’t been studied as much</strong> as permutation importance.</p>
 </blockquote>
-</div>
 </section>
 <section id="variable-importance-methods-2" class="slide level2">
 <h2>Variable importance methods</h2>
-<h3 id="importance-permutation"><code>importance = "permutation"</code></h3>
+<p><code>importance = "permutation"</code></p>
 <p><code>orsf_vi_permute(fit)</code></p>
 <div class="absolute" style="top: 50%; ">
 <p>Standard permutation feature importance,<br>

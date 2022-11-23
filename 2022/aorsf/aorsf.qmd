@@ -14,12 +14,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r}
-library(aorsf)
-library(ggplot2)
-```
-
-
 ## What is `{aorsf}`?
 
 -   Improvement on `{obliqueRSF}` (*Oblique Random Survival Forests*) by the original author
@@ -60,22 +54,37 @@ Linear but not orthogonal
 **oblique** (_adj_): Slanted, diagonal
 :::
 
-## Accelerating ORSF
+## Accelerating ORSF {.smaller}
+
+:::: {.columns}
+::: {.column width="50%}
+### `{obliqueRSF}`
+::: {.fragment}
 
 - Oblique splits are based on linear combinations of predictors
 - Splits based on Cox regression model in (non-leaf) nodes
 - Uses `glmnet` to identify linear combinations
-- -> Adds flexibility, increases computational cost
+- Adds flexibility, increases computational cost
+:::
+:::
+::: {.column width="50%}
 
-. . .
-
+### `{aorsf}`
+::: {.fragment}
 - `{aorsf}` applies Newton-Raphson scoring to partial Cox-likelihood
 - Fastest (default) version: Only _one_ NR iteration
 - Also available:
     - Using NR until convergence
     - Using `{glmnet}`, similar to `{obliqueRSF}`
-
+:::
+:::
+::::
 ## Interface
+
+```{r}
+library(aorsf)
+library(ggplot2)
+```
 
 ```{r}
 #| echo: true
@@ -90,7 +99,7 @@ fit
 
 ## Variable importance methods
 
-### `importance = "anova"` (default)
+`importance = "anova"` (default)
 
 `orsf_vi_anova(fit)`
 
@@ -103,7 +112,7 @@ fit
 
 ## Variable importance methods {.scrollable}
 
-### `importance = "negation"`
+`importance = "negation"`
 
 `orsf_vi_negate(fit)`
 
@@ -117,7 +126,7 @@ fit
 
 ## Variable importance methods
 
-### `importance = "permutation"`
+`importance = "permutation"`
 
 `orsf_vi_permute(fit)`
 
