@@ -469,8 +469,9 @@ Lukas Burk
 </ul>
 </div>
 </div><div class="column" style="width:&quot;50%;">
-<h3 id="aorsf"><code>{aorsf}</code></h3>
 <div class="fragment">
+<!-- -->
+<h3 id="aorsf"><code>{aorsf}</code></h3>
 <ul>
 <li><code>{aorsf}</code> applies Newton-Raphson scoring to partial Cox-likelihood</li>
 <li>Fastest (default) version: Only <em>one</em> NR iteration</li>
@@ -518,39 +519,49 @@ Min observations in leaf: 5
 </section>
 <section id="variable-importance-methods" class="slide level2">
 <h2>Variable importance methods</h2>
-<p><code>importance = "anova"</code> (default)</p>
-<p><code>orsf_vi_anova(fit)</code></p>
+<p><code>importance = "anova"</code> (default)<br>
+<code>orsf_vi_anova(fit)</code></p>
 <blockquote>
 <p>A <strong>p-value</strong> is computed for each coefficient <strong>in each linear combination of variables</strong> in each decision tree.</p>
 </blockquote>
+<div class="fragment">
 <blockquote>
 <p>Importance for an individual predictor variable is the <strong>proportion of times a p-value for its coefficient is &lt; 0.01</strong>.</p>
 </blockquote>
+</div>
+<div class="fragment">
 <blockquote>
 <p>This technique is <strong>very efficient computationally</strong>, but may not be as effective as permutation or negation in terms of selecting signal over noise variables.</p>
 </blockquote>
+</div>
 </section>
-<section id="variable-importance-methods-1" class="slide level2 scrollable">
+<section id="variable-importance-methods-1" class="slide level2 scrollable smaller">
 <h2>Variable importance methods</h2>
-<p><code>importance = "negation"</code></p>
-<p><code>orsf_vi_negate(fit)</code></p>
+<p><code>importance = "negation"</code><br>
+<code>orsf_vi_negate(fit)</code></p>
 <blockquote>
 <p>Each variable is assessed separately by <strong>multiplying the variable’s coefficients by -1</strong> and then determining how much the model’s performance changes.</p>
 </blockquote>
+<div class="fragment">
 <blockquote>
 <p>The worse the model’s performance after negating coefficients for a given variable, the more important the variable.</p>
 </blockquote>
+</div>
+<div class="fragment">
 <blockquote>
 <p>This technique is <strong>promising b/c it does not require permutation and it emphasizes variables with larger coefficients</strong> in linear combinations,</p>
 </blockquote>
+</div>
+<div class="fragment">
 <blockquote>
 <p>but it is also <strong>relatively new and hasn’t been studied as much</strong> as permutation importance.</p>
 </blockquote>
+</div>
 </section>
 <section id="variable-importance-methods-2" class="slide level2">
 <h2>Variable importance methods</h2>
-<p><code>importance = "permutation"</code></p>
-<p><code>orsf_vi_permute(fit)</code></p>
+<p><code>importance = "permutation"</code><br>
+<code>orsf_vi_permute(fit)</code></p>
 <div class="absolute" style="top: 50%; ">
 <p>Standard permutation feature importance,<br>
 as known from other R(S)F implementations</p>

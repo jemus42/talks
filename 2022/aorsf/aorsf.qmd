@@ -58,7 +58,9 @@ Linear but not orthogonal
 
 :::: {.columns}
 ::: {.column width="50%}
+
 ### `{obliqueRSF}`
+
 ::: {.fragment}
 
 - Oblique splits are based on linear combinations of predictors
@@ -69,8 +71,10 @@ Linear but not orthogonal
 :::
 ::: {.column width="50%}
 
-### `{aorsf}`
 ::: {.fragment}
+
+### `{aorsf}`
+
 - `{aorsf}` applies Newton-Raphson scoring to partial Cox-likelihood
 - Fastest (default) version: Only _one_ NR iteration
 - Also available:
@@ -79,6 +83,7 @@ Linear but not orthogonal
 :::
 :::
 ::::
+
 ## Interface
 
 ```{r}
@@ -99,35 +104,42 @@ fit
 
 ## Variable importance methods
 
-`importance = "anova"` (default)
-
+`importance = "anova"` (default)  
 `orsf_vi_anova(fit)`
 
 > A **p-value** is computed for each coefficient **in each linear combination of variables** in each decision tree. 
 
+. . .
+
 > Importance for an individual predictor variable is the **proportion of times a p-value for its coefficient is < 0.01**.
+
+. . .
 
 > This technique is **very efficient computationally**, but may not be as effective as permutation or negation in terms of selecting signal over noise variables.
 
 
-## Variable importance methods {.scrollable}
+## Variable importance methods {.scrollable .smaller}
 
-`importance = "negation"`
-
+`importance = "negation"`  
 `orsf_vi_negate(fit)`
 
 > Each variable is assessed separately by **multiplying the variable’s coefficients by -1** and then determining how much the model’s performance changes.
 
+. . .
+
 > The worse the model’s performance after negating coefficients for a given variable, the more important the variable.
 
+. . .
+
 > This technique is **promising b/c it does not require permutation and it emphasizes variables with larger coefficients** in linear combinations,
+
+. . .
 
 > but it is also **relatively new and hasn’t been studied as much** as permutation importance.
 
 ## Variable importance methods
 
-`importance = "permutation"`
-
+`importance = "permutation"`  
 `orsf_vi_permute(fit)`
 
 ::: {.absolute top=50%}
@@ -159,11 +171,19 @@ vis <- tibble::tibble(
 
 vis |>
   tidyr::gather(anova:negate, key = "Method", value = "Importance") |>
-  ggplot(aes(y = Variable, x = Importance, fill = Method)) +
+  dplyr::group_by(Method) |>
+  dplyr::mutate(imp_rank = rank(Importance)) |>
+  dplyr::ungroup() |>
+  ggplot(aes(y = reorder(Variable, imp_rank), x = Importance, fill = Method)) +
   facet_wrap(~Method, scales = "free") +
   geom_col() +
   scale_fill_brewer(palette = "Dark2", guide = "none") +
-  theme_minimal(base_size = 14)
+  labs(
+    title = "Comparison of included VI methods",
+    subtitle = "Ordered by average rank"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title.position = "plot")
 ```
 
 
@@ -181,6 +201,7 @@ pd_sex_tv <- orsf_pd_oob(fit, pred_spec = list(sex = c("m", "f")),
 
 ```{r}
 #| fig-align: "center"
+#| cache: true
 ggplot(pd_sex_tv, aes(x = pred_horizon, y = mean, color = sex)) + 
   geom_line() +
   labs(x = 'Time since baseline',
@@ -205,6 +226,7 @@ ice_oob[, pred := pred - pred_subtract]
 
 ```{r}
 #| fig-align: "center"
+#| cache: true
 ggplot(ice_oob, aes(x = bili, 
                     y = pred, 
                     group = id_row)) + 
