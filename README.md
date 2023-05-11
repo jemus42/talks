@@ -1,9 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Assortment of Slides
+# Slide Dump
 
-Talks, pitches, journal clubs, almost organized.
+Talks, pitches, journal club presentations, almost organized. But not
+really, let’s be honest.
 
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
@@ -28,7 +29,18 @@ Context
 <a href="/2023/05-cooper/CooPeR.html">CooPeR</a>
 </td>
 <td style="text-align:left;">
-fwelnet for survival, again, but… more. And renamed.
+fwelnet for survival w/ competing risks, again, but… more. And renamed.
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2022
+</td>
+<td style="text-align:left;">
+<a href="2022/aorsf/aorsf.html">aorsf</a>
+</td>
+<td style="text-align:left;">
+ORSF, but A (survival focus group)
 </td>
 </tr>
 <tr>
@@ -39,7 +51,7 @@ fwelnet for survival, again, but… more. And renamed.
 <a href="/2022/imljc-xaibench/index.html">xai-bench</a>
 </td>
 <td style="text-align:left;">
-XAI-Bench / Journal Club BIPS/LMU
+XAI-Bench / Journal Club BIPS/SLDS
 </td>
 </tr>
 <tr>
