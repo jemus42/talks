@@ -17,19 +17,19 @@ knitr::opts_chunk$set(
 
 Talks, pitches, journal clubs, almost organized.
 
-## 2022
 
 ```{r}
 tibble::tribble(
-  ~short, ~desc, ~link,
-  "xai-bench", "XAI-Bench / Journal Club BIPS/LMU", "/2022/imljc-xaibench/index.html",
-  "fwelnet-cr", "fwelnet for survival outcomes with competing risks (idea/pitch)", "/2022/fwelnet-cr/fwelnet-cr.html"
+  ~year, ~short, ~desc, ~link,
+  2023, "CooPeR", "fwelnet for survival, again, but... more. And renamed.", "/2023/fwelnet-cr-cooper/CooPeR.html",
+  2022, "xai-bench", "XAI-Bench / Journal Club BIPS/LMU", "/2022/imljc-xaibench/index.html",
+  2022, "fwelnet-cr", "fwelnet for survival outcomes with competing risks (idea/pitch)", "/2022/fwelnet-cr/fwelnet-cr.html"
 ) |>
   dplyr::mutate(
     short = glue::glue("<a href='{link}'>{short}</a>")
   ) |>
   dplyr::select(-link) |>
-  knitr::kable(col.names = c("Topic", "Context"), escape = FALSE) |>
+  knitr::kable(col.names = c("Year", "Topic", "Context"), escape = FALSE) |>
   kableExtra::kable_styling(full_width = TRUE)
 ```
 

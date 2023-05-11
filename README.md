@@ -5,11 +5,12 @@
 
 Talks, pitches, journal clubs, almost organized.
 
-## 2022
-
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
+<th style="text-align:right;">
+Year
+</th>
 <th style="text-align:left;">
 Topic
 </th>
@@ -20,6 +21,20 @@ Context
 </thead>
 <tbody>
 <tr>
+<td style="text-align:right;">
+2023
+</td>
+<td style="text-align:left;">
+<a href="/2023/fwelnet-cr-cooper/CooPeR.html">CooPeR</a>
+</td>
+<td style="text-align:left;">
+fwelnet for survival, again, but… more. And renamed.
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2022
+</td>
 <td style="text-align:left;">
 <a href="/2022/imljc-xaibench/index.html">xai-bench</a>
 </td>
@@ -28,6 +43,9 @@ XAI-Bench / Journal Club BIPS/LMU
 </td>
 </tr>
 <tr>
+<td style="text-align:right;">
+2022
+</td>
 <td style="text-align:left;">
 <a href="/2022/fwelnet-cr/fwelnet-cr.html">fwelnet-cr</a>
 </td>
