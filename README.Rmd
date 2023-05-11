@@ -21,7 +21,7 @@ Talks, pitches, journal clubs, almost organized.
 ```{r}
 tibble::tribble(
   ~year, ~short, ~desc, ~link,
-  2023, "CooPeR", "fwelnet for survival, again, but... more. And renamed.", "/2023/fwelnet-cr-cooper/CooPeR.html",
+  2023, "CooPeR", "fwelnet for survival, again, but... more. And renamed.", "/2023/05-cooper/CooPeR.html",
   2022, "xai-bench", "XAI-Bench / Journal Club BIPS/LMU", "/2022/imljc-xaibench/index.html",
   2022, "fwelnet-cr", "fwelnet for survival outcomes with competing risks (idea/pitch)", "/2022/fwelnet-cr/fwelnet-cr.html"
 ) |>
