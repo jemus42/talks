@@ -1,0 +1,346 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Primary document settings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass{beamer}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+
+\usepackage[
+    backend=biber,
+    natbib=true,
+    style=apa,
+    %bibstyle=authoryear, citestyle=apa,
+    %style=authoryear,
+    sorting=nyt,
+    %sortlocale=de_DE,
+    sortlocale=en_US,
+    url=false,
+    doi=true,
+]{biblatex}
+
+\addbibresource{references.bib}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Extra stuff for Rmarkdown to work (code blocks)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{verbatim}{Verbatim}{xleftmargin=0em}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{xleftmargin=0em,commandchars=\\\{\}}
+
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{{#1}}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\ImportTok}[1]{{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{{#1}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{{#1}}}}
+\newcommand{\BuiltInTok}[1]{{#1}}
+\newcommand{\ExtensionTok}[1]{{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{{#1}}}
+\newcommand{\RegionMarkerTok}[1]{{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{{#1}}}}
+\newcommand{\NormalTok}[1]{{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% kableExtra stuff (tables)
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main document
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usetheme[fira]{BIPS}
+%\usetheme[german]{BIPS}  % for the German version
+%\usetheme[fira]{BIPS} % English with the Fira font
+%\usetheme[german,fira]{BIPS} % German with the Fira font
+
+% Note that for the Fira font, you need to use
+% XeLaTeX instead of pdfLaTeX. You can find this in
+% most interfaces
+
+\title{Generating High-Dimensional Competing Risk Survival Settings}
+\subtitle{A thing that I do for reasons}
+\author{Lukas Burk}
+\date{2023-05-13}
+\contactauthor{Lukas Burk}
+\occasion{BioWiMium}
+\email{\href{mailto:burk@leibniz-bips.de}{\nolinkurl{burk@leibniz-bips.de}}}
+
+\begin{document}
+
+\frame{\maketitle}
+
+\begin{frame}{Introduction}
+\protect\hypertarget{introduction}{}
+\begin{itemize}
+\tightlist
+\item
+  Simulation setup part of ongoing project
+\item
+  Motivation: Variable selection in high-dimensional settings with
+  competing risks
+\item
+  Outcome: 2 competing events, censoring approx. equal prevalence
+\item
+  Focus more on high-dimensional setting than sophisticated survival
+  outcome
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Generating Survival Times (I)}
+\protect\hypertarget{generating-survival-times-i}{}
+\textcite{binder2009boostinghighdimensional}
+
+\includegraphics[width=0.95\linewidth]{img/binder2009}
+\end{frame}
+
+\begin{frame}{Generating Survival Times (II)}
+\protect\hypertarget{generating-survival-times-ii}{}
+\textcite{binder2008adaptingprediction}
+
+\includegraphics[width=0.95\linewidth]{img/binder2007}
+\end{frame}
+
+\begin{frame}{Generating Survival Times (III)}
+\protect\hypertarget{generating-survival-times-iii}{}
+\textcite{bender2005generatingsurvival}
+
+\includegraphics[width=0.95\linewidth]{img/bender2003}
+\end{frame}
+
+\begin{frame}{Predictors: Structure}
+\protect\hypertarget{predictors-structure}{}
+\begin{itemize}
+\tightlist
+\item
+  \(N = 400\), \(p = 5000\), 16 informative (12 per event)
+\item
+  Organized in 4 blocks á 250 correlated variables + uncorrelated noise
+\end{itemize}
+
+\begin{block}{Blocks}
+\protect\hypertarget{blocks}{}
+\begin{itemize}
+\tightlist
+\item
+  Block 1: \(\rho \approx 0.5\)
+\item
+  Block 2: \(\rho \approx 0.35\)
+\item
+  Block 3: \(\rho \approx 0.05\)
+\item
+  Block 4: \(\rho \approx 0.32\)
+\item
+  Rest: \(\rho \approx 0\)
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{Predictors: Generation}
+\protect\hypertarget{predictors-generation}{}
+\begin{itemize}
+\tightlist
+\item
+  \(j = 1, \ldots, p\) and \(i = 1, \ldots, N\)
+\item
+  \(\epsilon_{ij} \sim \mathcal{N}(0, 1)\) and
+  \(u_{i\{1,2,3\}} \sim \mathcal{U}(0, 1)\)
+\end{itemize}
+
+\[
+x_{ij} = \begin{cases}
+-1 + \epsilon_{ij}                                   & i \leq 0.5n \text{ and } j \leq 0.05p \\
+1 + \epsilon_{ij}                                    & i > 0.5n \text{ and } j \leq 0.05p \\
+1.5 \cdot \mathbf{1}\{u_{i1} < 0.4\} + \epsilon_{ij} & 0.05p < j \leq 0.1p \\
+0.5 \cdot \mathbf{1}\{u_{i2} < 0.7\} + \epsilon_{ij} & 0.1p < j \leq 0.2p \\
+1.5 \cdot \mathbf{1}\{u_{i3} < 0.3\} + \epsilon_{ij} & 0.2p < j \leq 0.3p \\
+\epsilon_{ij}                                        & j > 0.3p
+\end{cases}
+\]
+\end{frame}
+
+\begin{frame}{Effect Assignment}
+\protect\hypertarget{effect-assignment}{}
+\begin{itemize}
+\item
+  Cause-specific hazards with coefficients \(\boldsymbol{\beta}_k\)
+\item
+  \(\beta_{jk} = \pm 0.5\) for effect variables
+\item
+  Block 1 (\textbf{Mutual}): 4 variables
+
+  \begin{itemize}
+  \tightlist
+  \item
+    same effect on both cause-specific hazards
+  \end{itemize}
+\item
+  Block 2 (\textbf{Reversed}): 4 variables
+
+  \begin{itemize}
+  \tightlist
+  \item
+    positive effect on cause 1 and negative on cause 2
+  \end{itemize}
+\item
+  Block 3 (\textbf{Disjoint}): 4 + 4 variables
+
+  \begin{itemize}
+  \tightlist
+  \item
+    3.1: effect on cause 1 only
+  \item
+    3.2: effect on cause 2 only
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Event and Censoring Times}
+\protect\hypertarget{event-and-censoring-times}{}
+\begin{itemize}
+\tightlist
+\item
+  Cox-exponential model for outcome \(k = 1,2\)
+\item
+  Baseline hazards for event times \(T_i\) and censoring times \(C_i\):
+  \(\lambda_k = \lambda_C = 0.1\)
+\end{itemize}
+
+\begin{align}
+T_i^{(k)} = -\frac{U_i}{\lambda_k \exp(\mathbf{x}^{T}_i\boldsymbol{\beta}_k)} &
+C_i       = \frac{-U_i}{\lambda_C}
+\end{align}
+
+\begin{align}
+t_i &= \min(T_i^{(1)}, T_i^{(2)}, C_i) \\[0.5pt]
+\delta_i &= \begin{cases}
+0 & \text{if}\ t_i = C_i \\
+1 & \text{if}\ t_i = T_i^{(1)} \\
+2 & \text{if}\ t_i = T_i^{(2)} \\
+\end{cases}
+\end{align}
+\end{frame}
+
+\begin{frame}{Thanks!}
+\protect\hypertarget{thanks}{}
+Next up: Implementation details nobody will want to see but I but on
+here any \emph{just in case} because I don't have too much else to talk
+about in this regard sorry
+\end{frame}
+
+\begin{frame}[fragile]{Predictors: Code}
+\protect\hypertarget{predictors-code}{}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{  X }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{rnorm}\NormalTok{(n }\SpecialCharTok{*}\NormalTok{ p), }\AttributeTok{nrow =}\NormalTok{ n, }\AttributeTok{ncol =}\NormalTok{ p)}
+\NormalTok{  ui1 }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(n); ui2 }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(n); ui3 }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(n)}
+\NormalTok{  j\_seq }\OtherTok{\textless{}{-}} \FunctionTok{seq\_len}\NormalTok{(p)}
+\NormalTok{  block1 }\OtherTok{\textless{}{-}} \FunctionTok{which}\NormalTok{(j\_seq }\SpecialCharTok{\textless{}=} \FloatTok{0.05} \SpecialCharTok{*}\NormalTok{ p)}
+\NormalTok{  X[}\FunctionTok{seq\_len}\NormalTok{(n}\SpecialCharTok{/}\DecValTok{2}\NormalTok{), block1] }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\DecValTok{1} \SpecialCharTok{+}\NormalTok{ X[}\FunctionTok{seq\_len}\NormalTok{(n}\SpecialCharTok{/}\DecValTok{2}\NormalTok{), block1]}
+\NormalTok{  X[}\SpecialCharTok{{-}}\FunctionTok{seq\_len}\NormalTok{(n}\SpecialCharTok{/}\DecValTok{2}\NormalTok{), block1] }\OtherTok{\textless{}{-}} \DecValTok{1} \SpecialCharTok{+}\NormalTok{ X[}\SpecialCharTok{{-}}\FunctionTok{seq\_len}\NormalTok{(n}\SpecialCharTok{/}\DecValTok{2}\NormalTok{), block1]}
+\NormalTok{  block2 }\OtherTok{\textless{}{-}} \FunctionTok{which}\NormalTok{((j\_seq }\SpecialCharTok{\textgreater{}}\NormalTok{ (}\FloatTok{0.05} \SpecialCharTok{*}\NormalTok{ p)) }\SpecialCharTok{\&}\NormalTok{ (j\_seq }\SpecialCharTok{\textless{}=}\NormalTok{ (}\FloatTok{0.1} \SpecialCharTok{*}\NormalTok{ p)))}
+\NormalTok{  X[, block2] }\OtherTok{\textless{}{-}} \FloatTok{1.5} \SpecialCharTok{*}\NormalTok{ (ui1 }\SpecialCharTok{\textless{}} \FloatTok{0.4}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ X[, block2]}
+\NormalTok{  block3 }\OtherTok{\textless{}{-}} \FunctionTok{which}\NormalTok{((}\FloatTok{0.1} \SpecialCharTok{*}\NormalTok{ p }\SpecialCharTok{\textless{}}\NormalTok{ j\_seq) }\SpecialCharTok{\&}\NormalTok{ (j\_seq }\SpecialCharTok{\textless{}=} \FloatTok{0.2} \SpecialCharTok{*}\NormalTok{ p))}
+\NormalTok{  X[, block3] }\OtherTok{\textless{}{-}} \FloatTok{0.5} \SpecialCharTok{*}\NormalTok{ (ui2 }\SpecialCharTok{\textless{}} \FloatTok{0.7}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ X[, block3]}
+\NormalTok{  block4 }\OtherTok{\textless{}{-}} \FunctionTok{which}\NormalTok{((}\FloatTok{0.2} \SpecialCharTok{*}\NormalTok{ p }\SpecialCharTok{\textless{}}\NormalTok{ j\_seq) }\SpecialCharTok{\&}\NormalTok{ (j\_seq }\SpecialCharTok{\textless{}=} \FloatTok{0.3} \SpecialCharTok{*}\NormalTok{ p))}
+\NormalTok{  X[, block4] }\OtherTok{\textless{}{-}} \FloatTok{1.5} \SpecialCharTok{*}\NormalTok{ (ui3 }\SpecialCharTok{\textless{}} \FloatTok{0.3}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ X[, block4]}
+\end{Highlighting}
+\end{Shaded}
+\end{frame}
+
+\begin{frame}[fragile]{Efect Assignment: Code}
+\protect\hypertarget{efect-assignment-code}{}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{  ce }\OtherTok{\textless{}{-}} \FloatTok{0.5}
+  \CommentTok{\# first block}
+\NormalTok{  j\_block1 }\OtherTok{\textless{}{-}} \FunctionTok{which}\NormalTok{(j\_seq }\SpecialCharTok{\textless{}=} \FloatTok{0.05} \SpecialCharTok{*}\NormalTok{ p)}
+\NormalTok{  beta1[j\_block1[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ ce}
+\NormalTok{  beta2[j\_block1[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ ce}
+  \CommentTok{\# second block}
+\NormalTok{  j\_block2 }\OtherTok{\textless{}{-}} \FunctionTok{which}\NormalTok{((j\_seq }\SpecialCharTok{\textgreater{}}\NormalTok{ (}\FloatTok{0.05} \SpecialCharTok{*}\NormalTok{ p)) }\SpecialCharTok{\&}\NormalTok{ (j\_seq }\SpecialCharTok{\textless{}=}\NormalTok{ (}\FloatTok{0.1} \SpecialCharTok{*}\NormalTok{ p)))}
+\NormalTok{  beta1[j\_block2[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ ce}
+\NormalTok{  beta2[j\_block2[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{]] }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{ce}
+  \CommentTok{\# third block}
+\NormalTok{  j\_block3 }\OtherTok{\textless{}{-}} \FunctionTok{which}\NormalTok{((}\FloatTok{0.1} \SpecialCharTok{*}\NormalTok{ p }\SpecialCharTok{\textless{}}\NormalTok{ j\_seq) }\SpecialCharTok{\&}\NormalTok{ (j\_seq }\SpecialCharTok{\textless{}=} \FloatTok{0.2} \SpecialCharTok{*}\NormalTok{ p))}
+\NormalTok{  beta1[j\_block3[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{]] }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{ce}
+\NormalTok{  beta2[j\_block3[}\DecValTok{5}\SpecialCharTok{:}\DecValTok{8}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ ce }\CommentTok{\# offset by 4}
+\end{Highlighting}
+\end{Shaded}
+\end{frame}
+
+\begin{frame}[fragile]{Event Times: Code}
+\protect\hypertarget{event-times-code}{}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{  lp1 }\OtherTok{\textless{}{-}}\NormalTok{ X }\SpecialCharTok{\%*\%}\NormalTok{ beta1}
+\NormalTok{  lp2 }\OtherTok{\textless{}{-}}\NormalTok{ X }\SpecialCharTok{\%*\%}\NormalTok{ beta2}
+
+\NormalTok{  Ti1 }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{log}\NormalTok{(}\FunctionTok{runif}\NormalTok{(n)) }\SpecialCharTok{/}\NormalTok{ (lambda1 }\SpecialCharTok{*} \FunctionTok{exp}\NormalTok{(lp1))}
+\NormalTok{  Ti2 }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{log}\NormalTok{(}\FunctionTok{runif}\NormalTok{(n)) }\SpecialCharTok{/}\NormalTok{ (lambda2 }\SpecialCharTok{*} \FunctionTok{exp}\NormalTok{(lp2))}
+\NormalTok{  Ci }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{log}\NormalTok{(}\FunctionTok{runif}\NormalTok{(n)) }\SpecialCharTok{/}\NormalTok{ lambda\_c}
+
+\NormalTok{  ti }\OtherTok{\textless{}{-}} \FunctionTok{pmin}\NormalTok{(Ti1, Ti2, Ci)}
+\NormalTok{  di }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(Ti1 }\SpecialCharTok{\textless{}=}\NormalTok{ Ci }\SpecialCharTok{|}\NormalTok{ Ti2 }\SpecialCharTok{\textless{}=}\NormalTok{ Ci)}
+\NormalTok{  di[}\FunctionTok{which}\NormalTok{(Ti2 }\SpecialCharTok{\textless{}=}\NormalTok{ Ti1 }\SpecialCharTok{\&}\NormalTok{ Ti2 }\SpecialCharTok{\textless{}=}\NormalTok{ Ci)] }\OtherTok{\textless{}{-}} \DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+\end{frame}
+
+%%% Final slide with contact information
+\thanksframe{Thank you for your attention}
+
+%%% bib?
+\begin{frame}{Bibliography}
+
+\printbibliography[heading=none]
+
+\end{frame}
+
+\end{document}

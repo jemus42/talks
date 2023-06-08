@@ -26,7 +26,18 @@ Context
 2023
 </td>
 <td style="text-align:left;">
-<a href="/2023/05-cooper/CooPeR.html">CooPeR</a>
+<a href="2023/06-wimium/cr.pdf">BioWiMium</a>
+</td>
+<td style="text-align:left;">
+Generating High-Dimensional Competing Risk Survival Settings
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2023
+</td>
+<td style="text-align:left;">
+<a href="2023/05-cooper/CooPeR.html">CooPeR</a>
 </td>
 <td style="text-align:left;">
 fwelnet for survival w/ competing risks, again, but… more. And renamed.
@@ -48,7 +59,7 @@ ORSF, but A (survival focus group)
 2022
 </td>
 <td style="text-align:left;">
-<a href="/2022/imljc-xaibench/index.html">xai-bench</a>
+<a href="2022/imljc-xaibench/index.html">xai-bench</a>
 </td>
 <td style="text-align:left;">
 XAI-Bench / Journal Club BIPS/SLDS
@@ -59,7 +70,7 @@ XAI-Bench / Journal Club BIPS/SLDS
 2022
 </td>
 <td style="text-align:left;">
-<a href="/2022/fwelnet-cr/fwelnet-cr.html">fwelnet-cr</a>
+<a href="2022/fwelnet-cr/fwelnet-cr.html">fwelnet-cr</a>
 </td>
 <td style="text-align:left;">
 fwelnet for survival outcomes with competing risks (idea/pitch)

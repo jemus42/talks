@@ -20,10 +20,11 @@ Talks, pitches, journal club presentations, almost organized. But not really, le
 ```{r}
 tibble::tribble(
   ~year, ~short, ~desc, ~link,
-  2023, "CooPeR", "fwelnet for survival w/ competing risks, again, but... more. And renamed.", "/2023/05-cooper/CooPeR.html",
+  2023, "BioWiMium", "Generating High-Dimensional Competing Risk Survival Settings", "2023/06-wimium/cr.pdf",
+  2023, "CooPeR", "fwelnet for survival w/ competing risks, again, but... more. And renamed.", "2023/05-cooper/CooPeR.html",
   2022, "aorsf", "ORSF, but A (survival focus group)", "2022/aorsf/aorsf.html",
-  2022, "xai-bench", "XAI-Bench / Journal Club BIPS/SLDS", "/2022/imljc-xaibench/index.html",
-  2022, "fwelnet-cr", "fwelnet for survival outcomes with competing risks (idea/pitch)", "/2022/fwelnet-cr/fwelnet-cr.html"
+  2022, "xai-bench", "XAI-Bench / Journal Club BIPS/SLDS", "2022/imljc-xaibench/index.html",
+  2022, "fwelnet-cr", "fwelnet for survival outcomes with competing risks (idea/pitch)", "2022/fwelnet-cr/fwelnet-cr.html"
 ) |>
   dplyr::mutate(
     short = glue::glue("<a href='{link}'>{short}</a>")
