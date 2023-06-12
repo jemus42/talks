@@ -94,6 +94,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main document
 %%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{bm}
 
 \usetheme[fira]{BIPS}
 %\usetheme[german]{BIPS}  % for the German version
@@ -104,8 +105,8 @@
 % XeLaTeX instead of pdfLaTeX. You can find this in
 % most interfaces
 
-\title{Generating High-Dimensional Competing Risk Survival Settings}
-\subtitle{A thing that I do for reasons}
+\title{Simulating Competing Risk Survival Settings}
+\subtitle{With High-Dimensional Data}
 \author{Lukas Burk}
 \date{2023-05-13}
 \contactauthor{Lukas Burk}
@@ -118,40 +119,49 @@
 
 \begin{frame}{Introduction}
 \protect\hypertarget{introduction}{}
+Simulation setup part of ongoing project
+
+\begin{block}{Motivation}
+\protect\hypertarget{motivation}{}
 \begin{itemize}
 \tightlist
 \item
-  Simulation setup part of ongoing project
-\item
-  Motivation: Variable selection in high-dimensional settings with
-  competing risks
-\item
-  Outcome: 2 competing events, censoring approx. equal prevalence
+  Variable selection in high-dimensional settings with competing risks
 \item
   Focus more on high-dimensional setting than sophisticated survival
   outcome
 \end{itemize}
+\end{block}
+
+\begin{block}{Outcome}
+\protect\hypertarget{outcome}{}
+\begin{itemize}
+\tightlist
+\item
+  2 competing events, censoring approx. equal prevalence
+\end{itemize}
+\end{block}
 \end{frame}
 
 \begin{frame}{Generating Survival Times (I)}
 \protect\hypertarget{generating-survival-times-i}{}
-\textcite{binder2009boostinghighdimensional}
-
 \includegraphics[width=0.95\linewidth]{img/binder2009}
+
+\textcite{binder2009boostinghighdimensional}
 \end{frame}
 
 \begin{frame}{Generating Survival Times (II)}
 \protect\hypertarget{generating-survival-times-ii}{}
-\textcite{binder2008adaptingprediction}
-
 \includegraphics[width=0.95\linewidth]{img/binder2007}
+
+\textcite{binder2008adaptingprediction}
 \end{frame}
 
 \begin{frame}{Generating Survival Times (III)}
 \protect\hypertarget{generating-survival-times-iii}{}
-\textcite{bender2005generatingsurvival}
-
 \includegraphics[width=0.95\linewidth]{img/bender2003}
+
+\textcite{bender2005generatingsurvival}
 \end{frame}
 
 \begin{frame}{Predictors: Structure}
@@ -195,12 +205,12 @@
 
 \[
 x_{ij} = \begin{cases}
--1 + \epsilon_{ij}                                   & i \leq 0.5n \text{ and } j \leq 0.05p \\
-1 + \epsilon_{ij}                                    & i > 0.5n \text{ and } j \leq 0.05p \\
-1.5 \cdot \mathbf{1}\{u_{i1} < 0.4\} + \epsilon_{ij} & 0.05p < j \leq 0.1p \\
-0.5 \cdot \mathbf{1}\{u_{i2} < 0.7\} + \epsilon_{ij} & 0.1p < j \leq 0.2p \\
-1.5 \cdot \mathbf{1}\{u_{i3} < 0.3\} + \epsilon_{ij} & 0.2p < j \leq 0.3p \\
-\epsilon_{ij}                                        & j > 0.3p
+-1 + \epsilon_{ij}                                   & \text{for}\ i \leq 0.5n \text{ and } j \leq 0.05p \\
+1 + \epsilon_{ij}                                    & \text{for}\ i > 0.5n \text{ and } j \leq 0.05p \\
+1.5 \cdot \mathbf{1}\{u_{i1} < 0.4\} + \epsilon_{ij} & \text{for}\ 0.05p < j \leq 0.1p \\
+0.5 \cdot \mathbf{1}\{u_{i2} < 0.7\} + \epsilon_{ij} & \text{for}\ 0.1p < j \leq 0.2p \\
+1.5 \cdot \mathbf{1}\{u_{i3} < 0.3\} + \epsilon_{ij} & \text{for}\ 0.2p < j \leq 0.3p \\
+\epsilon_{ij}                                        & \text{for}\ j > 0.3p
 \end{cases}
 \]
 \end{frame}
@@ -208,70 +218,128 @@ x_{ij} = \begin{cases}
 \begin{frame}{Effect Assignment}
 \protect\hypertarget{effect-assignment}{}
 \begin{itemize}
+\tightlist
 \item
-  Cause-specific hazards with coefficients \(\boldsymbol{\beta}_k\)
+  Cause-specific hazards for events \(k = 1,2\) and coefficients
+  \(\pmb{\beta}^{(k)}\)
 \item
-  \(\beta_{jk} = \pm 0.5\) for effect variables
-\item
-  Block 1 (\textbf{Mutual}): 4 variables
-
-  \begin{itemize}
-  \tightlist
-  \item
-    same effect on both cause-specific hazards
-  \end{itemize}
-\item
-  Block 2 (\textbf{Reversed}): 4 variables
-
-  \begin{itemize}
-  \tightlist
-  \item
-    positive effect on cause 1 and negative on cause 2
-  \end{itemize}
-\item
-  Block 3 (\textbf{Disjoint}): 4 + 4 variables
-
-  \begin{itemize}
-  \tightlist
-  \item
-    3.1: effect on cause 1 only
-  \item
-    3.2: effect on cause 2 only
-  \end{itemize}
+  \(\beta^{(k)}_j = \pm 0.5\) for effect variables
 \end{itemize}
-\end{frame}
 
-\begin{frame}{Event and Censoring Times}
-\protect\hypertarget{event-and-censoring-times}{}
 \begin{itemize}
 \tightlist
 \item
-  Cox-exponential model for outcome \(k = 1,2\)
+  Block 1 (\textbf{Mutual}): 4 effect variables
+
+  \begin{itemize}
+  \tightlist
+  \item
+    same effect on both \(\pmb{\beta}^{(1,2)}\) cause-specific hazards
+  \end{itemize}
 \item
-  Baseline hazards for event times \(T_i\) and censoring times \(C_i\):
-  \(\lambda_k = \lambda_C = 0.1\)
+  Block 2 (\textbf{Reversed}): 4 effect variables
+
+  \begin{itemize}
+  \tightlist
+  \item
+    positive effect in \(\pmb{\beta}^{(1)}\) and negative in
+    \(\pmb{\beta}^{(2)}\)
+  \end{itemize}
+\item
+  Block 3 (\textbf{Disjoint}): 8 variables
+
+  \begin{itemize}
+  \tightlist
+  \item
+    3.1: 4 effect variables in \(\pmb{\beta}^{(1)}\) only
+  \item
+    3.2: 4 effect variables \(\pmb{\beta}^{(2)}\) only
+  \end{itemize}
 \end{itemize}
-
-\begin{align}
-T_i^{(k)} = -\frac{U_i}{\lambda_k \exp(\mathbf{x}^{T}_i\boldsymbol{\beta}_k)} &
-C_i       = \frac{-U_i}{\lambda_C}
-\end{align}
-
-\begin{align}
-t_i &= \min(T_i^{(1)}, T_i^{(2)}, C_i) \\[0.5pt]
-\delta_i &= \begin{cases}
-0 & \text{if}\ t_i = C_i \\
-1 & \text{if}\ t_i = T_i^{(1)} \\
-2 & \text{if}\ t_i = T_i^{(2)} \\
-\end{cases}
-\end{align}
 \end{frame}
 
-\begin{frame}{Thanks!}
-\protect\hypertarget{thanks}{}
-Next up: Implementation details nobody will want to see but I but on
-here any \emph{just in case} because I don't have too much else to talk
-about in this regard sorry
+\begin{frame}{Event and Censoring Times (I)}
+\protect\hypertarget{event-and-censoring-times-i}{}
+\begin{itemize}
+\tightlist
+\item
+  Cox-exponential model for events \(k = 1,2\)
+\item
+  \(\lambda_{1,2,C}\): Baseline hazards for event times \(T_i^{(k)}\),
+  and censoring times \(C_i\)
+\item
+  Simple setting: \(\lambda_1 = \lambda_2 = \lambda_C = 0.1\)
+\end{itemize}
+
+\begin{align*}
+T_i^{(k)} &= \frac{-\log(U_i)}{\lambda_k \exp(\mathbf{x}^{T}_i\pmb{\beta}^{(k)})} \\
+C_i       &= \frac{-\log(U_i)}{\lambda_C}
+\end{align*}
+
+\[U_i \sim \mathcal{U}(0, 1) \Rightarrow -\log(U_i) \sim \mathrm{Exponential}(\lambda = 1)\]
+\end{frame}
+
+\begin{frame}{Event and Censoring Times (II)}
+\protect\hypertarget{event-and-censoring-times-ii}{}
+Assign observed event times \(t_i\) and censoring \(\delta_i\) indicator
+accordingly
+
+\begin{align*}
+t_i &= \min(T_i^{(1)}, T_i^{(2)}, C_i) & 
+\delta_i &= \begin{cases}
+  0 & \text{if}\ t_i = C_i \\
+  1 & \text{if}\ t_i = T_i^{(1)} \\
+  2 & \text{if}\ t_i = T_i^{(2)} \\
+  \end{cases}
+\end{align*}
+\end{frame}
+
+\begin{frame}{Resulting Outcome}
+\protect\hypertarget{resulting-outcome}{}
+\begin{itemize}
+\tightlist
+\item
+  \(\pmb{\beta}^{(k)}\) sparse with 12 non-zero entries,
+  \(\sum_{i = 1}^p \beta^{(k)}_j = 2\)
+\end{itemize}
+
+\begin{itemize}
+\tightlist
+\item
+  \(\exp(\mathbf{x}^{T}_i\pmb{\beta}^{(k)})\) in range of
+  \([10^{-4}, 10^{3}]\)
+\end{itemize}
+
+\begin{block}{Event prevalences}
+\protect\hypertarget{event-prevalences}{}
+Mean event counts and prevalence after 100 replicates with \(N = 400\):
+
+\begin{table}
+\centering
+\begin{tabular}{l|l|l}
+\hline
+$\delta$ & $n$ (min - max) & \% (min - max)  \\
+\hline
+0 & 118.0 (97 - 136) & 29.5\% (24.2\% - 34.0\%)\\
+\hline
+1 & 165.1 (142 - 190) & 41.3\% (35.5\% - 47.5\%)\\
+\hline
+2 & 116.9 (93 - 141) & 29.2\% (23.2\% - 35.2\%)\\
+\hline
+\end{tabular}
+\end{table}
+\end{block}
+\end{frame}
+
+\begin{frame}{Thanks for listening!}
+\protect\hypertarget{thanks-for-listening}{}
+\end{frame}
+
+\begin{frame}{Buffer Slide}
+\protect\hypertarget{buffer-slide}{}
+Next up: Implementation details nobody will want to see but I put them
+on here any \emph{just in case} anyone asks because I don't have too
+much else to talk about in this regard sorry Mensa anyone?
 \end{frame}
 
 \begin{frame}[fragile]{Predictors: Code}

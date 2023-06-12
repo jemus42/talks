@@ -104,6 +104,7 @@ $endfor$
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main document
 %%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{bm}
 
 \usetheme[$for(themeoptions)$$themeoptions$$sep$,$endfor$]{BIPS}
 %\usetheme[german]{BIPS}  % for the German version
@@ -138,7 +139,6 @@ $if(bibliography)$
 \printbibliography[heading=none]
 
 \end{frame}
-$else$
-$endif$
+$else$$endif$
 
 \end{document}
