@@ -119,7 +119,11 @@
 
 \begin{frame}{Introduction}
 \protect\hypertarget{introduction}{}
-Simulation setup part of ongoing project
+\begin{itemize}
+\tightlist
+\item
+  Simulation setup is part of ongoing project
+\end{itemize}
 
 \begin{block}{Motivation}
 \protect\hypertarget{motivation}{}
@@ -128,8 +132,7 @@ Simulation setup part of ongoing project
 \item
   Variable selection in high-dimensional settings with competing risks
 \item
-  Focus more on high-dimensional setting than sophisticated survival
-  outcome
+  Focus more on high-dimensional setting
 \end{itemize}
 \end{block}
 
@@ -164,14 +167,14 @@ Simulation setup part of ongoing project
 \textcite{bender2005generatingsurvival}
 \end{frame}
 
-\begin{frame}{Predictors: Structure}
-\protect\hypertarget{predictors-structure}{}
+\begin{frame}{Covariates: Structure}
+\protect\hypertarget{covariates-structure}{}
 \begin{itemize}
 \tightlist
 \item
   \(N = 400\), \(p = 5000\), 16 informative (12 per event)
 \item
-  Organized in 4 blocks á 250 correlated variables + uncorrelated noise
+  Organized in 4 blocks of correlated variables \& uncorrelated noise
 \end{itemize}
 
 \begin{block}{Blocks}
@@ -192,24 +195,24 @@ Simulation setup part of ongoing project
 \end{block}
 \end{frame}
 
-\begin{frame}{Predictors: Generation}
-\protect\hypertarget{predictors-generation}{}
+\begin{frame}{Covariates: Generation}
+\protect\hypertarget{covariates-generation}{}
 \begin{itemize}
 \tightlist
 \item
   \(j = 1, \ldots, p\) and \(i = 1, \ldots, N\)
 \item
   \(\epsilon_{ij} \sim \mathcal{N}(0, 1)\) and
-  \(u_{i\{1,2,3\}} \sim \mathcal{U}(0, 1)\)
+  \(U_{i\{1,2,3\}} \sim \mathcal{U}(0, 1)\)
 \end{itemize}
 
 \[
 x_{ij} = \begin{cases}
 -1 + \epsilon_{ij}                                   & \text{for}\ i \leq 0.5n \text{ and } j \leq 0.05p \\
 1 + \epsilon_{ij}                                    & \text{for}\ i > 0.5n \text{ and } j \leq 0.05p \\
-1.5 \cdot \mathbf{1}\{u_{i1} < 0.4\} + \epsilon_{ij} & \text{for}\ 0.05p < j \leq 0.1p \\
-0.5 \cdot \mathbf{1}\{u_{i2} < 0.7\} + \epsilon_{ij} & \text{for}\ 0.1p < j \leq 0.2p \\
-1.5 \cdot \mathbf{1}\{u_{i3} < 0.3\} + \epsilon_{ij} & \text{for}\ 0.2p < j \leq 0.3p \\
+1.5 \cdot \mathbf{1}\{U_{i1} < 0.4\} + \epsilon_{ij} & \text{for}\ 0.05p < j \leq 0.1p \\
+0.5 \cdot \mathbf{1}\{U_{i2} < 0.7\} + \epsilon_{ij} & \text{for}\ 0.1p < j \leq 0.2p \\
+1.5 \cdot \mathbf{1}\{U_{i3} < 0.3\} + \epsilon_{ij} & \text{for}\ 0.2p < j \leq 0.3p \\
 \epsilon_{ij}                                        & \text{for}\ j > 0.3p
 \end{cases}
 \]
@@ -226,36 +229,40 @@ x_{ij} = \begin{cases}
   \(\beta^{(k)}_j = \pm 0.5\) for effect variables
 \end{itemize}
 
+\begin{block}{Blocks}
+\protect\hypertarget{blocks-1}{}
 \begin{itemize}
 \tightlist
 \item
-  Block 1 (\textbf{Mutual}): 4 effect variables
+  Block 1 (\textbf{``Mutual''}):
 
   \begin{itemize}
   \tightlist
   \item
-    same effect on both \(\pmb{\beta}^{(1,2)}\) cause-specific hazards
+    4 variables with positive effect in both of \(\pmb{\beta}^{(1,2)}\)
   \end{itemize}
 \item
-  Block 2 (\textbf{Reversed}): 4 effect variables
+  Block 2 (\textbf{``Reversed''}):
 
   \begin{itemize}
   \tightlist
   \item
-    positive effect in \(\pmb{\beta}^{(1)}\) and negative in
-    \(\pmb{\beta}^{(2)}\)
+    4 variables with positive effect in \(\pmb{\beta}^{(1)}\) and
+    negative in \(\pmb{\beta}^{(2)}\)
   \end{itemize}
 \item
-  Block 3 (\textbf{Disjoint}): 8 variables
+  Block 3 (\textbf{``Disjoint''}):
 
   \begin{itemize}
   \tightlist
   \item
-    3.1: 4 effect variables in \(\pmb{\beta}^{(1)}\) only
+    3.1: 4 variables with negative effect in \(\pmb{\beta}^{(1)}\) only
   \item
-    3.2: 4 effect variables \(\pmb{\beta}^{(2)}\) only
+    3.2: 4 (other) variables with positive effect in
+    \(\pmb{\beta}^{(2)}\) only
   \end{itemize}
 \end{itemize}
+\end{block}
 \end{frame}
 
 \begin{frame}{Event and Censoring Times (I)}
@@ -263,20 +270,23 @@ x_{ij} = \begin{cases}
 \begin{itemize}
 \tightlist
 \item
-  Cox-exponential model for events \(k = 1,2\)
+  Cox-exponential model for events \(k = 1,2\):
+  \[\lambda^{(k)}(x) = \lambda_k \exp(\mathbf{x}^T \pmb{\beta}^{(k)})\]
 \item
-  \(\lambda_{1,2,C}\): Baseline hazards for event times \(T_i^{(k)}\),
-  and censoring times \(C_i\)
+  \(\lambda_{1,2}\): Constant baseline hazards for event times
+  \(T_i^{(k)}\)
 \item
-  Simple setting: \(\lambda_1 = \lambda_2 = \lambda_C = 0.1\)
+  \(\lambda_C\): Analogue for censoring times \(C_i\)
+\item
+  Default setting: \(\lambda_1 = \lambda_2 = \lambda_C = 0.1\)
 \end{itemize}
 
 \begin{align*}
-T_i^{(k)} &= \frac{-\log(U_i)}{\lambda_k \exp(\mathbf{x}^{T}_i\pmb{\beta}^{(k)})} \\
-C_i       &= \frac{-\log(U_i)}{\lambda_C}
+T_i^{(k)} &= \frac{-\log(U_i)}{\lambda_k \exp(\mathbf{x}^{T}_i\pmb{\beta}^{(k)})} &
+C_i       = \frac{-\log(U_i)}{\lambda_C}
 \end{align*}
 
-\[U_i \sim \mathcal{U}(0, 1) \Rightarrow -\log(U_i) \sim \mathrm{Exponential}(\lambda = 1)\]
+\[U_i \sim \mathcal{U}(0, 1) \quad \Longrightarrow \quad  -\log(U_i) \sim \mathrm{Exponential}(\lambda = 1)\]
 \end{frame}
 
 \begin{frame}{Event and Censoring Times (II)}
@@ -333,13 +343,7 @@ $\delta$ & $n$ (min - max) & \% (min - max)  \\
 
 \begin{frame}{Thanks for listening!}
 \protect\hypertarget{thanks-for-listening}{}
-\end{frame}
-
-\begin{frame}{Buffer Slide}
-\protect\hypertarget{buffer-slide}{}
-Next up: Implementation details nobody will want to see but I put them
-on here any \emph{just in case} anyone asks because I don't have too
-much else to talk about in this regard sorry Mensa anyone?
+Next up: Backup slides with code
 \end{frame}
 
 \begin{frame}[fragile]{Predictors: Code}
@@ -392,7 +396,7 @@ much else to talk about in this regard sorry Mensa anyone?
 
 \NormalTok{  Ti1 }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{log}\NormalTok{(}\FunctionTok{runif}\NormalTok{(n)) }\SpecialCharTok{/}\NormalTok{ (lambda1 }\SpecialCharTok{*} \FunctionTok{exp}\NormalTok{(lp1))}
 \NormalTok{  Ti2 }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{log}\NormalTok{(}\FunctionTok{runif}\NormalTok{(n)) }\SpecialCharTok{/}\NormalTok{ (lambda2 }\SpecialCharTok{*} \FunctionTok{exp}\NormalTok{(lp2))}
-\NormalTok{  Ci }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{log}\NormalTok{(}\FunctionTok{runif}\NormalTok{(n)) }\SpecialCharTok{/}\NormalTok{ lambda\_c}
+\NormalTok{  Ci  }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{log}\NormalTok{(}\FunctionTok{runif}\NormalTok{(n)) }\SpecialCharTok{/}\NormalTok{ lambda\_c}
 
 \NormalTok{  ti }\OtherTok{\textless{}{-}} \FunctionTok{pmin}\NormalTok{(Ti1, Ti2, Ci)}
 \NormalTok{  di }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(Ti1 }\SpecialCharTok{\textless{}=}\NormalTok{ Ci }\SpecialCharTok{|}\NormalTok{ Ti2 }\SpecialCharTok{\textless{}=}\NormalTok{ Ci)}

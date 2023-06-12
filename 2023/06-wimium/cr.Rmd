@@ -33,14 +33,15 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-Simulation setup part of ongoing project
+- Simulation setup is part of ongoing project
 
 ### Motivation
 
 - Variable selection in high-dimensional settings with competing risks
-- Focus more on high-dimensional setting than sophisticated survival outcome
+- Focus more on high-dimensional setting
 
 ### Outcome
+
 - 2 competing events, censoring approx. equal prevalence
 
 ## Generating Survival Times (I)
@@ -67,10 +68,10 @@ knitr::include_graphics("img/bender2003.png")
 
 @bender2005generatingsurvival
 
-## Predictors: Structure
+## Covariates: Structure
 
 - $N = 400$, $p = 5000$, 16 informative (12 per event)
-- Organized in 4 blocks á 250 correlated variables + uncorrelated noise
+- Organized in 4 blocks of correlated variables & uncorrelated noise
 
 ### Blocks
 
@@ -80,18 +81,18 @@ knitr::include_graphics("img/bender2003.png")
 - Block 4: $\rho \approx 0.32$
 - Rest: $\rho \approx 0$
 
-## Predictors: Generation
+## Covariates: Generation
 
 - $j = 1, \ldots, p$ and $i = 1, \ldots, N$
-- $\epsilon_{ij} \sim \mathcal{N}(0, 1)$ and $u_{i\{1,2,3\}} \sim \mathcal{U}(0, 1)$
+- $\epsilon_{ij} \sim \mathcal{N}(0, 1)$ and $U_{i\{1,2,3\}} \sim \mathcal{U}(0, 1)$
 
 $$
 x_{ij} = \begin{cases}
 -1 + \epsilon_{ij}                                   & \text{for}\ i \leq 0.5n \text{ and } j \leq 0.05p \\
 1 + \epsilon_{ij}                                    & \text{for}\ i > 0.5n \text{ and } j \leq 0.05p \\
-1.5 \cdot \mathbf{1}\{u_{i1} < 0.4\} + \epsilon_{ij} & \text{for}\ 0.05p < j \leq 0.1p \\
-0.5 \cdot \mathbf{1}\{u_{i2} < 0.7\} + \epsilon_{ij} & \text{for}\ 0.1p < j \leq 0.2p \\
-1.5 \cdot \mathbf{1}\{u_{i3} < 0.3\} + \epsilon_{ij} & \text{for}\ 0.2p < j \leq 0.3p \\
+1.5 \cdot \mathbf{1}\{U_{i1} < 0.4\} + \epsilon_{ij} & \text{for}\ 0.05p < j \leq 0.1p \\
+0.5 \cdot \mathbf{1}\{U_{i2} < 0.7\} + \epsilon_{ij} & \text{for}\ 0.1p < j \leq 0.2p \\
+1.5 \cdot \mathbf{1}\{U_{i3} < 0.3\} + \epsilon_{ij} & \text{for}\ 0.2p < j \leq 0.3p \\
 \epsilon_{ij}                                        & \text{for}\ j > 0.3p
 \end{cases}
 $$
@@ -107,35 +108,36 @@ $$
 <!-- ($j =  501, \ldots, 1000$) -->
 <!-- ($j = 1001, \ldots, 5000$) -->
 
-- Block 1 (**Mutual**): 4 effect variables
-    - same effect on both $\pmb{\beta}^{(1,2)}$ cause-specific hazards
-- Block 2 (**Reversed**): 4 effect variables
-    - positive effect in $\pmb{\beta}^{(1)}$ and negative in $\pmb{\beta}^{(2)}$
-- Block 3 (**Disjoint**): 8 variables
-    - 3.1: 4 effect variables in $\pmb{\beta}^{(1)}$ only
-    - 3.2: 4 effect variables $\pmb{\beta}^{(2)}$ only
+### Blocks
+
+- Block 1 (**"Mutual"**):
+    - 4 variables with positive effect in both of $\pmb{\beta}^{(1,2)}$
+- Block 2 (**"Reversed"**):
+    - 4 variables with positive effect in $\pmb{\beta}^{(1)}$ and negative in $\pmb{\beta}^{(2)}$
+- Block 3 (**"Disjoint"**): 
+    - 3.1: 4 variables with negative effect in $\pmb{\beta}^{(1)}$ only
+    - 3.2: 4 (other) variables with positive effect in $\pmb{\beta}^{(2)}$ only
 
 ## Event and Censoring Times (I)
 
-- Cox-exponential model for events $k = 1,2$
-- $\lambda_{1,2,C}$: Baseline hazards for event times $T_i^{(k)}$, and censoring times $C_i$
-- Simple setting: $\lambda_1 = \lambda_2 = \lambda_C = 0.1$
-
+- Cox-exponential model for events $k = 1,2$:
+  $$\lambda^{(k)}(t) = \lambda_k \exp(\mathbf{x}^T \pmb{\beta}^{(k)})$$
+- $\lambda_{1,2}$: Constant baseline hazards for event times $T_i^{(k)}$
+- $\lambda_C$: Analogue for censoring times $C_i$
+- Default setting: $\lambda_1 = \lambda_2 = \lambda_C = 0.1$
 
 
 \begin{align*}
-T_i^{(k)} &= \frac{-\log(U_i)}{\lambda_k \exp(\mathbf{x}^{T}_i\pmb{\beta}^{(k)})} \\
-C_i       &= \frac{-\log(U_i)}{\lambda_C}
+T_i^{(k)} &= \frac{-\log(U_i)}{\lambda_k \exp(\mathbf{x}^{T}_i\pmb{\beta}^{(k)})} &
+C_i       = \frac{-\log(U_i)}{\lambda_C}
 \end{align*}
 
-
-$$U_i \sim \mathcal{U}(0, 1) \Rightarrow -\log(U_i) \sim \mathrm{Exponential}(\lambda = 1)$$
+$$U_i \sim \mathcal{U}(0, 1) \quad \Longrightarrow \quad  -\log(U_i) \sim \mathrm{Exponential}(\lambda = 1)$$
 
 
 ## Event and Censoring Times (II)
 
 Assign observed event times $t_i$ and censoring $\delta_i$ indicator accordingly
-
 
 \begin{align*}
 t_i &= \min(T_i^{(1)}, T_i^{(2)}, C_i) & 
@@ -178,9 +180,7 @@ $\delta$ & $n$ (min - max) & \% (min - max)  \\
 
 ## Thanks for listening!
 
-## Buffer Slide
-
-Next up: Implementation details nobody will want to see but I put them on here any _just in case_ anyone asks because I don't have too much else to talk about in this regard sorry Mensa anyone?
+Next up: Backup slides with code
 
 ## Predictors: Code
 
@@ -226,7 +226,7 @@ Next up: Implementation details nobody will want to see but I put them on here a
 
   Ti1 <- -log(runif(n)) / (lambda1 * exp(lp1))
   Ti2 <- -log(runif(n)) / (lambda2 * exp(lp2))
-  Ci <- -log(runif(n)) / lambda_c
+  Ci  <- -log(runif(n)) / lambda_c
 
   ti <- pmin(Ti1, Ti2, Ci)
   di <- as.integer(Ti1 <= Ci | Ti2 <= Ci)
