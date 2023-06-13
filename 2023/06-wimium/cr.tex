@@ -119,11 +119,7 @@
 
 \begin{frame}{Introduction}
 \protect\hypertarget{introduction}{}
-\begin{itemize}
-\tightlist
-\item
-  Simulation setup is part of ongoing project
-\end{itemize}
+Simulation setup is part of an ongoing project.
 
 \begin{block}{Motivation}
 \protect\hypertarget{motivation}{}
@@ -132,7 +128,7 @@
 \item
   Variable selection in high-dimensional settings with competing risks
 \item
-  Focus more on high-dimensional setting
+  Example setting: Clinical + gene expression data (\(p >> 1000\))
 \end{itemize}
 \end{block}
 
@@ -141,7 +137,7 @@
 \begin{itemize}
 \tightlist
 \item
-  2 competing events, censoring approx. equal prevalence
+  2 competing events, censoring approx. equal prevalence(!)
 \end{itemize}
 \end{block}
 \end{frame}
@@ -271,7 +267,7 @@ x_{ij} = \begin{cases}
 \tightlist
 \item
   Cox-exponential model for events \(k = 1,2\):
-  \[\lambda^{(k)}(x) = \lambda_k \exp(\mathbf{x}^T \pmb{\beta}^{(k)})\]
+  \[\lambda^{(k)}(t) = \lambda_k \exp(\mathbf{x}^T \pmb{\beta}^{(k)})\]
 \item
   \(\lambda_{1,2}\): Constant baseline hazards for event times
   \(T_i^{(k)}\)

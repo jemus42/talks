@@ -33,16 +33,16 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-- Simulation setup is part of ongoing project
+Simulation setup is part of an ongoing project.
 
 ### Motivation
 
 - Variable selection in high-dimensional settings with competing risks
-- Focus more on high-dimensional setting
+- Example setting: Clinical + gene expression data ($p >> 1000$)
 
 ### Outcome
 
-- 2 competing events, censoring approx. equal prevalence
+- 2 competing events, censoring approx. equal prevalence(!)
 
 ## Generating Survival Times (I)
 
