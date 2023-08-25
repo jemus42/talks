@@ -1,7 +1,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Primary document settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+$if(widescreen)$
+\documentclass[aspectratio=169]{beamer}
+$else$
 \documentclass{beamer}
+$endif$
+
 \usepackage{ifxetex,ifluatex}
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[$if(fontenc)$$fontenc$$else$T1$endif$]{fontenc}
@@ -23,8 +29,9 @@ $endif$
 \usepackage[
     backend=biber,
     natbib=true,
-    style=apa,
-    %bibstyle=authoryear, citestyle=apa,
+    style=nature,
+    %bibstyle=authoryear,
+    %autocite=footnote,
     %style=authoryear,
     sorting=nyt,
     %sortlocale=de_DE,
@@ -125,8 +132,8 @@ $if(institute)$
 \institute{$for(institute)$$institute$$sep$ \and $endfor$}
 $endif$
 
-\author[Burk, Bender, Wright]% (optional, for multiple authors)
-{Lukas Burk\inst{1} \and Andreas Bender\inst{2,3} \and Marvin N. Wright\inst{1}}
+%\author[Burk, Bender, Wright]% (optional, for multiple authors)
+%{Lukas Burk\inst{1} \and Andreas Bender\inst{2,3} \and Marvin N. Wright\inst{1}}
 
 %\institute%
 %{
@@ -146,10 +153,10 @@ $endif$
 		\useasboundingbox (1,0) rectangle (\the\paperwidth,\the\paperheight);
 		\node[font=\usebeamerfont{title}, color=BIPSBlue, text width=12cm, align=center] at (\paperwidth*.5,7) {\inserttitle} ;
 		\node[align=center, font=\usebeamerfont{subtitle}, color=BIPSBlue] at (\paperwidth*.5, 6) {\insertsubtitle};
-		\node[align=center, font=\usebeamerfont{author}, color=BIPSBlue] at (\paperwidth*.5, 4) {\insertauthor};
+		\node[align=center, font=\usebeamerfont{author}, color=BIPSBlue] at (\paperwidth*.5, 4.5) {\insertauthor};
 		\node[align=center, font=\usebeamerfont{institute}, color=BIPSTextGray] at (\paperwidth*.5, 3) {$if(institute)$$for(institute)$$institute$$sep$ \\ $endfor$$endif$};
-		\node[align=center, font=\usebeamerfont{date}, color=BIPSTextGray] at (\paperwidth*.5, 2) {\insertdate};
-		\node[align=center, font=\usebeamerfont{date}, color=BIPSTextGray] at (\paperwidth*.5, 1.5) {$occasion$};
+		\node[align=center, font=\usebeamerfont{date}, color=BIPSTextGray] at (\paperwidth*.5, 1.5) {\insertdate};
+		\node[align=center, font=\usebeamerfont{date}, color=BIPSTextGray] at (\paperwidth*.5, 1) {$occasion$};
 	\end{tikzpicture}
 }
 
@@ -169,10 +176,9 @@ $body$
 
 %%% bib?
 $if(bibliography)$
-\begin{frame}{Bibliography}
-
-\printbibliography[heading=none]
-
+\begin{frame}[allowframebreaks]{Bibliography}
+  %\bibliography
+  \printbibliography[heading=none]
 \end{frame}
 $else$
 $endif$
