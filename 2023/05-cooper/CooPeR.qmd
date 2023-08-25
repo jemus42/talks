@@ -197,7 +197,7 @@ $$
 
 ::: notes
 - $\mathbf{z}_j$: Row $j$ of $\mathbf{Z}$
-- $\theta$ is a scalar iff $\mathbf{Z} \in \mathbb{R}^{p \times 1}$
+- $\theta$ is a scalar if $\mathbf{Z} \in \mathbb{R}^{p \times 1}$
 :::
 
 ## Penalization Weights
