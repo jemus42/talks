@@ -23,9 +23,14 @@ format:
         - \textsuperscript{4}Munich Center for Machine Learning
     bibliography: references.bib
     cite-method: biblatex
+    keep-md: true
     keep-tex: true
-    # nocite: |
-    #   @tay2023featureweightedelastic
+    nocite: |
+      @binder2009boostinghighdimensional
+      @binder2008adaptingprediction
+      @tay2023featureweighted
+      @dyrskjot2005molecularsignature
+      @degenhardt2019evaluationvariable
 ---
 
 ```{r setup, include=FALSE, eval=FALSE}
@@ -77,7 +82,7 @@ $$
 ## Feature-Weighted Elastic Net
 
 
-Feature-weighted elastic net [@tay2023featureweightedelastic] extends the objective function:
+Feature-weighted elastic net [^1] extends the objective function:
 
 <!-- $$ -->
 <!-- \hat{\beta} = \underset{\beta}{\operatorname{arg min}} \quad \mathrm{NLL}(\beta) + {\color{BIPSBlue}\lambda} \sum_{j=1}^p \left( {\color{BIPSOrange}\alpha} |\beta_j| + \frac{1 - {\color{BIPSOrange}\alpha}}{2} \beta_j^2 \right) -->
@@ -94,7 +99,7 @@ $$
 $$
 
 
-<!-- [^1]: Tay et al. (2023) -->
+[^1]: @tay2023featureweightedelastic
 
 <!-- ::: footnote -->
 <!-- [@zou2005regularizationvariable; @tay2023featureweightedelastic] -->
@@ -107,12 +112,7 @@ $$
 
 <!-- - Adjust penalization weights on individual or groups of features -->
 
-$$
-{\color{BIPSBlue}w_j(\theta)} = \frac{\sum_{l=1}^p \exp(\mathbf{z}_l^\top \theta)}{p \exp(\mathbf{z}_j^\top \theta)}
-$$
-
 Assign prior values / groups via matrix $\mathbf{Z} \in \mathbb{R}^{p \times K}$
-
 
 \vspace{1em}
 
@@ -154,51 +154,28 @@ $$
 ## Feature-Weighted Elastic Net
 
 
-<!-- $$ -->
-<!-- \hat{\beta} = \underset{\beta}{\operatorname{arg min}} \quad  \sum_{i=1}^n \ell(y_i, \mathbf{x}_i^\top, \symbf{\beta}) + \lambda \sum_{j=1}^p {\color{BIPSBlue}w_j(\theta)}\left( \alpha |\beta_j| + \frac{1 - \alpha}{2} \beta^2_j \right) -->
-<!-- $$ -->
-
 $$
 w_j(\theta) = \frac{\sum_{l=1}^p \exp(\mathbf{z}_l^\top \theta)}{p \exp(\mathbf{z}_j^\top \theta)}
 $$
 
-\vspace{0.75em}
 
-. . .
-
-::: columns
-::: {.column width="50%"}
 - $\theta \in \mathbb{R}^{K \times 1}$ selected internally
-
-- $w_j(\theta)$ chosen heuristically
-
-:::
-
-. . .
-
-::: {.column width="50%"}
 -   $\mathbf{z}_j^\top \theta$ acts as score
 -   Larger value $\Rightarrow$ lower $w_j$ feature is _more important_
 -   $\theta = 0 \Rightarrow w_j = 1$
 
-:::
+
+::: columns
+::: {.column width="50%"}
 
 :::
 
-<!--
-## Penalization Weights $w_j$
 
-- $\theta \in \mathbb{R}^{K \times 1}$ is selected internally
+::: {.column width="50%"}
 
--   Function $w_j(\theta)$ was chosen heuristically by the authors for desirable properties
+:::
 
--   $\mathbf{z}_j^\top \theta$ acts as a *score*
-
-    -   $= 0$, reduces to original elastic net
-
-    -   Higher score $\rightarrow$ lower $w_j$, feature is "more important"
-
--->
+:::
 
 ## Individual Feature Weighting
 
@@ -214,23 +191,25 @@ $$
 
 ## Application for Multi-Task Learning
 
-Authors suggest multi-task learning algorithm: $\mathbf{X}$ and targets $\mathbf{y}_1, \mathbf{y}_2$
+Authors suggest multi-task learning algorithm: $\mathbf{X}$ and targets $\mathbf{y}_1, \mathbf{y}_2$:
+
+\vspace{1em}
 
 . . .
 
-1.  Set $\symbf{\beta_1}^{(0)}, \symbf{\beta_2}^{(0)}$ to elastic net solution for $(\mathbf{X}, \mathbf{y}_1), (\mathbf{X}, \mathbf{y}_2)$ respectively
+1.  Initialize $\symbf{\beta_1}^{(0)}, \symbf{\beta_2}^{(0)}$ to elastic net solution for $(\mathbf{X}, \mathbf{y}_1), (\mathbf{X}, \mathbf{y}_2)$ respectively
 
 . . .
 
 2.  For $k = 0, 1, \ldots$ until stopped:
 
-  a)  $\mathbf{Z}_2 = \left|\symbf{\beta}_1^{(k)}\right|$. Fit `fwelnet` with $(\mathbf{X}, \mathbf{y}_2, \mathbf{Z}_2)$
-      -   Set $\left|\symbf{\beta}_2^{(k+1)}\right|$ to solution with optimal $\lambda$
+  a)  $\mathbf{Z}_2 = \left|\symbf{\beta}_1^{(k)}\right|$. Fit `fwelnet` with $(\mathbf{X}, \mathbf{y}_2, \mathbf{Z}_2)$\
+      Set $\left|\symbf{\beta}_2^{(k+1)}\right|$ to solution with optimal $\lambda$
 
 . . .
 
-  b)  $\mathbf{Z}_1 = \left|\symbf{\beta}_2^{(k+1)}\right|$. Fit `fwelnet` with $(\mathbf{X}, \mathbf{y}_1, \mathbf{Z}_1)$
-      -   Set $\left|\symbf{\beta}_1^{(k+1)}\right|$ to solution with optimal $\lambda$
+  b)  $\mathbf{Z}_1 = \left|\symbf{\beta}_2^{(k+1)}\right|$. Fit `fwelnet` with $(\mathbf{X}, \mathbf{y}_1, \mathbf{Z}_1)$\
+      Set $\left|\symbf{\beta}_1^{(k+1)}\right|$ to solution with optimal $\lambda$
 
 ## Transfer to Competing Risks
 
