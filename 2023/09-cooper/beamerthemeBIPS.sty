@@ -70,13 +70,16 @@
 \setbeamertemplate{itemize items}[circle]
 
 %%% Set the general fonts (colors come later)
-\setbeamerfont{title}{size=\LARGE, series=\bfseries}
+\setbeamerfont{title}{size=\Large, series=\bfseries}
+\setbeamerfont{subtitle}{size=\large, series=\bfseries}
 \setbeamerfont{frametitle}{size=\Large, series=\bfseries}
-\setbeamerfont{framesubtitle}{size=\normalsize, series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\large, series=\bfseries}
 \setbeamerfont{block title}{series=\bfseries}
 \setbeamerfont{institute}{size=\small}
 \setbeamerfont{author}{size=\small}
 \setbeamerfont{date}{size=\small}
+
+%\setbeamerfont{normal text}{size=\LARGE}
 
 %%% Set the colors
 \setbeamercolor{normal text}{fg=BIPSTextGray}
@@ -106,16 +109,16 @@
 %%% original version
 \setbeamertemplate{frametitle}{
 	\vspace*{.5cm}%
-	\begin{beamercolorbox}[wd=10cm, center]{frametitle}
+	\begin{beamercolorbox}[wd=13cm, center]{frametitle}
 		\usebeamerfont{frametitle}\insertframetitle
 	\end{beamercolorbox}
 	\vspace*{-.2cm}%
-	\begin{beamercolorbox}[wd=10cm, center]{framesubtitle}
+	\begin{beamercolorbox}[wd=13cm, center]{framesubtitle}
 		\usebeamerfont{framesubtitle}\insertframesubtitle
 	\end{beamercolorbox}
 	% add the line
 	\begin{tikzpicture}
-		\draw[BIPSTextGray,path fading=east] (-1,1.2) -- (8.5,1.2);
+		\draw[BIPSTextGray,path fading=east] (-1,1.2) -- (10.5,1.2);
 	\end{tikzpicture}
 }
 
@@ -143,9 +146,9 @@
  		\useasboundingbox (0,0) rectangle (\the\paperwidth,\the\paperheight);
  			\node[anchor=north east,yshift=-.5cm,xshift=-.5cm]%
         			at (current page.north east)
-        			{\includegraphics[width=0.12\textwidth]{bips-logo.png}};
+        		{\includegraphics[width=0.12\textwidth]{bips-logo.png}};
 			\ifnum\thepage>1\relax %%% If not the title page
-				\node[anchor=north east,yshift=-2cm,xshift=-1cm]%
+				\node[anchor=north east,yshift=-2.5cm,xshift=-1.25cm]%
         			at (current page.north east)
         			{\small \insertframenumber};
 			\fi
@@ -183,7 +186,7 @@
 					{\small www.leibniz-bips.de}
 					{\small www.leibniz-bips.de/en}
 			};
-			\node[align=right, color=BIPSTextGray] at (4, 2) {
+			\node[align=right, color=BIPSTextGray] at (5, 2) {
 					\iftoggle{useGerman}
 						{\small \textbf{Kontakt}\\[5pt]}
 						{\small \textbf{Contact}\\[5pt]}
@@ -197,7 +200,7 @@
 					\small D-28359 Bremen\\[5pt]
 					\small \textcolor{BIPSBlue}{\bips@email}
 			};
-			\node at (10, 2) {\includegraphics[width=0.3\textwidth]{bips-logo.png}};
+			\node at (11, 2) {\includegraphics[width=0.25\textwidth]{bips-logo.png}};
 		\end{tikzpicture}
 	}
 	\begin{frame}[c]

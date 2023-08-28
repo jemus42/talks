@@ -1,5 +1,8 @@
 ---
-title: "Variable Selection for Competing Risks with Cooperative Penalized Regression"
+title: |
+  High-Dimensional Variable Selection\
+  for Competing Risks with\
+  Cooperative Penalized Regression
 subtitle: "«CooPeR»"
 author: 
   - Lukas Burk\inst{1,2,3,4}
@@ -8,7 +11,7 @@ author:
 format: 
   beamer:
     template: template.tex
-    widescreen: false
+    widescreen: true
     occasion: "CEN 2023"
     email: burk@leibniz-bips.de
     themeoptions: fira
@@ -25,12 +28,13 @@ format:
     cite-method: biblatex
     keep-md: true
     keep-tex: true
-    nocite: |
-      @binder2009boostinghighdimensional
-      @binder2008adaptingprediction
-      @tay2023featureweighted
-      @dyrskjot2005molecularsignature
-      @degenhardt2019evaluationvariable
+    # nocite: |
+    #   @binder2009boostinghighdimensional
+    #   @binder2008adaptingprediction
+    #   @tay2023featureweighted
+    #   @dyrskjot2005molecularsignature
+    #   @degenhardt2019evaluationvariable
+    #   @ishwaran2014randomsurvivala
 ---
 
 ```{r setup, include=FALSE, eval=FALSE}
@@ -51,22 +55,22 @@ theme_set(
 
 ## Introduction
 
-- Setting: High-dimensional survival data + competing risks, e.g
-    - (1) death from bladder cancer
-    - (2) death from other causes
+- High-dimensional survival data with two competing risks $e \in \{1, 2\}$, e.g\
+    (1) Death from bladder cancer\
+    (2) Death from other causes
     
 . . .
     
-- Typical approach: 
+- Common approach: 
     - Fit cause-specific model for event of interest
-    - Treats other events as censored
-    - → loses information
+    - Treats other event as censored \
+    $\Rightarrow$ loses information
     
 . . .
 
 **Main goal**: Fit cause-specific model for event 1 _using shared information_ from event 2
 
-## Feature-Weighted Elastic Net
+## Elastic Net
 
 
 Elastic net objective function with negative log-likelihood contribution for observation $i$:
@@ -82,7 +86,7 @@ $$
 ## Feature-Weighted Elastic Net
 
 
-Feature-weighted elastic net [^1] extends the objective function:
+Feature-weighted elastic net [^fwe] extends the objective function:
 
 <!-- $$ -->
 <!-- \hat{\beta} = \underset{\beta}{\operatorname{arg min}} \quad \mathrm{NLL}(\beta) + {\color{BIPSBlue}\lambda} \sum_{j=1}^p \left( {\color{BIPSOrange}\alpha} |\beta_j| + \frac{1 - {\color{BIPSOrange}\alpha}}{2} \beta_j^2 \right) -->
@@ -99,7 +103,7 @@ $$
 $$
 
 
-[^1]: @tay2023featureweightedelastic
+[^fwe]: @tay2023featureweighted
 
 <!-- ::: footnote -->
 <!-- [@zou2005regularizationvariable; @tay2023featureweightedelastic] -->
@@ -112,7 +116,9 @@ $$
 
 <!-- - Adjust penalization weights on individual or groups of features -->
 
+\begin{center}
 Assign prior values / groups via matrix $\mathbf{Z} \in \mathbb{R}^{p \times K}$
+\end{center}
 
 \vspace{1em}
 
@@ -120,7 +126,7 @@ Assign prior values / groups via matrix $\mathbf{Z} \in \mathbb{R}^{p \times K}$
 
 ::: columns
 ::: {.column width="50%"}
-Examples for grouping: $\mathbf{Z} \in \mathbb{R}^{5 \times 2}$
+Example for grouping: $\mathbf{Z} \in \mathbb{R}^{5 \times 2}$
 
 $$
 \mathbf{Z} = 
@@ -141,11 +147,11 @@ $$
 $$
 \mathbf{Z} = 
 \begin{pmatrix} 
-1 \\
 1.5 \\
+1 \\
 1.2 \\
-0.3 \\
 0.7 \\
+0.3 \\
 \end{pmatrix}
 $$
 :::
@@ -158,10 +164,14 @@ $$
 w_j(\theta) = \frac{\sum_{l=1}^p \exp(\mathbf{z}_l^\top \theta)}{p \exp(\mathbf{z}_j^\top \theta)}
 $$
 
+\vspace{1em}
 
-- $\theta \in \mathbb{R}^{K \times 1}$ selected internally
--   $\mathbf{z}_j^\top \theta$ acts as score
--   Larger value $\Rightarrow$ lower $w_j$ feature is _more important_
+-   $\theta \in \mathbb{R}^{K \times 1}$ selected internally
+
+-   $\mathbf{z}_j^\top \theta$: "Importance score"
+
+-   Larger value $\Rightarrow$ lower $w_j$
+
 -   $\theta = 0 \Rightarrow w_j = 1$
 
 
@@ -179,175 +189,143 @@ $$
 
 ## Individual Feature Weighting
 
--   $\mathbf{Z} \in \mathbb{R}^{p \times 1}$: Individual weights
+<!-- -   $\mathbf{Z} \in \mathbb{R}^{p \times 1}$: Individual weights -->
 -   Simulation from Tay et al.: $\mathbf{Z}$ set to noisy version of true $|\symbf{\beta}|$
+-   $|\beta_j|$ large $\Rightarrow$ weaker penalization for $\hat{\beta}_j$
+-   $|\beta_j|$ small $\Rightarrow$ stronger penalization for $\hat{\beta}_j$
 
-. . .
-
-::: {.nonincremental}
--   Large $|\beta_j| \Rightarrow$ weak penalization for $\hat{\beta}_j$
--   $|\beta_j| \approx 0 \Rightarrow$ stronger penalization for $\hat{\beta}_j$
-:::
 
 ## Application for Multi-Task Learning
 
-Authors suggest multi-task learning algorithm: $\mathbf{X}$ and targets $\mathbf{y}_1, \mathbf{y}_2$:
+Tay et al. suggest algorithm given $\mathbf{X}$ and targets $\mathbf{y}_1, \mathbf{y}_2$:
 
 \vspace{1em}
 
 . . .
 
-1.  Initialize $\symbf{\beta_1}^{(0)}, \symbf{\beta_2}^{(0)}$ to elastic net solution for $(\mathbf{X}, \mathbf{y}_1), (\mathbf{X}, \mathbf{y}_2)$ respectively
+1.  Set $\symbf{\hat{\beta}}_1^{(0)}, \symbf{\hat{\beta}}_2^{(0)}$ to elastic net solution for $(\mathbf{X}, \mathbf{y}_1), (\mathbf{X}, \mathbf{y}_2)$
 
 . . .
 
 2.  For $k = 0, 1, \ldots$ until stopped:
 
-  a)  $\mathbf{Z}_2 = \left|\symbf{\beta}_1^{(k)}\right|$. Fit `fwelnet` with $(\mathbf{X}, \mathbf{y}_2, \mathbf{Z}_2)$\
-      Set $\left|\symbf{\beta}_2^{(k+1)}\right|$ to solution with optimal $\lambda$
+  <!-- a)  $\mathbf{Z}_2 = \left|\symbf{\beta}_1^{(k)}\right|$. Fit $\operatorname{fwelnet}(\mathbf{X}, \mathbf{y}_2, \mathbf{Z}_2)$ to determine $\left|\symbf{\beta}_2^{(k+1)}\right|$ -->
+
+  a) Fit $\operatorname{fwelnet}\left(\mathbf{X}, \mathbf{y}_2, \mathbf{Z}_2 = \left|\symbf{\hat{\beta}}_1^{(k)}\right|\right)$ to determine $\left|\symbf{\hat{\beta}}_2^{(k+1)}\right|$
 
 . . .
 
-  b)  $\mathbf{Z}_1 = \left|\symbf{\beta}_2^{(k+1)}\right|$. Fit `fwelnet` with $(\mathbf{X}, \mathbf{y}_1, \mathbf{Z}_1)$\
-      Set $\left|\symbf{\beta}_1^{(k+1)}\right|$ to solution with optimal $\lambda$
+  b) Fit $\operatorname{fwelnet}\left(\mathbf{X}, \mathbf{y}_1, \mathbf{Z}_1 = \left|\symbf{\hat{\beta}}_2^{(k+1)}\right|\right)$ to determine $\left|\symbf{\hat{\beta}}_1^{(k+1)}\right|$
 
 ## Transfer to Competing Risks
 
 
--   Adapt previous algorithm to Cox regression
--   $(\mathbf{X}, \mathbf{y}_e)$ becomes $(\mathbf{X}, \mathbf{t}_e, \delta_e)$
 
-. . .
-
--   Assumption: Shared information between both events:
-    -   If $X_j$ is important for event 1, may also be relevant for event 2
-    -   $\Rightarrow$ lower its penalty in cause-specific models
--   Multi-task $\simeq$ "Multi-cause"
-
+::: incremental
+-   Adapt previous algorithm to Cox regression: $\mathbf{y}_e \Rightarrow (\mathbf{t}_e, \delta_e)$
+-   Assumption: Shared information between both events
+-   $X_j$ important for cause 1 $\Rightarrow$ relevant for cause 2? \
+    $\Rightarrow$ lower $\beta_j$ penalty in cause-specific models
+<!-- -   Multi-task $\simeq$ "Multi-cause" -->
+:::
 
 \vspace{1em}
 
 . . .
 
-Dubbed "Cooperative Penalized (Cox) Regression" (CooPeR)
+\begin{center}
+{\large Dubbed "Cooperative Penalized (Cox) Regression" (\strong{\blue{CooPeR}})}
+\end{center}
 
+## Simulation Study
 
-## High-Dimensional Variable Selection
+::: incremental
+- Simulation setup adapted from from Binder et al.[^binder]
+- Mimics gene expression data with competing risk target
+- n = 400, p = 5000, 4 covariate blocks, 4 informative each
+    <!-- - 250 variables per block, 4 informative each -->
+<!-- - Use $\mathbf{1}\{\hat{\beta}_j \neq 0\}$ as classification decision -->
+- Comparison with CoxBoost[^cb], Random Survival Forests [^rsf]
+:::
 
-- Simulation setup adapted from from @binder2009boostinghighdimensional
-- Context: Gene expression data with competing risk target
-- n = 400, p = 5000, organized in 4 main blocks
-    - 250 variables per block
-    - 4 informative variables per block, 16 total
-- Use $\mathbf{1}\{\hat{\beta}_j \neq 0\}$ as classification decision
+[^binder]: @binder2009boostinghighdimensional
+[^rsf]: @ishwaran2014randomsurvivala
+[^cb]: @binder2008adaptingprediction
 
-## Simulation of True Effects
+## Assignment of True Effects
 
-- Block 1 (**Mutual**):
-    - Same effect on both causes
-- Block 2 (**Reversed**):
-    - Positive effect on cause 1 and negative on cause 2
+::: incremental
+- Block 1 (**Mutual**): Same effect on both cause-specific hazards
+- Block 2 (**Reversed**): Positive cause 1, negative on cause 2
 - Block 3 (**Disjoint**):
     - 3.1: effect on cause 1 only
     - 3.2: effect on cause 2 only
+:::
 
-- Block 4 (**Cor. Noise**): 500 variables, $\rho \approx 0.32$<br>
+. . .
+
+- Block 4 (**Cor. Noise**): 500 variables
 - Remaining variables: Uncorrelated noise
 
 
-::: notes
-Effects of 0.5 on cause-specific hazard function
- $\rho \approx 0.5$ $\rho \approx 0.35$, $\rho \approx 0.05$
-:::
+## Positive Predictive Value
+\framesubtitle{Probability a selected variable is informative}
+<!-- $\tfrac{\mathrm{TP}}{\mathrm{TP} + \mathrm{FP}}$ -->
 
-
-## Positive Predictive Value $\tfrac{\mathrm{TP}}{\mathrm{TP} + \mathrm{FP}}$
-
-<!-- : $\mathrm{PPV} = \frac{\mathrm{TP}}{\mathrm{TP} + \mathrm{FP}}$ -->
 
 ```{r}
 #| fig-align: "center"
-#| out-width: "100%"
 #| out-height: "70%"
-#| fig-asp: 1
+#| out-width: "85%"
+# fig-asp: 1
 knitr::include_graphics("img/cen-selected-ppv-equallambda.pdf")
 ```
 
-<!--
+## False Positive Rate 
+\framesubtitle{Proportion of noise variables falsely selected}
+<!-- $\tfrac{\mathrm{FP}}{\mathrm{FP} + \mathrm{TN}}$ -->
 
-## Positive Predictive Value: Different Prevalences
-
-
-```{r}
-#| fig-align: "center"
-#| out-width: "100%"
-#| out-height: "70%"
-#| fig-asp: 1
-knitr::include_graphics("img/selected-ppv-difflambda.png")
-```
-
-::: footer
-$$\mathrm{PPV} = \frac{\mathrm{TP}}{\mathrm{TP} + \mathrm{FP}}$$
-:::
-
--->
-
-## False Positive Rate $\tfrac{\mathrm{FP}}{\mathrm{FP} + \mathrm{TN}}$
 
 ```{r}
-#| out-width: "100%"
 #| out-height: "70%"
+#| out-width: "90%"
 #| fig-align: "center"
-#| fig-asp: 1
+# fig-asp: 1
 knitr::include_graphics("img/cen-selected-fpr-equallambda.pdf")
 ```
 
-::: footer
-$$\mathrm{FPR} = \frac{\mathrm{FP}}{\mathrm{FP} + \mathrm{TN}} = 1 - \mathrm{TNR}$$
-:::
+<!-- ::: footer -->
+<!-- $$\mathrm{FPR} = \frac{\mathrm{FP}}{\mathrm{FP} + \mathrm{TN}} = 1 - \mathrm{TNR}$$ -->
+<!-- ::: -->
 
 
-<!-- 
+## Application on Bladder Cancer Data
 
-## False Positive Rate
+::: incremental
+- Clinical & gene expression features [^bladder]
 
-: $\mathrm{FPR} = \frac{\mathrm{FP}}{\mathrm{FP} + \mathrm{TN}} = 1 - \mathrm{TNR}$ 
-
-```{r}
-#| out-width: "85%"
-#| out-height: "85%"
-#| fig-align: "center"
-knitr::include_graphics("img/selected-fpr-difflambda.png")
-```
-
-::: footer
-$$\mathrm{FPR} = \frac{\mathrm{FP}}{\mathrm{FP} + \mathrm{TN}} = 1 - \mathrm{TNR}$$
-:::
-
--->
-
-## How about real data?
-
-::: {.nonincremental}
-- Still WIP
-- Idea:
-    1. Use algorithms for variable selection
+- Procedure:
+    1. Apply algorithms for variable selection
     2. Fit standard cause-specific Cox model using only selected variables
-    3. Evaluate prediction performance (tBrier, tAUC)
-- Tried bladder cancer data (@dyrskjot2005molecularsignature)
+    3. Evaluate prediction performance (Brier(t), AUC(t))
+
+- Results: 
+  - CooPeR-selected variables mostly identical to pen. Cox regression
+  - Difference in metrics far from conclusive in either direction
 :::
 
-## Open questions
-- What about $k > 2$ events? No trivial generalization
+[^bladder]: @dyrskjot2005molecularsignature
+
+
+## Conclusion & Outlook
+
+::: incremental
+- Promising variable selection behavior in simulations
+
+- So far no promising results on real data
+
+- Lack of widely available high-dimensional data with competing risks
+
+- Generalization for $e > 2$ causes unclear
 :::
-
-<!-- ## Misc -->
-<!-- @binder2009boostinghighdimensional -->
-
-<!-- @degenhardt2019evaluationvariable -->
-
-<!-- @dyrskjot2005molecularsignature -->
-
-<!-- @ishwaran2014randomsurvivala -->
-
 
