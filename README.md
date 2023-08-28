@@ -26,6 +26,17 @@ Context
 2023
 </td>
 <td style="text-align:left;">
+<a href="2023/cooper.pdf">CooPeR</a>
+</td>
+<td style="text-align:left;">
+CEN 2023: CooPeR
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2023
+</td>
+<td style="text-align:left;">
 <a href="2023/06-wimium/cr.pdf">BioWiMium</a>
 </td>
 <td style="text-align:left;">
