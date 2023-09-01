@@ -20,7 +20,7 @@ Talks, pitches, journal club presentations, almost organized. But not really, le
 ```{r}
 tibble::tribble(
   ~year, ~short, ~desc, ~link,
-  2023, "CooPeR", "CEN 2023: CooPeR", "2023/cooper.pdf",
+  2023, "CooPeR", "CEN 2023: CooPeR", "2023/09-cooper/07SEP23_Lukas_Burk.pdf",
   2023, "BioWiMium", "Generating High-Dimensional Competing Risk Survival Settings", "2023/06-wimium/cr.pdf",
   2023, "CooPeR", "fwelnet for survival w/ competing risks, again, but... more. And renamed.", "2023/05-cooper/CooPeR.html",
   2022, "aorsf", "ORSF, but A (survival focus group)", "2022/aorsf/aorsf.html",
