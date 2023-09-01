@@ -11,7 +11,7 @@ author:
 format: 
   beamer:
     template: template.tex
-    widescreen: true
+    widescreen: true # changes to sty now make this the only non-messed up option
     occasion: "CEN 2023"
     email: burk@leibniz-bips.de
     themeoptions: fira
