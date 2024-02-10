@@ -1,0 +1,181 @@
+---
+title: |
+  A Large-Scale Neutral Comparison Study\
+  of Survival Models
+# subtitle: ""
+author:
+  - Burk, L.\inst{1,2,3,4}
+  - Zobolas, J.\inst{5}
+  - Bischl, B.\inst{2,4}
+  - Bender, A.\inst{2,4}
+  - Wright, M. N.\inst{1,3}
+  - Sonabend, R.\inst{6}
+format:
+  beamer:
+    template: template.tex
+    widescreen: true # changes to sty now make this the only non-messed up option
+    occasion: "Biometric Colloquium, March 1st, 2024"
+    email: burk@leibniz-bips.de
+    themeoptions: fira
+    thankstext: Thank you for your attention!
+    contactauthor: Lukas Burk
+    institute:
+      # Can't use \inst because title frame is made with tikz and \inst doesn't work within tikz nodes
+      # and \insertinstitute did not work for some other godforsaken reason, idunno
+        - \textsuperscript{1}Leibniz Institute for Prevention Research and Epidemiology -- BIPS
+        - \textsuperscript{2}LMU Munich
+        - \textsuperscript{3}University of Bremen
+        - \textsuperscript{4}Munich Center for Machine Learning
+        - \textsuperscript{5}University of Oslo
+        - \textsuperscript{6}OSPO now
+    bibliography:
+      - references.bib # zotero bib
+      - library.bib # copypasta from overleaf
+    cite-method: biblatex
+    keep-tex: true
+---
+
+```{r setup, include=FALSE, eval=FALSE}
+library(ggplot2)
+library(dplyr)
+
+theme_set(
+  theme_minimal(base_size = 16) +
+  theme(
+    legend.position = "bottom",
+    panel.spacing = unit(10, "mm"),
+    plot.title.position = "plot"
+  )
+)
+```
+
+
+## Introduction
+
+
+
+## Motivation
+
+- Many comparisons of survival ML methods exist
+- Often with limitation, e.g.
+  - Focus on high-dimensional data
+  - Focus on individual / new method $\Rightarrow$ no neutral comparison
+  - No (or limited) quantitative comparison
+- Needs comprehensive comparison
+- **Large-scale**: Generalizable conclusions
+- **Neutral**: Fair comparison
+
+
+## Quick Summary
+
+- **32** survival tasks
+- **18** learners
+- **2** tuning measures
+- **9** evaluation measures
+
+. . .
+
+$\Rightarrow$ sufficient to generalize conclusions!
+
+
+## Scope: "Standard Setting"
+
+- Single-event outcome (no competing events, multi-state)
+- Low-dimensional ($2 \leq p < n$)
+- At least 100 observed events ($\sum \delta_i \geq 0$)
+- "Simple" setting (No time-varying effects or covariates)
+
+## Tasks
+
+Summary of tasks (n, p, cens%, n events)
+
+Table in backup slides or something
+
+## Learners
+
+- Include learner from major model families
+- **Baseline**: Kaplan-Meier & Nelson-Aalen
+- **Classical**: Cox, penalized, parametric
+- **Trees**: Boosted or otherwise ensembled
+- **Other**: SVM
+
+
+## Learners
+
+|Abbreviation | mlr3 Learner  | R Package |
+|:----------|:----------------|------------
+|KM         |`surv.kaplan`     | `survival` |
+|NL         |`surv.nelson`     | `survival` |
+|AF         |`surv.akritas`    | `survivalmodels` |
+|CPH        |`surv.coxph`      | `survival`  |
+|GLM        |`surv.cv_glmnet`  | `glmnet`    |
+|Pen        |`surv.penalized`  | `penalized` |
+|Par        |`surv.parametric` | `survival`   |
+|Flex       |`surv.flexible`   | `flexsurv`  |
+
+
+## Learners (cont.)
+
+|Abbreviation | mlr3 Learner    | R Package |
+|:----------|:------------------|------------
+|RRT        |`surv.rpart`       | `rpart`|
+|RFSRC      |`surv.rfsrc`       | `randomForestSRC`|
+|RAN        |`surv.ranger`      | `ranger` |
+|CIF        |`surv.cforest`     | `partykit`|
+|ORSF       |`surv.aorsf`       | `aorsf`|
+|MBO        |`surv.mboost`      | `mboost`|
+|CoxB       |`surv.cv_coxboost` | `CoxBoost`|
+|XGBCox     |`surv.xgboost`     | `xgboost`|
+|XGBAFT     |`surv.xgboost`     | `xgboost`|
+|SSVM       |`surv.svm`         | `survivalsm`|
+
+## Learners: DL addendum
+
+> "But what about deep learning?"
+
+. . .
+
+- DL learners were considered (Coxnet, DeepSurv, DNNSurv, DeepHit, ...)
+- ...and were deemed infeasible, due to:
+  - Consistent technical issues with underlying implementations
+  - Large computational overhead
+  - Poor performance based on our experiments
+  - Poor performance as expected based on existing literature
+- $\Rightarrow$ Excluding DL in _this_ benchmark
+
+
+
+## Tuning
+
+- Tuning space discussed with learner authors -> authoritative, equal opportunity
+- Nested resampling:
+  - 5-fold outer cross-validation
+  - 3-fold inner cross-validation
+- "Best effort", but can't do magic, can't accommodate every learner's strengths and weaknesses
+- Strategy: Random Search
+- Budget: Tuning stopped if _either_ condition is met
+  - a) Number of evaluations: $n_{\text{evals}} = n_{\text{parameters}} \times 50$
+  - b) Tuning time of 150 hours ($6 \tfrac{1}{4}$ days)
+
+## "Well, technically..."
+
+Exceptions to the previously stated rules:
+
+- We use XGBoost with either `objective:cox` or `objective:aft` and count them as separate learners
+- Some learners have small, finite search spaces for which we use exhaustive search
+- The task `veteran` has so few observations that we use 4 outer resampling folds to ensure at least 30 observed events per outer fold
+- The CoxBoost learner tunes itself with an internal CV, which we set to 3 folds as well.
+
+## Challenges
+
+- Collecting all these algorithms in a robust benchmark would not be possible without a suitable framework such as **mlr3**
+- Computationally only feasible thanks to support by University Wyoming and access to ARCC
+- Copious amounts of debugging, testing, trial experiments with the help of my collaborators
+
+\thanksframe
+
+## Buffer Slide
+
+Next slide: Backup slides
+
+## Backup
