@@ -107,37 +107,37 @@
 
 %%% Template for the frametitle
 %%% original version
-\setbeamertemplate{frametitle}{
-\vspace*{.5cm}%
-\begin{beamercolorbox}[wd=13cm, center]{frametitle}
-	\usebeamerfont{frametitle}\insertframetitle
-\end{beamercolorbox}
-\vspace*{-.2cm}%
-\begin{beamercolorbox}[wd=13cm, center]{framesubtitle}
-	\usebeamerfont{framesubtitle}\insertframesubtitle
-\end{beamercolorbox}
-% add the line
-\begin{tikzpicture}
-	\draw[BIPSTextGray,path fading=east] (-1,1.2) -- (10.5,1.2);
-\end{tikzpicture}
-}
+% \setbeamertemplate{frametitle}{
+% \vspace*{.5cm}%
+% \begin{beamercolorbox}[wd=13cm, center]{frametitle}
+% 	\usebeamerfont{frametitle}\insertframetitle
+% \end{beamercolorbox}
+% \vspace*{-.2cm}%
+% \begin{beamercolorbox}[wd=13cm, center]{framesubtitle}
+% 	\usebeamerfont{framesubtitle}\insertframesubtitle
+% \end{beamercolorbox}
+% % add the line
+% \begin{tikzpicture}
+% 	\draw[BIPSTextGray,path fading=east] (-1,1.2) -- (10.5,1.2);
+% \end{tikzpicture}
+% }
 
 % via sophie
-% \setbeamertemplate{frametitle}{
-% 	\vspace*{.5cm}%
-% 	\begin{beamercolorbox}[wd=9cm, center]{frametitle}
-% 		\usebeamerfont{frametitle}\insertframetitle
-% 	\end{beamercolorbox}
-% 	\vspace*{-.1cm}%
-% 	\begin{beamercolorbox}[wd=9cm, center]{framesubtitle}
-% 		\usebeamerfont{framesubtitle}\insertframesubtitle
-% 	\end{beamercolorbox}
-% 	% add the line
-% 	\vspace*{-.5cm}%
-% 	\begin{tikzpicture}
-% 		\draw[BIPSTextGray,path fading=east] (-1,1.2) -- (8.5,1.2);
-% 	\end{tikzpicture}
-% }
+\setbeamertemplate{frametitle}{
+	\vspace*{.5cm}%
+	\begin{beamercolorbox}[wd=13cm, center]{frametitle}
+		\usebeamerfont{frametitle}\insertframetitle
+	\end{beamercolorbox}
+	\vspace*{-.1cm}%
+	\begin{beamercolorbox}[wd=13cm, center]{framesubtitle}
+		\usebeamerfont{framesubtitle}\insertframesubtitle
+	\end{beamercolorbox}
+	% add the line
+	\vspace*{-.5cm}%
+	\begin{tikzpicture}
+		\draw[BIPSTextGray,path fading=east] (-1,1.2) -- (8.5,1.2);
+	\end{tikzpicture}
+}
 
 
 %%% The Background -- also contains the logo
@@ -204,7 +204,7 @@
 	\node at (11, 2) {\includegraphics[width=0.25\textwidth]{bips-logo.png}};
 \end{tikzpicture}
 }
-\begin{frame}[c]
 
+\begin{frame}[c]
 \end{frame}
 }}

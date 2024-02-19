@@ -9,7 +9,8 @@ author:
   - Bischl, B.\inst{2,4}
   - Bender, A.\inst{2,4}
   - Wright, M. N.\inst{1,3}
-  - Sonabend, R.\inst{6}
+  - Lang, M. \inst{6}
+  - Sonabend, R.\inst{7, 8}
 format:
   beamer:
     template: template.tex
@@ -23,21 +24,29 @@ format:
       # Can't use \inst because title frame is made with tikz and \inst doesn't work within tikz nodes
       # and \insertinstitute did not work for some other godforsaken reason, idunno
         - \textsuperscript{1}Leibniz Institute for Prevention Research and Epidemiology -- BIPS
-        - \textsuperscript{2}LMU Munich
-        - \textsuperscript{3}University of Bremen
+        - \textsuperscript{2}LMU Munich \quad \textsuperscript{3}University of Bremen
         - \textsuperscript{4}Munich Center for Machine Learning
-        - \textsuperscript{5}University of Oslo
-        - \textsuperscript{6}OSPO now
+        - \textsuperscript{5}University of Oslo \quad \textsuperscript{6} TU Dortmund
+        - \textsuperscript{7}OSPO now \quad \textsuperscript{8}Impercial College, London
     bibliography:
       - references.bib # zotero bib
       - library.bib # copypasta from overleaf
     cite-method: biblatex
     keep-tex: true
+nocite: |
+  @beartooth
+editor_options: 
+  chunk_output_type: console
 ---
 
-```{r setup, include=FALSE, eval=FALSE}
+```{r setup, include=FALSE}
 library(ggplot2)
 library(dplyr)
+library(kableExtra)
+
+knitr::opts_chunk$set(
+  fig.align = "center"
+)
 
 theme_set(
   theme_minimal(base_size = 16) +
@@ -49,133 +58,338 @@ theme_set(
 )
 ```
 
-
 ## Introduction
 
+::: {.incremental}
 
-
-## Motivation
-
-- Many comparisons of survival ML methods exist
-- Often with limitation, e.g.
-  - Focus on high-dimensional data
+- There are many survival learners ("models") to choose from
+- Advantages and Disadvantages often unclear, specific to setting
+- Various comparisons exist in literature
+- Often with limitations, e.g.
+  - Limited scope (learners, tasks, evaluation measures)
   - Focus on individual / new method $\Rightarrow$ no neutral comparison
   - No (or limited) quantitative comparison
 - Needs comprehensive comparison
-- **Large-scale**: Generalizable conclusions
+- **Large-scale**: Generalizability
 - **Neutral**: Fair comparison
 
+:::
 
 ## Quick Summary
 
-- **32** survival tasks
+- **32** tasks
 - **18** learners
 - **2** tuning measures
 - **9** evaluation measures
 
 . . .
 
-$\Rightarrow$ sufficient to generalize conclusions!
+\vspace{2em}
+
+$\Rightarrow$ the _largest survival benchmark_ to date as far as we know
 
 
 ## Scope: "Standard Setting"
 
-- Single-event outcome (no competing events, multi-state)
-- Low-dimensional ($2 \leq p < n$)
-- At least 100 observed events ($\sum \delta_i \geq 0$)
-- "Simple" setting (No time-varying effects or covariates)
+- Single-event outcome: $\delta_i \in \{0, 1\}$
+- Low-dimensional: $2 \leq p < n$
+- At least 100 observed events
+- No time-varying effects or covariates
+- Right-censoring
 
 ## Tasks
 
-Summary of tasks (n, p, cens%, n events)
+**32** tasks collected from R packages on CRAN
 
-Table in backup slides or something
+```{r task-tbl}
+files = dir("~/repos/github/slds-lmu/paper_2023_survival_benchmark/code/data", pattern = "\\.rds$", 
+    full.names = TRUE)
+names = stringi::stri_sub(basename(files), 1, -5)
+tasks = mlr3misc::named_list(names)
+for (i in seq_along(files)) {
+    tasks[[i]] = readRDS(files[i])
+}
+
+task_summary = data.table::rbindlist(lapply(seq_along(tasks), \(task_idx) {
+  xdf = tasks[[task_idx]]
+  tibble::tibble(
+    task = names(tasks)[task_idx],
+    N = nrow(xdf),
+    p = ncol(xdf) - 2,
+    `Observed Events` = sum(xdf$status == 1),
+    `Cens. %` = round(100 * sum(xdf$status == 0) / nrow(xdf), 0)
+  )
+}))
+
+data.table::rbindlist(lapply(seq_along(task_summary), \(i) {
+  if (i == 1) return(NULL)
+  x = task_summary[[i]]
+  tibble::tibble(
+    m = names(task_summary)[[i]],
+    min = min(x),
+    q25 = quantile(x, prob = 0.25),
+    median = median(x),
+    q75 = quantile(x, prob = 0.75),
+    max = max(x)
+  )
+})) |>
+  kbl(
+    booktabs = TRUE,
+    col.names = c("", "Minimum", "q25%", "Median", "q75%", "Maximum"), 
+    digits = 0
+  ) |>
+  kable_styling() |>
+  column_spec(1, bold = TRUE)
+```
+
 
 ## Learners
 
-- Include learner from major model families
+**18** learners implemented in R and available via `mlr3` [^mlr3]
+
+\vspace{1em}
+
+::: {.incremental}
+
 - **Baseline**: Kaplan-Meier & Nelson-Aalen
 - **Classical**: Cox, penalized, parametric
-- **Trees**: Boosted or otherwise ensembled
+- **Trees**: Individual, ensembles
+- **Boosting**: Gradient- and likelihood
 - **Other**: SVM
 
+:::
 
-## Learners
+## List of Learners (1/2)
 
-|Abbreviation | mlr3 Learner  | R Package |
-|:----------|:----------------|------------
-|KM         |`surv.kaplan`     | `survival` |
-|NL         |`surv.nelson`     | `survival` |
-|AF         |`surv.akritas`    | `survivalmodels` |
-|CPH        |`surv.coxph`      | `survival`  |
-|GLM        |`surv.cv_glmnet`  | `glmnet`    |
-|Pen        |`surv.penalized`  | `penalized` |
-|Par        |`surv.parametric` | `survival`   |
-|Flex       |`surv.flexible`   | `flexsurv`  |
+```{r learners-tab-1}
+tibble::tribble(
+  ~Abbreviation, ~Name,                 ~`Package`,
+  "KM",   "Kaplan-Meier",                "survival", 
+  "NL",   "Nelson-Aalen",                "survival", 
+  "AK",   "Akritas",                     "survivalmodels", 
+  "CPH",  "Cox Regression",              "survival",  
+  "GLM",  "Penalized Cox Regression (L1, L2)",    "glmnet",    
+  "Pen",  "Penalized Cox Regression (L1, L2)",    "penalized", 
+  "Par",  "Parametric (AFT)",            "survival",   
+  "Flex", "Flexible Parametric Splines", "flexsurv"
+) |>
+  select(Name, Abbreviation, Package) |>
+  kableExtra::kbl(booktabs = TRUE, linesep = "") |>
+  kableExtra::kable_styling() |>
+  kableExtra::column_spec(1, bold = TRUE) |>
+  kableExtra::column_spec(3, monospace = TRUE)
+```
+
+[^mlr3]: @pkgmlr3
 
 
-## Learners (cont.)
+## List of Learners (2/2)
 
-|Abbreviation | mlr3 Learner    | R Package |
-|:----------|:------------------|------------
-|RRT        |`surv.rpart`       | `rpart`|
-|RFSRC      |`surv.rfsrc`       | `randomForestSRC`|
-|RAN        |`surv.ranger`      | `ranger` |
-|CIF        |`surv.cforest`     | `partykit`|
-|ORSF       |`surv.aorsf`       | `aorsf`|
-|MBO        |`surv.mboost`      | `mboost`|
-|CoxB       |`surv.cv_coxboost` | `CoxBoost`|
-|XGBCox     |`surv.xgboost`     | `xgboost`|
-|XGBAFT     |`surv.xgboost`     | `xgboost`|
-|SSVM       |`surv.svm`         | `survivalsm`|
+```{r learners-tab-2}
+tibble::tribble(
+  ~Abbreviation, ~Name,                 ~Package,
+ "RRT"    , "Decison Tree",              "rpart",
+ "RFSRC"  , "Random Survival Forest",    "randomForestSRC",
+ "RAN"    , "Random Survival Forest",    "ranger",
+ "CIF"    , "Conditional Inference Forest",    "partykit",
+ "ORSF"   , "Oblique RSF",                     "aorsf",
+ "MBO"    , "Model-Based Boosting",               "mboost",
+ "CoxB"   , "Likelihood-Based Boosting",          "CoxBoost",
+ "XGBCox" , "Gradient Boosting (Cox objective)",  "xgboost",
+ "XGBAFT" , "Gradient Boosting (AFT objective)",  "xgboost",
+ "SSVM"   , "Survival SVM",                       "survivalsm"
+) |>
+  select(Name, Abbreviation, Package) |>
+  kableExtra::kbl(booktabs = TRUE, linesep = "") |>
+  kableExtra::kable_styling() |>
+  kableExtra::column_spec(1, bold = TRUE) |>
+  kableExtra::column_spec(3, monospace = TRUE)
+```
 
-## Learners: DL addendum
+
+## Learners (Addendum)
+
+. . . 
 
 > "But what about deep learning?"
 
 . . .
 
+::: {.incremental}
+
 - DL learners were considered (Coxnet, DeepSurv, DNNSurv, DeepHit, ...)
 - ...and were deemed infeasible, due to:
   - Consistent technical issues with underlying implementations
   - Large computational overhead
-  - Poor performance based on our experiments
-  - Poor performance as expected based on existing literature
+- Poor performance expected based on literature, our experiments
 - $\Rightarrow$ Excluding DL in _this_ benchmark
 
-
+:::
 
 ## Tuning
 
-- Tuning space discussed with learner authors -> authoritative, equal opportunity
-- Nested resampling:
-  - 5-fold outer cross-validation
-  - 3-fold inner cross-validation
-- "Best effort", but can't do magic, can't accommodate every learner's strengths and weaknesses
-- Strategy: Random Search
-- Budget: Tuning stopped if _either_ condition is met
-  - a) Number of evaluations: $n_{\text{evals}} = n_{\text{parameters}} \times 50$
-  - b) Tuning time of 150 hours ($6 \tfrac{1}{4}$ days)
+::: {.incremental}
+
+- Tuning space discussed with learner authors $\Rightarrow$ authoritative, equal opportunity
+- **Resampling**: Nested cross-validation (5-fold outer, 3-fold inner)
+- **Strategy**: Random Search
+- **Budget**: Tuning stopped if _either_ condition is met
+  1. Number of evaluations: $n_{\text{evals}} = n_{\text{parameters}} \times 50$
+  2. Tuning time of 150 hours ($6 \tfrac{1}{4}$ days)
+:::
+
+. . . 
+
+"Best effort" $\Rightarrow$ Can not accommodate every learner's strengths and weaknesses
 
 ## "Well, technically..."
 
 Exceptions to the previously stated rules:
 
-- We use XGBoost with either `objective:cox` or `objective:aft` and count them as separate learners
-- Some learners have small, finite search spaces for which we use exhaustive search
-- The task `veteran` has so few observations that we use 4 outer resampling folds to ensure at least 30 observed events per outer fold
-- The CoxBoost learner tunes itself with an internal CV, which we set to 3 folds as well.
+- Some learners (`RRT`, `Par`) have small, finite search spaces $\Rightarrow$ grid search (exhaustive)
+- Task `veteran` has few observations that we use 4 outer resampling folds to ensure at least 30 observed events per outer fold
+- CoxBoost [^coxboost] learner tunes itself with internal CV $\Rightarrow$ set to use 3 folds as well
 
-## Challenges
+[^coxboost]: [@pkgcoxboost]
 
-- Collecting all these algorithms in a robust benchmark would not be possible without a suitable framework such as **mlr3**
-- Computationally only feasible thanks to support by University Wyoming and access to ARCC
-- Copious amounts of debugging, testing, trial experiments with the help of my collaborators
+<!-- ## Challenges -->
 
-\thanksframe
+<!-- - Collecting all algorithms in robust benchmark would not be possible without a suitable framework such as **mlr3** -->
+<!-- - Computationally only feasible thanks to support by University Wyoming and access to ARCC [@beartooth] -->
+<!-- - Copious amounts of debugging, testing, trial experiments with the help of my collaborators -->
 
-## Buffer Slide
+## Evaluation
 
-Next slide: Backup slides
+::: {.incremental}
 
-## Backup
+- Often only discrimination considered (Harrell's C)
+- Alternative: Calibration measures
+- Combination: Scoring rules
+- Tuned on 2 different measures
+  - Harrell's C (Discrimination)
+  - Right-Censored Log Loss (Scoring Rule)
+- Evaluation spans all 3 types
+- Main Result: Friedman rank sum tests and derived critical difference plots [^demsar]
+
+:::
+
+[^demsar]: @Demsar2006
+
+## Evaluation Measures
+
+```{r eval-measures-tbl}
+tibble::tribble(
+  ~Abbreviation, ~Name, ~Type,
+  "harrell_c", "Harrell's C",             "Discrimination",
+  "uno_c",     "Uno's C",                 "Discrimination",
+  "caliba",    "Van Houwelingen's Alpha", "Calibration",
+  "dcalib",    "D-Calibration",           "Calibration",
+  "rcll",      "Right-Censored Log Loss", "Scoring Rule",
+  "graf_proper / graf_improper", "Graf Score (Proper / Improper)", "Scoring Rule",
+
+  "intlogloss", "Integrated Log Loss (Proper)", "Scoring Rule",
+  "logloss",    "Log Loss",                     "Scoring Rule",
+) |>
+  dplyr::select(Name, Type) |>
+  kableExtra::kbl(booktabs = TRUE, linesep = "") |>
+  kableExtra::kable_styling() |>
+  kableExtra::column_spec(1, bold = TRUE)
+```
+
+Primary evaluation measures: _Harrell's C_ and _Graf Score_
+
+## Measure: Graf Score
+
+Also known as: (Integrated) Survival Brier Score
+
+$$
+L_{\mathrm{Graf}}(S,t|t^*) = \frac{(S(t^*)^2)\mathbf{I}(t \le t^*, \delta = 1)} {G(t)} + 
+\frac{(1 - S(t^*))^2)\mathbf{I}(t > t^*)}{G(t)}
+$$
+
+where $t$ is the observed event time, $t^*$ is the evaluation time, and $G$ is the Kaplan-Meier estimate of the censoring distribution
+
+<!-- ## Measure: Right-Censored Log Loss -->
+
+<!-- $$ -->
+<!-- \mathrm{L_{\mathrm{RCLL}}(f, t, \Delta)} = -\log -->
+<!-- \left[ -->
+<!--   \delta f(t) + (1 - \Delta) (S(t)) -->
+<!-- \right] -->
+<!-- $$ -->
+
+<!-- @Avati2020 -->
+
+# Results
+
+
+
+## Mean + SE (Harrel's C)
+
+```{r}
+
+knitr::include_graphics("img/meanse-harrell-c-1.png")
+
+```
+
+## Mean + SE (Graf Score)
+
+```{r}
+knitr::include_graphics("img/meanse-harrell-c-5.png")
+
+```
+
+
+## Critical Difference: Harrell's C
+
+```{r}
+
+knitr::include_graphics("img/critical-difference-harrell-c-1.png")
+```
+
+## Critical Difference: Graf Score
+
+```{r}
+knitr::include_graphics("img/critical-difference-harrell-c-4.png")
+```
+
+## Closing Remarks
+
+- Results still need plausibility checks
+- Cox regression: Still hard to beat
+- The "standard setting" $\approx$ the "do you need ML?"-setting
+- Only computationally possible due to the resources of the ARCC, UWYO [^beartooth]
+
+
+[^beartooth]: {\small Advanced Research Computing Center (2023) Beartooth Computing Environment, x86_64 cluster. University of Wyoming, Laramie, WY}
+
+<!---
+
+## Task Table (1)
+
+```{r}
+task_summary |>
+  slice(1:10) |>
+  kbl(booktabs = TRUE, linesep = "") |>
+  kable_styling(latex_options = c("scale_down"))
+```
+
+## Task Table (2)
+
+```{r}
+task_summary |>
+  slice(11:20) |>
+  kbl(booktabs = TRUE, linesep = "") |>
+  kable_styling(latex_options = c("scale_down"))
+```
+
+## Task Table (3)
+
+```{r}
+task_summary |>
+  slice(21:32) |>
+  kbl(booktabs = TRUE, linesep = "") |>
+  kable_styling(latex_options = c("scale_down"))
+```
+
+--->
