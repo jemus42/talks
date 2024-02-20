@@ -69,11 +69,12 @@ theme_set(
   - Limited scope (learners, tasks, evaluation measures)
   - Focus on individual / new method $\Rightarrow$ no neutral comparison
   - No (or limited) quantitative comparison
-- Needs comprehensive comparison
-- **Large-scale**: Generalizability
-- **Neutral**: Fair comparison
 
 :::
+
+. . .
+
+$\Rightarrow$ Needs comprehensive comparison!
 
 ## Quick Summary
 
@@ -82,20 +83,31 @@ theme_set(
 - **2** tuning measures
 - **9** evaluation measures
 
+\vspace{1em}
+
+. . .
+
+- **Large-scale** $\Rightarrow$ Generalizability
+- **Neutral** $\Rightarrow$  Fair comparison
+
 . . .
 
 \vspace{2em}
 
-$\Rightarrow$ the _largest survival benchmark_ to date as far as we know
+$\Rightarrow$ The _largest survival benchmark_ to date as far as we know
 
 
-## Scope: "Standard Setting"
+## Scope
+
+The _"Standard Setting"_:
+
+\vspace{1em}
 
 - Single-event outcome: $\delta_i \in \{0, 1\}$
 - Low-dimensional: $2 \leq p < n$
+- No time-varying covariates or outcome
+- Right-censoring only
 - At least 100 observed events
-- No time-varying effects or covariates
-- Right-censoring
 
 ## Tasks
 
@@ -145,7 +157,7 @@ data.table::rbindlist(lapply(seq_along(task_summary), \(i) {
 
 ## Learners
 
-**18** learners implemented in R and available via `mlr3` [^mlr3]
+**18** learners implemented in R and available via the `mlr3` [^mlr3] framework
 
 \vspace{1em}
 
@@ -153,9 +165,9 @@ data.table::rbindlist(lapply(seq_along(task_summary), \(i) {
 
 - **Baseline**: Kaplan-Meier & Nelson-Aalen
 - **Classical**: Cox, penalized, parametric
-- **Trees**: Individual, ensembles
-- **Boosting**: Gradient- and likelihood
-- **Other**: SVM
+- **Trees**: Individual and ensembles thereof
+- **Boosting**: Gradient- and likelihood-based
+- **Other**: Akritas, SVM
 
 :::
 
@@ -165,7 +177,7 @@ data.table::rbindlist(lapply(seq_along(task_summary), \(i) {
 tibble::tribble(
   ~Abbreviation, ~Name,                 ~`Package`,
   "KM",   "Kaplan-Meier",                "survival", 
-  "NL",   "Nelson-Aalen",                "survival", 
+  "NA",   "Nelson-Aalen",                "survival", 
   "AK",   "Akritas",                     "survivalmodels", 
   "CPH",  "Cox Regression",              "survival",  
   "GLM",  "Penalized Cox Regression (L1, L2)",    "glmnet",    
@@ -182,17 +194,16 @@ tibble::tribble(
 
 [^mlr3]: @pkgmlr3
 
-
 ## List of Learners (2/2)
 
 ```{r learners-tab-2}
 tibble::tribble(
-  ~Abbreviation, ~Name,                 ~Package,
- "RRT"    , "Decison Tree",              "rpart",
- "RFSRC"  , "Random Survival Forest",    "randomForestSRC",
- "RAN"    , "Random Survival Forest",    "ranger",
- "CIF"    , "Conditional Inference Forest",    "partykit",
- "ORSF"   , "Oblique RSF",                     "aorsf",
+  ~Abbreviation, ~Name,                           ~Package,
+ "RRT"    , "Decison Tree",                       "rpart",
+ "RFSRC"  , "Random Survival Forest",             "randomForestSRC",
+ "RAN"    , "Random Survival Forest",             "ranger",
+ "CIF"    , "Conditional Inference Forest",       "partykit",
+ "ORSF"   , "Oblique RSF",                        "aorsf",
  "MBO"    , "Model-Based Boosting",               "mboost",
  "CoxB"   , "Likelihood-Based Boosting",          "CoxBoost",
  "XGBCox" , "Gradient Boosting (Cox objective)",  "xgboost",
@@ -218,39 +229,45 @@ tibble::tribble(
 ::: {.incremental}
 
 - DL learners were considered (Coxnet, DeepSurv, DNNSurv, DeepHit, ...)
-- ...and were deemed infeasible, due to:
-  - Consistent technical issues with underlying implementations
-  - Large computational overhead
+- Consistent technical issues with underlying implementations
+- Large computational overhead
 - Poor performance expected based on literature, our experiments
-- $\Rightarrow$ Excluding DL in _this_ benchmark
 
 :::
+
+. . .
+
+\vspace{2em}
+
+$\Rightarrow$ Excluding DL in _this_ benchmark
 
 ## Tuning
 
 ::: {.incremental}
 
-- Tuning space discussed with learner authors $\Rightarrow$ authoritative, equal opportunity
+- Tuning space discussed with learner authors  
+  $\Rightarrow$ authoritative, equal opportunity
 - **Resampling**: Nested cross-validation (5-fold outer, 3-fold inner)
 - **Strategy**: Random Search
-- **Budget**: Tuning stopped if _either_ condition is met
+- **Budget**: Tuning stopped if _either_ criterion is reached
   1. Number of evaluations: $n_{\text{evals}} = n_{\text{parameters}} \times 50$
-  2. Tuning time of 150 hours ($6 \tfrac{1}{4}$ days)
+  2. Tuning time of 150 hours ($6 \tfrac{1}{4}$ days) 
 :::
 
 . . . 
 
+\vspace{2em}
+
 "Best effort" $\Rightarrow$ Can not accommodate every learner's strengths and weaknesses
 
-## "Well, technically..."
+<!-- ## "Well, technically..." -->
 
-Exceptions to the previously stated rules:
+<!-- Exceptions to the previously stated rules: -->
 
-- Some learners (`RRT`, `Par`) have small, finite search spaces $\Rightarrow$ grid search (exhaustive)
-- Task `veteran` has few observations that we use 4 outer resampling folds to ensure at least 30 observed events per outer fold
-- CoxBoost [^coxboost] learner tunes itself with internal CV $\Rightarrow$ set to use 3 folds as well
+<!-- - Some learners (`RRT`, `Par`) have small, finite search spaces $\Rightarrow$ grid search (exhaustive) -->
+<!-- - Task `veteran` has few observations that we use 4 outer resampling folds to ensure at least 30 observed events per outer fold -->
+<!-- - CoxBoost learner tunes itself with internal CV $\Rightarrow$ set to use 3 folds as well -->
 
-[^coxboost]: [@pkgcoxboost]
 
 <!-- ## Challenges -->
 
@@ -262,20 +279,24 @@ Exceptions to the previously stated rules:
 
 ::: {.incremental}
 
+- Main Results: Friedman rank sum tests and derived critical difference plots [^demsar]
 - Often only discrimination considered (Harrell's C)
 - Alternative: Calibration measures
-- Combination: Scoring rules
+- Combination: _Scoring rules_
 - Tuned on 2 different measures
   - Harrell's C (Discrimination)
   - Right-Censored Log Loss (Scoring Rule)
 - Evaluation spans all 3 types
-- Main Result: Friedman rank sum tests and derived critical difference plots [^demsar]
 
 :::
 
 [^demsar]: @Demsar2006
 
+<!---
+
 ## Evaluation Measures
+
+Primary evaluation measures: _Harrell's C_ and _Graf Score_
 
 ```{r eval-measures-tbl}
 tibble::tribble(
@@ -292,22 +313,24 @@ tibble::tribble(
 ) |>
   dplyr::select(Name, Type) |>
   kableExtra::kbl(booktabs = TRUE, linesep = "") |>
-  kableExtra::kable_styling() |>
-  kableExtra::column_spec(1, bold = TRUE)
+  kableExtra::kable_styling()
+  # kableExtra::group_rows(start_row = 1, end_row = 2, group_label = "Discrimination") |>
+  # kableExtra::group_rows(start_row = 3, end_row = 4, group_label = "Calibration") |>
+  # kableExtra::group_rows(start_row = 5, end_row = 8, group_label = "Scoring Rule")
 ```
 
-Primary evaluation measures: _Harrell's C_ and _Graf Score_
+-->
 
-## Measure: Graf Score
+<!-- ## Measure: Graf Score (Proper) -->
 
-Also known as: (Integrated) Survival Brier Score
+<!-- Also known as: (Integrated) Survival Brier Score -->
 
-$$
-L_{\mathrm{Graf}}(S,t|t^*) = \frac{(S(t^*)^2)\mathbf{I}(t \le t^*, \delta = 1)} {G(t)} + 
-\frac{(1 - S(t^*))^2)\mathbf{I}(t > t^*)}{G(t)}
-$$
+<!-- $$ -->
+<!-- L_{\mathrm{Graf}}(S,t|t^*) = \frac{(S(t^*)^2)\mathbf{I}(t \le t^*, \delta = 1)} {G(t)} +  -->
+<!-- \frac{(1 - S(t^*))^2)\mathbf{I}(t > t^*)}{G(t)} -->
+<!-- $$ -->
 
-where $t$ is the observed event time, $t^*$ is the evaluation time, and $G$ is the Kaplan-Meier estimate of the censoring distribution
+<!-- where $t$ is the observed event time, $t^*$ is the evaluation time, and $G$ is the Kaplan-Meier estimate of the censoring distribution -->
 
 <!-- ## Measure: Right-Censored Log Loss -->
 
@@ -322,46 +345,47 @@ where $t$ is the observed event time, $t^*$ is the evaluation time, and $G$ is t
 
 # Results
 
-
-
 ## Mean + SE (Harrel's C)
 
 ```{r}
-
+#| out-height: "77%"
 knitr::include_graphics("img/meanse-harrell-c-1.png")
-
 ```
 
 ## Mean + SE (Graf Score)
 
 ```{r}
+#| out-height: "77%"
 knitr::include_graphics("img/meanse-harrell-c-5.png")
-
 ```
-
 
 ## Critical Difference: Harrell's C
 
 ```{r}
-
+#| out-height: "75%"
 knitr::include_graphics("img/critical-difference-harrell-c-1.png")
 ```
 
 ## Critical Difference: Graf Score
 
 ```{r}
+#| out-height: "75%"
 knitr::include_graphics("img/critical-difference-harrell-c-4.png")
 ```
 
 ## Closing Remarks
 
-- Results still need plausibility checks
-- Cox regression: Still hard to beat
+::: {.incremental}
+
+- Setup is not perfect, but it was _possible_
+- Only computationally feasible due to resources of ARCC [^beartooth]
+- Results still need processing, checking, ...
+- **Preliminary conclusion**: Cox PH --- still hard to beat since 1972!
 - The "standard setting" $\approx$ the "do you need ML?"-setting
-- Only computationally possible due to the resources of the ARCC, UWYO [^beartooth]
 
+:::
 
-[^beartooth]: {\small Advanced Research Computing Center (2023) Beartooth Computing Environment, x86_64 cluster. University of Wyoming, Laramie, WY}
+[^beartooth]: Advanced Research Computing Center, Beartooth Computing Environment, University of Wyoming.
 
 <!---
 
