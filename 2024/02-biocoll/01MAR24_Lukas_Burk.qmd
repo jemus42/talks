@@ -47,7 +47,8 @@ library(kableExtra)
 
 knitr::opts_chunk$set(
   fig.align = "center",
-  dev = "ragg_png"
+  dev = "ragg_png",
+  dev.args = list(bg = "transparent")
 )
 
 theme_set(
@@ -404,7 +405,9 @@ bma |>
   ) +
   theme_minimal(base_size = 15, base_family = "Fira Sans") +
   theme(
-    legend.position = "top"
+    legend.position = "top",
+    panel.background = element_rect(fill = "transparent", color = NA),
+    panel.grid.major.x = element_blank()
   )
 ```
 
@@ -438,6 +441,7 @@ bma |>
   theme_minimal(base_size = 15, base_family = "Fira Sans") +
   theme(
     legend.position = "top",
+    panel.background = element_rect(fill = "transparent", color = NA),
     panel.grid.major.x = element_blank()
   )
 ```
@@ -463,6 +467,7 @@ bma |>
   theme_minimal(base_size = 15, base_family = "Fira Sans") +
   theme(
     legend.position = "top",
+    panel.background = element_rect(fill = "transparent", color = NA),
     panel.grid.major.x = element_blank()
   )
 ```
@@ -485,7 +490,7 @@ bma |>
 
 ```{r}
 #| out-height: "75%"
-knitr::include_graphics("img/critical-difference-baseline-diff-harrell-c-1-annotated.png")
+knitr::include_graphics("img/critical-difference-baseline-diff-harrell-c-1.png")
 ```
 
 <!-- ## Critical Difference: Bonferroni-Dunn (IBS/RCLL) -->
@@ -500,17 +505,17 @@ knitr::include_graphics("img/critical-difference-baseline-diff-harrell-c-1-annot
 
 ```{r}
 #| out-height: "75%"
-knitr::include_graphics("img/critical-difference-baseline-diff-rcll-7-annotated.png")
+knitr::include_graphics("img/critical-difference-baseline-diff-rcll-7.png")
 ```
 
 ## Closing Remarks
 
 ::: {.incremental}
 
-- Experimental design is not perfect, but it was _possible_ to conduct
 - Only computationally feasible due to resources of ARCC [^beartooth]
   - Sequential runtime: $\approx$ 18 years
   - Effective runtime: 32 days
+- Experimental design is not perfect, but it was _possible_ to conduct
 - Results still need processing, checking, ...
 - **Preliminary conclusion**: Cox regression --- hard to beat since 1972!
 - The "standard setting" $\approx$ the "do you need ML?"-setting
