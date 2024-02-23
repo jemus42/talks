@@ -180,9 +180,14 @@
 \setbeamertemplate{background}{
 \begin{tikzpicture}
 	\useasboundingbox (0,0) rectangle(\the\paperwidth,\the\paperheight);
-	\node[align=center, color=BIPSBlue] at (\paperwidth*.5, 7) {\Large \textbf{#1}};
+	\node[align=center, color=BIPSBlue] at (\paperwidth*.5, 8) {\Large \textbf{#1}};
 
-	\node[align=center, color=BIPSBlue] at (\paperwidth*.5, 5) {
+	\node[align=center] at (\paperwidth*.5, 6) {
+	  % {\small \textbf{Slides:}}
+	  \includegraphics[width=0.2\textwidth]{qr.png}
+	};
+
+	\node[align=center, color=BIPSBlue] at (\paperwidth*.5, 4.25) {
 	\iftoggle{useGerman}
 	{\small www.leibniz-bips.de}
 	{\small www.leibniz-bips.de/en}

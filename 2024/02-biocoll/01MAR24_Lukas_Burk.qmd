@@ -510,7 +510,7 @@ knitr::include_graphics("img/critical-difference-baseline-diff-rcll-7-annotated.
 - Experimental design is not perfect, but it was _possible_ to conduct
 - Only computationally feasible due to resources of ARCC [^beartooth]
   - Sequential runtime: $\approx$ 18 years
-  - Effective runtime: 32 days ($\approx$ 200x decrease)
+  - Effective runtime: 32 days
 - Results still need processing, checking, ...
 - **Preliminary conclusion**: Cox regression --- hard to beat since 1972!
 - The "standard setting" $\approx$ the "do you need ML?"-setting
