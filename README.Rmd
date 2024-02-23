@@ -20,6 +20,7 @@ Talks, pitches, journal club presentations, almost organized. But not really, le
 ```{r}
 tibble::tribble(
   ~year, ~short, ~desc, ~link,
+  2024, "surv-bench", "Biometric Colloquium 2024: Survival Benchmark", "2024/02-biocoll/01MAR24_Lukas_Burk.pdf",
   2023, "CooPeR", "CEN 2023: CooPeR", "2023/09-cooper/07SEP23_Lukas_Burk.pdf",
   2023, "BioWiMium", "Generating High-Dimensional Competing Risk Survival Settings", "2023/06-wimium/cr.pdf",
   2023, "CooPeR", "fwelnet for survival w/ competing risks, again, but... more. And renamed.", "2023/05-cooper/CooPeR.html",
@@ -31,7 +32,7 @@ tibble::tribble(
     short = glue::glue("<a href='{link}'>{short}</a>")
   ) |>
   dplyr::select(-link) |>
-  knitr::kable(col.names = c("Year", "Topic", "Context"), escape = FALSE) |>
+  kableExtra::kbl(col.names = c("Year", "Topic", "Context"), escape = FALSE) |>
   kableExtra::kable_styling(full_width = TRUE)
 ```
 

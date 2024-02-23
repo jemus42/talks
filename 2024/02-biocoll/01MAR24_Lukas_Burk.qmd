@@ -9,13 +9,14 @@ author:
   - Bischl, B.\inst{2,4}
   - Bender, A.\inst{2,4}
   - Wright, M. N.\inst{1,3}
-  - Lang, M. \inst{6}
+  - Lang, M.\inst{6}
   - Sonabend, R.\inst{7, 8}
+#date: "2024-03-01"
 format:
   beamer:
     template: template.tex
     widescreen: true # changes to sty now make this the only non-messed up option
-    occasion: "Biometric Colloquium, March 1st, 2024"
+    occasion: "Biometric Colloquium --- March 1st, 2024"
     email: burk@leibniz-bips.de
     themeoptions: fira
     thankstext: Thank you for your attention!
@@ -25,9 +26,9 @@ format:
       # and \insertinstitute did not work for some other godforsaken reason, idunno
         - \textsuperscript{1}Leibniz Institute for Prevention Research and Epidemiology -- BIPS
         - \textsuperscript{2}LMU Munich \quad \textsuperscript{3}University of Bremen
-        - \textsuperscript{4}Munich Center for Machine Learning
+        - \textsuperscript{4}Munich Center for Machine Learning (MCML)
         - \textsuperscript{5}University of Oslo \quad \textsuperscript{6} TU Dortmund
-        - \textsuperscript{7}OSPO now \quad \textsuperscript{8}Impercial College, London
+        - \textsuperscript{7}OSPO Now \quad \textsuperscript{8}Imperial College, London
     bibliography:
       - references.bib # zotero bib
       - library.bib # copypasta from overleaf
@@ -45,7 +46,8 @@ library(dplyr)
 library(kableExtra)
 
 knitr::opts_chunk$set(
-  fig.align = "center"
+  fig.align = "center",
+  dev = "ragg_png"
 )
 
 theme_set(
@@ -56,6 +58,7 @@ theme_set(
     plot.title.position = "plot"
   )
 )
+
 ```
 
 ## Introduction
@@ -65,16 +68,19 @@ theme_set(
 - There are many survival learners ("models") to choose from
 - Advantages and Disadvantages often unclear, specific to setting
 - Various comparisons exist in literature
-- Often with limitations, e.g.
-  - Limited scope (learners, tasks, evaluation measures)
-  - Focus on individual / new method $\Rightarrow$ no neutral comparison
-  - No (or limited) quantitative comparison
+- Limited scope (learners, tasks, evaluation measures)
+- Focus on individual / new method $\Rightarrow$ no neutral comparison
+- No (or limited) quantitative comparison
 
 :::
 
 . . .
 
-$\Rightarrow$ Needs comprehensive comparison!
+\vspace{1em}
+
+
+$\Rightarrow$ Needs _comprehensive comparison_!
+
 
 ## Quick Summary
 
@@ -92,10 +98,13 @@ $\Rightarrow$ Needs comprehensive comparison!
 
 . . .
 
-\vspace{2em}
+\vspace{1em}
+
+::: {.center}
 
 $\Rightarrow$ The _largest survival benchmark_ to date as far as we know
 
+:::
 
 ## Scope
 
@@ -105,7 +114,7 @@ The _"Standard Setting"_:
 
 - Single-event outcome: $\delta_i \in \{0, 1\}$
 - Low-dimensional: $2 \leq p < n$
-- No time-varying covariates or outcome
+- No time-varying covariates
 - Right-censoring only
 - At least 100 observed events
 
@@ -171,30 +180,34 @@ data.table::rbindlist(lapply(seq_along(task_summary), \(i) {
 
 :::
 
-## List of Learners (1/2)
+## List of Learners (Baseline, Classical)
 
 ```{r learners-tab-1}
 tibble::tribble(
   ~Abbreviation, ~Name,                 ~`Package`,
   "KM",   "Kaplan-Meier",                "survival", 
   "NA",   "Nelson-Aalen",                "survival", 
-  "AK",   "Akritas",                     "survivalmodels", 
   "CPH",  "Cox Regression",              "survival",  
   "GLM",  "Penalized Cox Regression (L1, L2)",    "glmnet",    
   "Pen",  "Penalized Cox Regression (L1, L2)",    "penalized", 
   "Par",  "Parametric (AFT)",            "survival",   
-  "Flex", "Flexible Parametric Splines", "flexsurv"
+  "Flex", "Flexible Parametric Splines", "flexsurv",
+  "AK",   "Akritas",                     "survivalmodels", 
+  "SSVM", "Survival SVM",                "survivalsvm"
 ) |>
-  select(Name, Abbreviation, Package) |>
+  dplyr::select(Name, Abbreviation, Package) |>
   kableExtra::kbl(booktabs = TRUE, linesep = "") |>
   kableExtra::kable_styling() |>
   kableExtra::column_spec(1, bold = TRUE) |>
-  kableExtra::column_spec(3, monospace = TRUE)
+  kableExtra::column_spec(3, monospace = TRUE) |>
+  kableExtra::row_spec(row = 2, hline_after = TRUE) |>
+  kableExtra::row_spec(row = 7, hline_after = TRUE) |>
+  kableExtra::row_spec(row = 4:5, color = RColorBrewer::brewer.pal(5, "Dark2")[[1]])
 ```
 
 [^mlr3]: @pkgmlr3
 
-## List of Learners (2/2)
+## List of Learners (Trees, Boosting)
 
 ```{r learners-tab-2}
 tibble::tribble(
@@ -207,17 +220,19 @@ tibble::tribble(
  "MBO"    , "Model-Based Boosting",               "mboost",
  "CoxB"   , "Likelihood-Based Boosting",          "CoxBoost",
  "XGBCox" , "Gradient Boosting (Cox objective)",  "xgboost",
- "XGBAFT" , "Gradient Boosting (AFT objective)",  "xgboost",
- "SSVM"   , "Survival SVM",                       "survivalsm"
+ "XGBAFT" , "Gradient Boosting (AFT objective)",  "xgboost"
 ) |>
-  select(Name, Abbreviation, Package) |>
+  dplyr::select(Name, Abbreviation, Package) |>
   kableExtra::kbl(booktabs = TRUE, linesep = "") |>
   kableExtra::kable_styling() |>
   kableExtra::column_spec(1, bold = TRUE) |>
-  kableExtra::column_spec(3, monospace = TRUE)
+  kableExtra::column_spec(3, monospace = TRUE) |>
+  kableExtra::row_spec(row = 5, hline_after = TRUE) |>
+  kableExtra::row_spec(row = 2:3, color = RColorBrewer::brewer.pal(5, "Dark2")[[1]]) |>
+  kableExtra::row_spec(row = 8:9, color = RColorBrewer::brewer.pal(5, "Dark2")[[4]])
 ```
 
-
+<!---
 ## Learners (Addendum)
 
 . . . 
@@ -241,24 +256,19 @@ tibble::tribble(
 
 $\Rightarrow$ Excluding DL in _this_ benchmark
 
+-->
+
 ## Tuning
 
 ::: {.incremental}
 
-- Tuning space discussed with learner authors  
-  $\Rightarrow$ authoritative, equal opportunity
+- Tuning spaces discussed with learner authors
 - **Resampling**: Nested cross-validation (5-fold outer, 3-fold inner)
 - **Strategy**: Random Search
-- **Budget**: Tuning stopped if _either_ criterion is reached
+- **Budget**: Tuning stopped if _either_ is reached
   1. Number of evaluations: $n_{\text{evals}} = n_{\text{parameters}} \times 50$
   2. Tuning time of 150 hours ($6 \tfrac{1}{4}$ days) 
 :::
-
-. . . 
-
-\vspace{2em}
-
-"Best effort" $\Rightarrow$ Can not accommodate every learner's strengths and weaknesses
 
 <!-- ## "Well, technically..." -->
 
@@ -279,10 +289,10 @@ $\Rightarrow$ Excluding DL in _this_ benchmark
 
 ::: {.incremental}
 
-- Main Results: Friedman rank sum tests and derived critical difference plots [^demsar]
-- Often only discrimination considered (Harrell's C)
-- Alternative: Calibration measures
-- Combination: _Scoring rules_
+- Main Results: 
+  - Friedman rank sum tests 
+  - Critical difference plots[^demsar] based on Bonferroni-Dunn tests
+- 3 types of metrics: Discrimination, Calibration, _Scoring Rules_
 - Tuned on 2 different measures
   - Harrell's C (Discrimination)
   - Right-Censored Log Loss (Scoring Rule)
@@ -345,47 +355,171 @@ tibble::tribble(
 
 # Results
 
-## Mean + SE (Harrel's C)
+```{r get-bma}
+#| include: false
+#| cache: true
+bma = readRDS(url("https://stuff.jemu.name/survival_benchmark/results/bma_full.rds"))
 
-```{r}
-#| out-height: "77%"
-knitr::include_graphics("img/meanse-harrell-c-1.png")
+bma = bma |>
+  mutate(
+    learner_group = case_match(learner_id,
+      c("KM", "NA") ~ "Baseline",
+      c("AK") ~ "Other", 
+      c("CPH", "GLM", "Pen", "Par", "Flex") ~ "Classical",
+      c("RRT", "RFSRC", "RAN", "CIF", "ORSF") ~ "Trees",
+      c("MBO", "XGBCox", "XGBAFT", "CoxB") ~ "Boosting",
+      .ptype = factor(levels = c("Baseline", "Classical", "Trees", "Boosting", "Other"))
+    ),
+    learner_id = factor(learner_id, levels = c(setdiff(levels(learner_id), "AK"), "AK"))
+  )
+
+palette = RColorBrewer::brewer.pal(5, "Dark2")
+names(palette) = levels(bma$learner_group)
+
+# ggsave(plot = p_box_harrell, filename = here::here("2024/02-biocoll/img/boxplot-harrell.png"), width = 10, height = 5)
+# ggsave(plot = p_box_rcll, filename = here::here("2024/02-biocoll/img/boxplot-rcll.png"), width = 10, height = 5)
+
 ```
 
-## Mean + SE (Graf Score)
 
-```{r}
-#| out-height: "77%"
-knitr::include_graphics("img/meanse-harrell-c-5.png")
+## Boxplot (Harrel's C, higher is better)
+
+```{r boxplot-harrell}
+#| fig-width: 10
+#| fig-height: 5
+
+bma |>
+  dplyr::filter(tuned == "harrell_c") |>
+  dplyr::filter(!(learner_id %in% c("KM", "NA"))) |>
+  ggplot(aes(x = learner_id, y = harrell_c, color = learner_group, fill = learner_group)) +
+  geom_boxplot(alpha = 1/4, key_glyph = "rect") +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  scale_color_manual(values = palette, aesthetics = c("color", "fill"), guide = guide_legend(keywidth = 2)) +
+  # scale_color_brewer(palette = "Dark2", aesthetics = c("color", "fill"), guide = guide_legend(keywidth = 2)) +
+  labs(
+    #title = "Harrell's C", 
+    caption = "Tuned on Harrell's C",
+    x = NULL, y = "Harrell's C",
+    color = NULL, fill = NULL
+  ) +
+  theme_minimal(base_size = 15, base_family = "Fira Sans") +
+  theme(
+    legend.position = "top"
+  )
 ```
 
-## Critical Difference: Harrell's C
+
+<!-- ```{r} -->
+<!-- #| out-height: "77%" -->
+<!-- # knitr::include_graphics("img/boxplot-harrell-c-1.png") -->
+<!-- knitr::include_graphics("img/boxplot-harrell.png") -->
+
+<!-- ``` -->
+
+## Boxplot (IBS, lower is better)
+
+```{r boxplot-ibs-rcll-full}
+#| fig-width: 10
+#| fig-height: 5
+
+bma |>
+  filter(graf_improper < 1) |>
+  dplyr::filter(tuned == "rcll") |>
+  ggplot(aes(x = learner_id, y = graf_improper, color = learner_group, fill = learner_group)) +
+  geom_boxplot(alpha = 1/4, key_glyph = "rect") +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  scale_color_manual(values = palette, aesthetics = c("color", "fill"), guide = guide_legend(keywidth = 2)) +
+  labs(
+    #title = "Integrated Brier Score", 
+    caption = "Tuned on Right-Censored Log Loss",
+    x = NULL, y = "Integrated Brier Score",
+    color = NULL, fill = NULL
+  ) +
+  theme_minimal(base_size = 15, base_family = "Fira Sans") +
+  theme(
+    legend.position = "top",
+    panel.grid.major.x = element_blank()
+  )
+```
+
+## Boxplot (IBS, truncated)
+
+```{r boxplot-ibs-rcll-reduced}
+#| fig-width: 10
+#| fig-height: 5
+
+bma |>
+  filter(graf_improper <= 0.25) |>
+  ggplot(aes(x = learner_id, y = graf_improper, color = learner_group, fill = learner_group)) +
+  geom_boxplot(alpha = 1/4, key_glyph = "rect") +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  scale_color_manual(values = palette, aesthetics = c("color", "fill"), guide = guide_legend(keywidth = 2)) +
+  labs(
+    #title = "Integrated Brier Score", 
+    caption = "Tuned on Right-Censored Log Loss",
+    x = NULL, y = "Integrated Brier Score",
+    color = NULL, fill = NULL
+  ) +
+  theme_minimal(base_size = 15, base_family = "Fira Sans") +
+  theme(
+    legend.position = "top",
+    panel.grid.major.x = element_blank()
+  )
+```
+
+<!-- ```{r} -->
+<!-- #| out-height: "77%" -->
+<!-- # knitr::include_graphics("img/boxplot-rcll-5.png") -->
+<!-- knitr::include_graphics("img/boxplot-rcll.png") -->
+<!-- ``` -->
+
+<!-- ## Critical Difference: Bonferroni-Dunn (Harrell's C) -->
+
+<!-- ```{r} -->
+<!-- #| out-height: "75%" -->
+<!-- knitr::include_graphics("img/critical-difference-baseline-diff-harrell-c-1.png") -->
+<!-- ``` -->
+
+## Critical Difference: Bonferroni-Dunn (Harrell's C)
+<!-- Annotated --->
 
 ```{r}
 #| out-height: "75%"
-knitr::include_graphics("img/critical-difference-harrell-c-1.png")
+knitr::include_graphics("img/critical-difference-baseline-diff-harrell-c-1-annotated.png")
 ```
 
-## Critical Difference: Graf Score
+<!-- ## Critical Difference: Bonferroni-Dunn (IBS/RCLL) -->
+
+<!-- ```{r} -->
+<!-- #| out-height: "75%" -->
+<!-- knitr::include_graphics("img/critical-difference-baseline-diff-rcll-4.png") -->
+<!-- ``` -->
+
+## Critical Difference: Bonferroni-Dunn (IBS/RCLL)
+<!-- Annotated --->
 
 ```{r}
 #| out-height: "75%"
-knitr::include_graphics("img/critical-difference-harrell-c-4.png")
+knitr::include_graphics("img/critical-difference-baseline-diff-rcll-7-annotated.png")
 ```
 
 ## Closing Remarks
 
 ::: {.incremental}
 
-- Setup is not perfect, but it was _possible_
+- Experimental design is not perfect, but it was _possible_ to conduct
 - Only computationally feasible due to resources of ARCC [^beartooth]
+  - Sequential runtime: $\approx$ 18 years
+  - Effective runtime: 32 days ($\approx$ 200x decrease)
 - Results still need processing, checking, ...
-- **Preliminary conclusion**: Cox PH --- still hard to beat since 1972!
+- **Preliminary conclusion**: Cox regression --- hard to beat since 1972!
 - The "standard setting" $\approx$ the "do you need ML?"-setting
 
 :::
 
 [^beartooth]: Advanced Research Computing Center, Beartooth Computing Environment, University of Wyoming.
+
+
 
 <!---
 
