@@ -297,7 +297,6 @@ $\Rightarrow$ Excluding DL in _this_ benchmark
 - Tuned on 2 different measures
   - Harrell's C (Discrimination)
   - Right-Censored Log Loss (Scoring Rule)
-- Evaluation spans all 3 types
 
 :::
 
@@ -453,7 +452,7 @@ bma |>
 #| fig-height: 5
 
 bma |>
-  filter(graf_improper <= 0.25) |>
+  filter(graf_improper <= 0.25 & learner_id != "AK") |>
   ggplot(aes(x = learner_id, y = graf_improper, color = learner_group, fill = learner_group)) +
   geom_boxplot(alpha = 1/4, key_glyph = "rect") +
   scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
@@ -472,40 +471,65 @@ bma |>
   )
 ```
 
-<!-- ```{r} -->
-<!-- #| out-height: "77%" -->
-<!-- # knitr::include_graphics("img/boxplot-rcll-5.png") -->
-<!-- knitr::include_graphics("img/boxplot-rcll.png") -->
-<!-- ``` -->
-
-<!-- ## Critical Difference: Bonferroni-Dunn (Harrell's C) -->
-
-<!-- ```{r} -->
-<!-- #| out-height: "75%" -->
-<!-- knitr::include_graphics("img/critical-difference-baseline-diff-harrell-c-1.png") -->
-<!-- ``` -->
 
 ## Critical Difference: Bonferroni-Dunn (Harrell's C)
 <!-- Annotated --->
 
 ```{r}
 #| out-height: "75%"
-knitr::include_graphics("img/critical-difference-baseline-diff-harrell-c-1.png")
+# knitr::include_graphics("img/critical-difference-baseline-diff-harrell-c-1.png")
+
+# https://docs.ropensci.org/magick/reference/device.html
+
+img = here::here("2024/02-biocoll/img/critical-difference-baseline-diff-harrell-c-1.png") |>
+  magick::image_read() |>
+  magick::image_annotate("Lower is better", size = 32, location = "+10+30") |>
+  magick::image_draw()
+
+rect(
+  xleft = 1075, xright = 1160, 
+  ybottom = 532, ytop = 220, 
+  border = "red", lwd = 7
+)
+
+magick::image_write(
+  image = img, 
+  path = here::here("2024/02-biocoll/img/critical-difference-baseline-diff-harrell-c-1-annotated.png")
+)
+
+knitr::include_graphics("img/critical-difference-baseline-diff-harrell-c-1-annotated.png")
 ```
-
-<!-- ## Critical Difference: Bonferroni-Dunn (IBS/RCLL) -->
-
-<!-- ```{r} -->
-<!-- #| out-height: "75%" -->
-<!-- knitr::include_graphics("img/critical-difference-baseline-diff-rcll-4.png") -->
-<!-- ``` -->
 
 ## Critical Difference: Bonferroni-Dunn (IBS/RCLL)
 <!-- Annotated --->
 
 ```{r}
 #| out-height: "75%"
-knitr::include_graphics("img/critical-difference-baseline-diff-rcll-7.png")
+# knitr::include_graphics("img/critical-difference-baseline-diff-rcll-7.png")
+
+
+img = here::here("2024/02-biocoll/img/critical-difference-baseline-diff-rcll-7.png") |>
+  magick::image_read() |>
+  magick::image_annotate("Lower is better", size = 32, location = "+10+30") |>
+  magick::image_draw()
+
+rect(
+  xleft = 1060, xright = 1200, 
+  ybottom = 730, ytop = 220, 
+  border = "red", lwd = 7
+)
+rect(
+  xleft = 5, xright = 80, 
+  ybottom = 680, ytop = 795, 
+  border = "red", lwd = 7
+)
+
+magick::image_write(
+  image = img, 
+  path = here::here("2024/02-biocoll/img/critical-difference-baseline-diff-rcll-7-annotated.png")
+)
+
+knitr::include_graphics("img/critical-difference-baseline-diff-rcll-7-annotated.png")
 ```
 
 ## Closing Remarks
