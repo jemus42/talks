@@ -67,7 +67,7 @@ theme_set(
 ::: {.incremental}
 
 - There are many survival learners ("models") to choose from
-- Advantages and Disadvantages often unclear, specific to setting
+- Advantages and disadvantages often unclear, specific to setting
 - Various comparisons exist in literature
 - Limited scope (learners, tasks, evaluation measures)
 - Focus on individual / new method $\Rightarrow$ no neutral comparison
@@ -171,11 +171,13 @@ data.table::rbindlist(lapply(seq_along(task_summary), \(i) {
 
 \vspace{1em}
 
+. . . 
+
 ::: {.incremental}
 
 - **Baseline**: Kaplan-Meier & Nelson-Aalen
-- **Classical**: Cox, penalized, parametric
-- **Trees**: Individual and ensembles thereof
+- **Classical**: Cox, penalized (L1,L2), parametric (AFT)
+- **Trees**: Individuals and ensembles
 - **Boosting**: Gradient- and likelihood-based
 - **Other**: Akritas, SVM
 
@@ -203,7 +205,7 @@ tibble::tribble(
   kableExtra::column_spec(3, monospace = TRUE) |>
   kableExtra::row_spec(row = 2, hline_after = TRUE) |>
   kableExtra::row_spec(row = 7, hline_after = TRUE) |>
-  kableExtra::row_spec(row = 4:5, color = RColorBrewer::brewer.pal(5, "Dark2")[[1]])
+  kableExtra::row_spec(row = 4:5, color = "#1763AA") # RColorBrewer::brewer.pal(5, "Dark2")[[1]])
 ```
 
 [^mlr3]: @pkgmlr3
@@ -229,8 +231,8 @@ tibble::tribble(
   kableExtra::column_spec(1, bold = TRUE) |>
   kableExtra::column_spec(3, monospace = TRUE) |>
   kableExtra::row_spec(row = 5, hline_after = TRUE) |>
-  kableExtra::row_spec(row = 2:3, color = RColorBrewer::brewer.pal(5, "Dark2")[[1]]) |>
-  kableExtra::row_spec(row = 8:9, color = RColorBrewer::brewer.pal(5, "Dark2")[[4]])
+  kableExtra::row_spec(row = 2:3, color = "#1763AA")|> #RColorBrewer::brewer.pal(5, "Dark2")[[1]]) |>
+  kableExtra::row_spec(row = 8:9, color = "#1763AA") #RColorBrewer::brewer.pal(5, "Dark2")[[4]])
 ```
 
 <!---
@@ -331,25 +333,6 @@ tibble::tribble(
 
 -->
 
-<!-- ## Measure: Graf Score (Proper) -->
-
-<!-- Also known as: (Integrated) Survival Brier Score -->
-
-<!-- $$ -->
-<!-- L_{\mathrm{Graf}}(S,t|t^*) = \frac{(S(t^*)^2)\mathbf{I}(t \le t^*, \delta = 1)} {G(t)} +  -->
-<!-- \frac{(1 - S(t^*))^2)\mathbf{I}(t > t^*)}{G(t)} -->
-<!-- $$ -->
-
-<!-- where $t$ is the observed event time, $t^*$ is the evaluation time, and $G$ is the Kaplan-Meier estimate of the censoring distribution -->
-
-<!-- ## Measure: Right-Censored Log Loss -->
-
-<!-- $$ -->
-<!-- \mathrm{L_{\mathrm{RCLL}}(f, t, \Delta)} = -\log -->
-<!-- \left[ -->
-<!--   \delta f(t) + (1 - \Delta) (S(t)) -->
-<!-- \right] -->
-<!-- $$ -->
 
 <!-- @Avati2020 -->
 
@@ -425,9 +408,9 @@ bma |>
 #| fig-height: 5
 
 bma |>
-  filter(graf_improper < 1) |>
+  filter(brier_improper < 1) |>
   dplyr::filter(tuned == "rcll") |>
-  ggplot(aes(x = learner_id, y = graf_improper, color = learner_group, fill = learner_group)) +
+  ggplot(aes(x = learner_id, y = brier_improper, color = learner_group, fill = learner_group)) +
   geom_boxplot(alpha = 1/4, key_glyph = "rect") +
   scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
   scale_color_manual(values = palette, aesthetics = c("color", "fill"), guide = guide_legend(keywidth = 2)) +
@@ -452,8 +435,8 @@ bma |>
 #| fig-height: 5
 
 bma |>
-  filter(graf_improper <= 0.25 & learner_id != "AK") |>
-  ggplot(aes(x = learner_id, y = graf_improper, color = learner_group, fill = learner_group)) +
+  filter(brier_improper < 0.4, learner_id != "AK") |>
+  ggplot(aes(x = learner_id, y = brier_improper, color = learner_group, fill = learner_group)) +
   geom_boxplot(alpha = 1/4, key_glyph = "rect") +
   scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
   scale_color_manual(values = palette, aesthetics = c("color", "fill"), guide = guide_legend(keywidth = 2)) +
@@ -537,12 +520,12 @@ knitr::include_graphics("img/critical-difference-baseline-diff-rcll-7-annotated.
 ::: {.incremental}
 
 - Only computationally feasible due to resources of ARCC [^beartooth]
-  - Sequential runtime: $\approx$ 18 years
-  - Effective runtime: 32 days
+  - Sequential runtime $\approx$ 18 years
+  - Effective runtime $\approx$ 32 days
 - Experimental design is not perfect, but it was _possible_ to conduct
 - Results still need processing, checking, ...
 - **Preliminary conclusion**: Cox regression --- hard to beat since 1972!
-- The "standard setting" $\approx$ the "do you need ML?"-setting
+<!-- - The "standard setting" $\approx$ the "do you need ML?"-setting -->
 
 :::
 
