@@ -346,12 +346,11 @@ bma = readRDS(url("https://stuff.jemu.name/survival_benchmark/results/bma_full.r
 bma = bma |>
   mutate(
     learner_group = case_match(learner_id,
-      c("KM", "NA") ~ "Baseline",
-      c("AK") ~ "Other", 
+      c("KM", "NA", "AK") ~ "Baseline",
       c("CPH", "GLM", "Pen", "Par", "Flex") ~ "Classical",
       c("RRT", "RFSRC", "RAN", "CIF", "ORSF") ~ "Trees",
       c("MBO", "XGBCox", "XGBAFT", "CoxB") ~ "Boosting",
-      .ptype = factor(levels = c("Baseline", "Classical", "Trees", "Boosting", "Other"))
+      .ptype = factor(levels = c("Baseline", "Classical", "Trees", "Boosting"))
     ),
     learner_id = factor(learner_id, levels = c(setdiff(levels(learner_id), "AK"), "AK"))
   )
