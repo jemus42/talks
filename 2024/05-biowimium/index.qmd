@@ -1,0 +1,253 @@
+---
+title: |
+  Statistical Comparisons of Classifiers\
+  Over Multiple Data Sets
+author:
+  - Lukas Burk\inst{1,2}
+date: "2024-05-13"
+format:
+  beamer:
+    template: template.tex
+    widescreen: true # changes to sty now make this the only non-messed up option
+    occasion: "BioWimium"
+    email: burk@leibniz-bips.de
+    themeoptions: fira
+    thankstext: Thank you for your attention!
+    contactauthor: Lukas Burk
+    institute:
+        - \textsuperscript{1}Leibniz Institute for Prevention Research and Epidemiology -- BIPS
+        - \textsuperscript{2}LMU Munich
+    keep-tex: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.align = "center"
+)
+```
+
+## Dem\v{s}ar (2006)
+
+```{r}
+#| out-height: 70%
+knitr::include_graphics("img/demsar_title.png")
+```
+
+## Context
+
+::: {.incremental}
+- The year is 2006
+- Machine learning is happening
+- New classification algorithm is published every 4 nanoseconds
+- Authors compare their proposed method against SOTA
+- ...using whichever means necessary, appropriate, valid.
+- Comparing things is hard\textsuperscript{(citation needed)}
+
+:::
+
+## Motivation and Setting
+
+::: {.incremental}
+
+- Goal: Compare $k$ classification algorithms on $N$ datasets
+- Common hypothesis:\
+  Does new algorithm perform better than established methods?
+- Comparing 2 classifiers on 1 dataset insufficient
+- Comparing multiple classifiers on multiple datasets: More difficult
+
+:::
+
+
+## Setting
+
+::: {.incremental}
+
+
+- Evaluation produces score $c_i^j$ for $j$-th algorithm on the $i$-th dataset
+- Scores: Accuracy, AUC or similar measure
+  - No recorded variance $\Rightarrow$ no assumptions about resampling scheme
+  - Resampling for stability of scores only
+- Algorithms evaluated on same datasets
+  - Sample size here "Number of datasets in benchmark"
+  - $\Rightarrow$ No independent samples
+
+:::
+
+## Comparing 2 classifiers
+
+- Paired t-test
+  - Highest power when assumptions are met
+  - Assumes commensurability of scores (questionable)
+  - Normality, outliers
+- Wilcoxon signed rank test
+  - Only assumes commensurability if ranks
+- Sign test
+  - Not even bothering with this one
+
+## Comparing multiple classifiers
+
+Scheme:
+
+1. Perform global test to detect if any two algorithms differ at all
+2. If (1) is signif., perform post-hoc test to detect which algorithms differ in particular
+
+
+## Global tests
+
+### Repeated measures ANOVA
+
+- Assumes normality of scores
+- Assumes sphericity ($\approx$ homoskedasticity)
+
+### Friedman test
+
+- Uses ranks from best (1) to worst (k), averages for ties
+- Test statistic $Fr \sim F(k-1, (k-1)(N-1))$
+
+## Post-hoc tests
+
+Choices of all pairwise or one-to-many tests in either parametric or nonparametric flavors:
+
+```{r}
+tibble::tribble(
+  ~type, ~pairwise, ~onetomany,
+  "Parametric", "Tukey", "Dunnet",
+  "Nonparametric", "Nemenyi", "Bonferroni-Dunn"
+) |>
+  knitr::kable(
+    col.names = c("Type", "All Pairwise", "One-to-many"),
+    booktabs = TRUE
+  ) |>
+  kableExtra::kable_styling()
+```
+
+## Nemenyi
+
+Critical differences between two algorithms calculates as
+
+$$CD = q_\alpha \sqrt{\frac{k(k+1)}{6N}}$$
+
+- Critical values $q_\alpha$ based on studentized range statistic
+- If difference in average ranks exceeds CD, they are signif. different
+
+## Bonferroni-Dunn
+
+Test statistic (approx normal) is calculated based on average ranks ($R$) for algorithms $i$ and $j$
+
+$$z = \frac{(R_i - R_j)}{\sqrt{\frac{k(k+1)}{6N}}}$$
+
+- Much greater power when comparing against baseline
+- Can use any other method to control for FWER (Bonferroni, Holm, Hochberg, ...)
+- Using Bonferroni-Dunn gives constant CD, easier to visualize
+
+## Example 1
+
+Comparing 4 algorithms across 14 datasets
+
+```{r}
+knitr::include_graphics("img/table6.png")
+```
+
+
+## Example 1: Result (Nemenyi, all pairwise)
+
+- CD = $2.569 \sqrt{\frac{4 \cdot 5}{6 \cdot 14}} = 1.25$ (for $\alpha = 0.05$)
+  - Difference between best and worst is already smaller
+  - Test not powerful enough
+  
+
+- CD for $\alpha = 0.1$:
+  - Conclude that C4.5 is worse than C4.5+m and C4.5+m+cf
+	- Can't make statement about C4.5+cf
+
+
+## Example 1: Result (BD, one-to-many)
+
+CD = 1.16
+
+$$\begin{aligned}
+\text{C4.5 vs C4.5+m+cf} & \rightarrow 3.143 − 1.964 &= 1.179 > 1.16
+\text{C4.5 vs C4.5+cf}   & \rightarrow 3.143 − 2.893 &= 0.250 < 1.16
+\text{C4.5 vs C4.5+m}    & \rightarrow 3.143 − 2.000 &= 1.143 \approx 1.16
+
+\end{aligned}$$
+
+\pause
+
+- Conclude that tuning `m` helps, `cf` probably not
+
+## Example 1: Critical Difference plots
+
+All pairwise comparisons (top) vs. baseline comparison (bottom)
+
+```{r}
+knitr::include_graphics("img/fig1-a.png")
+```
+
+
+```{r}
+knitr::include_graphics("img/fig1-b.png")
+```
+
+## Empirical comparison of tests
+
+- Comparing various algorithms on 10 randomly drawn out of pool of 40 real world datasets
+- No formal assessment of Type I / II error as correct test decision unclear
+- Measured performance of all algorithms on all datasets before experiment
+  - Introduce bias term $k \geq 0$ to adjust difference between algorithms, affects selection of datasets
+  - $k = 0$ corresponds to random choice of datasets
+  - Allows testing different hypothesis
+- Calculate average p-values based on 1000 replicates
+  
+## Measures of reliability
+
+1. Variance of p values: $R(p) = 1 - 2 \cdot \mathrm{Var}(p)$
+2. Measure based on Bouckaert (2004):
+
+$$R(e) = \sum_{1 \leq i < j \leq n} \frac{I(e_i = e_j)}{n(n-1)/2}$$
+where $e_i$ is outcome of $i$-th experiment out of $n$ (1 if accepted, 0 otherwise)
+
+- $R(e) = 0.5$ if # of rejected equals number of accepted
+- $R(e) = 1$ if # of rejected or accepted is 0 respectively
+- Will show low replicability if e.g. p-values fluctuate closely around 0.05
+
+
+## Results
+
+```{r}
+#| out-height: "120%"
+#| out-width: "95%"
+knitr::include_graphics("img/fig5.png")
+```
+
+
+## Results
+
+```{r}
+#| out-height: "100%"
+
+knitr::include_graphics("img/fig6.png")
+```
+
+## Results
+
+```{r}
+#| out-height: "90%"
+knitr::include_graphics("img/fig7.png")
+```
+
+## Conclusion
+
+- Nonparametric tests more likely to reject H0
+- Hints at violated assumptions of parametric tests
+
+\vfill{}
+\pause
+
+Nonparametric tests:
+
+- Appropriate as they assume limited commensurability
+- Safer than parametric tests (assumptions)
+- Stronger than parametric tests here, especially for pairwise tests

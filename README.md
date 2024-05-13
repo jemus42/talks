@@ -6,7 +6,7 @@
 Talks, pitches, journal club presentations, almost organized. But not
 really, let’s be honest.
 
-<table class="table" style="color: black; margin-left: auto; margin-right: auto;">
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:right;">
@@ -26,10 +26,22 @@ Context
 2024
 </td>
 <td style="text-align:left;">
-<a href="2024/02-biocoll/01MAR24_Lukas_Burk.pdf">surv-bench</a>
+BioWiMium
 </td>
 <td style="text-align:left;">
-Biometric Colloquium 2024: Survival Benchmark
+<a href="2024/05-biowimium/index.pdf">Demsar 2006</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2024
+</td>
+<td style="text-align:left;">
+surv-bench
+</td>
+<td style="text-align:left;">
+<a href="2024/02-biocoll/01MAR24_Lukas_Burk.pdf">Biometric Colloquium
+2024: Survival Benchmark</a>
 </td>
 </tr>
 <tr>
@@ -37,10 +49,10 @@ Biometric Colloquium 2024: Survival Benchmark
 2023
 </td>
 <td style="text-align:left;">
-<a href="2023/09-cooper/07SEP23_Lukas_Burk.pdf">CooPeR</a>
+CooPeR
 </td>
 <td style="text-align:left;">
-CEN 2023: CooPeR
+<a href="2023/09-cooper/07SEP23_Lukas_Burk.pdf">CEN 2023: CooPeR</a>
 </td>
 </tr>
 <tr>
@@ -48,10 +60,11 @@ CEN 2023: CooPeR
 2023
 </td>
 <td style="text-align:left;">
-<a href="2023/06-wimium/cr.pdf">BioWiMium</a>
+BioWiMium
 </td>
 <td style="text-align:left;">
-Generating High-Dimensional Competing Risk Survival Settings
+<a href="2023/06-wimium/cr.pdf">Generating High-Dimensional Competing
+Risk Survival Settings</a>
 </td>
 </tr>
 <tr>
@@ -59,10 +72,11 @@ Generating High-Dimensional Competing Risk Survival Settings
 2023
 </td>
 <td style="text-align:left;">
-<a href="2023/05-cooper/CooPeR.html">CooPeR</a>
+CooPeR
 </td>
 <td style="text-align:left;">
-fwelnet for survival w/ competing risks, again, but… more. And renamed.
+<a href="2023/05-cooper/CooPeR.html">fwelnet for survival w/ competing
+risks, again, but… more. And renamed.</a>
 </td>
 </tr>
 <tr>
@@ -70,10 +84,10 @@ fwelnet for survival w/ competing risks, again, but… more. And renamed.
 2022
 </td>
 <td style="text-align:left;">
-<a href="2022/aorsf/aorsf.html">aorsf</a>
+aorsf
 </td>
 <td style="text-align:left;">
-ORSF, but A (survival focus group)
+<a href="2022/aorsf/aorsf.html">ORSF, but A (survival focus group)</a>
 </td>
 </tr>
 <tr>
@@ -81,10 +95,11 @@ ORSF, but A (survival focus group)
 2022
 </td>
 <td style="text-align:left;">
-<a href="2022/imljc-xaibench/index.html">xai-bench</a>
+xai-bench
 </td>
 <td style="text-align:left;">
-XAI-Bench / Journal Club BIPS/SLDS
+<a href="2022/imljc-xaibench/index.html">XAI-Bench / Journal Club
+BIPS/SLDS</a>
 </td>
 </tr>
 <tr>
@@ -92,10 +107,11 @@ XAI-Bench / Journal Club BIPS/SLDS
 2022
 </td>
 <td style="text-align:left;">
-<a href="2022/fwelnet-cr/fwelnet-cr.html">fwelnet-cr</a>
+fwelnet-cr
 </td>
 <td style="text-align:left;">
-fwelnet for survival outcomes with competing risks (idea/pitch)
+<a href="2022/fwelnet-cr/fwelnet-cr.html">fwelnet for survival outcomes
+with competing risks (idea/pitch)</a>
 </td>
 </tr>
 </tbody>

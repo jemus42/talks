@@ -1,0 +1,215 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The BIPS beamer theme
+%
+% A beamer theme that tries to mimic the Powerpoint
+% BIPS presentation standard as much as possible.
+%
+% Author: Louis Dijkstra
+% E-mail: dijkstra@leibniz-bips.de
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% Packages
+\RequirePackage{tikz, xcolor, textpos, helvet, xifthen, etoolbox}
+\usetikzlibrary{shapes.geometric, fadings}
+
+%%% Use the normal font seen in articles for math
+\usefonttheme[onlymath]{serif}
+
+%%% German option
+\newtoggle{useGerman}
+\togglefalse{useGerman}
+\DeclareOption{german}{\toggletrue{useGerman}}
+
+%%% Fira font option
+\newtoggle{useFira}
+\togglefalse{useFira}
+\DeclareOption{fira}{\toggletrue{useFira}}
+
+\ProcessOptions
+
+%\iftoggle{useGerman}{
+%\institute{Leibniz-Institut f\"ur Pr\"aventionsforschung und Epidemiologie -- BIPS}
+%}{
+%\institute{Leibniz Institute for Prevention Research \& Epidemiology -- BIPS}
+%}
+
+\iftoggle{useFira}{
+%\RequirePackage{fontspec}
+\setsansfont[BoldFont={Fira Sans}]{Fira Sans Light}
+\setmonofont{Fira Mono}
+}{
+
+}
+
+
+%%% Define the colors
+\definecolor{BIPSBlue}{RGB}{23, 99, 170}
+\definecolor{BIPSTextGray}{RGB}{66, 66, 66}
+\definecolor{BIPSOrange}{RGB}{250, 133, 55}
+\definecolor{BIPSGreen}{RGB}{49, 210, 57}
+
+%%% Create short commands for the different colors
+\newcommand{\blue}[1]{\textcolor{BIPSBlue}{#1}}
+\newcommand{\orange}[1]{\textcolor{BIPSOrange}{#1}}
+\newcommand{\green}[1]{\textcolor{BIPSGreen}{#1}}
+\newcommand{\gray}[1]{\textcolor{BIPSTextGray}{#1}}
+
+%%% Redefine the emph command to use BIPS Blue
+\renewcommand{\emph}[1]{\blue{#1}}
+
+%%% Define some new fields
+\newcommand{\bips@contactauthor}{} % the author that gives the presentation
+\newcommand{\bips@occasion}{}  % the conference/meeting the presentation is given
+\newcommand{\bips@email}{}
+
+\newcommand{\contactauthor}[1]{\renewcommand{\bips@contactauthor}{#1}}
+\newcommand{\occasion}[1]{\renewcommand{\bips@occasion}{#1}}
+\newcommand{\email}[1]{\renewcommand{\bips@email}{#1}}
+
+%%% Itemize
+\setbeamertemplate{itemize items}[circle]
+
+%%% Set the general fonts (colors come later)
+\setbeamerfont{title}{size=\Large, series=\bfseries}
+\setbeamerfont{subtitle}{size=\large, series=\bfseries}
+\setbeamerfont{frametitle}{size=\Large, series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\large, series=\bfseries}
+\setbeamerfont{block title}{series=\bfseries}
+\setbeamerfont{institute}{size=\small}
+\setbeamerfont{author}{size=\small}
+\setbeamerfont{date}{size=\small}
+
+%\setbeamerfont{normal text}{size=\LARGE}
+
+%%% Set the colors
+\setbeamercolor{normal text}{fg=BIPSTextGray}
+\setbeamercolor{item}{fg=BIPSTextGray}
+\setbeamercolor{section in toc}{fg=BIPSTextGray}
+\setbeamercolor{section page}{fg=BIPSTextGray}
+\setbeamercolor{subtitle}{fg=BIPSBlue}
+\setbeamercolor{author}{fg=BIPSBlue}
+\setbeamercolor{institute}{fg=BIPSTextGray}
+\setbeamercolor{date}{fg=BIPSTextGray}
+\setbeamercolor{title}{fg=BIPSBlue}
+\setbeamercolor{frametitle}{fg=BIPSBlue}
+\setbeamercolor{framesubtitle}{fg=BIPSBlue}
+\setbeamercolor{part title}{fg=BIPSBlue}
+\setbeamercolor{section title}{fg=BIPSBlue}
+\setbeamercolor{section name}{fg=BIPSBlue}
+\setbeamercolor{section in head/foot}{fg=BIPSBlue}
+\setbeamercolor{block title}{fg=BIPSBlue}
+\setbeamercolor{caption name}{fg=BIPSBlue}
+
+%%% Turn of the navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+
+
+%%% Template for the frametitle
+%%% original version
+% \setbeamertemplate{frametitle}{
+% \vspace*{.5cm}%
+% \begin{beamercolorbox}[wd=13cm, center]{frametitle}
+% 	\usebeamerfont{frametitle}\insertframetitle
+% \end{beamercolorbox}
+% \vspace*{-.2cm}%
+% \begin{beamercolorbox}[wd=13cm, center]{framesubtitle}
+% 	\usebeamerfont{framesubtitle}\insertframesubtitle
+% \end{beamercolorbox}
+% % add the line
+% \begin{tikzpicture}
+% 	\draw[BIPSTextGray,path fading=east] (-1,1.2) -- (10.5,1.2);
+% \end{tikzpicture}
+% }
+
+% via sophie
+\setbeamertemplate{frametitle}{
+	\vspace*{.5cm}%
+	\begin{beamercolorbox}[wd=13cm, center]{frametitle}
+		\usebeamerfont{frametitle}\insertframetitle
+	\end{beamercolorbox}
+	\vspace*{-.3cm}%
+	\begin{beamercolorbox}[wd=13cm, center]{framesubtitle}
+		\usebeamerfont{framesubtitle}\insertframesubtitle
+	\end{beamercolorbox}
+	% add the line
+	\vspace*{-.5cm}%
+	\begin{tikzpicture}
+		\draw[BIPSTextGray,path fading=east] (-1,1.2) -- (8.5,1.2);
+	\end{tikzpicture}
+}
+
+
+%%% The Background -- also contains the logo
+\setbeamertemplate{background}{
+\begin{tikzpicture}
+	\useasboundingbox (0,0) rectangle (\the\paperwidth,\the\paperheight);
+	\node[anchor=north east,yshift=-.5cm,xshift=-.5cm]%
+	at (current page.north east)
+	{\includegraphics[width=0.12\textwidth]{bips-logo.png}};
+	\ifnum\thepage>1\relax %%% If not the title page
+	\node[anchor=north east,yshift=-2.4cm,xshift=-1.2cm]%
+	at (current page.north east)
+	{\small \insertframenumber};
+	\fi
+\end{tikzpicture}
+}
+
+%%% Section frame
+\newcommand{\sectionframe}[1]{{
+\setbeamertemplate{background}{} % reset the background
+\begin{frame}
+	\begin{center}
+		\LARGE \textcolor{BIPSBlue}{\textbf{#1}}
+	\end{center}
+\end{frame}
+}}
+
+%%% In case you want a completely empty frame (no logo, no page count etc.)
+\newenvironment{emptyframe}
+{
+\setbeamertemplate{background}{} % reset the background
+\begin{frame}[c]
+	}
+	{
+\end{frame}
+}
+
+%%% The 'Thank you' frame. The last frame for every presentation
+\newcommand{\thanksframe}[1]{{
+\setbeamertemplate{background}{
+\begin{tikzpicture}
+	\useasboundingbox (0,0) rectangle(\the\paperwidth,\the\paperheight);
+	\node[align=center, color=BIPSBlue] at (\paperwidth*.5, 8) {\Large \textbf{#1}};
+
+	\node[align=center] at (\paperwidth*.5, 6) {
+	  % {\small \textbf{Slides:}}
+	  % \includegraphics[width=0.2\textwidth]{qr.png}
+	};
+
+	\node[align=center, color=BIPSBlue] at (\paperwidth*.5, 4.25) {
+	\iftoggle{useGerman}
+	{\small www.leibniz-bips.de}
+	{\small www.leibniz-bips.de/en}
+	};
+	\node[align=right, color=BIPSTextGray] at (5, 2) {
+	\iftoggle{useGerman}
+	{\small \textbf{Kontakt}\\[5pt]}
+	{\small \textbf{Contact}\\[5pt]}
+	\small \textcolor{BIPSBlue}{\bips@contactauthor}\\[5pt]
+	\iftoggle{useGerman}
+	{\small Leibniz-Institut f\"ur Pr\"aventionsforschung\\[5pt]
+	\small und Epidemiologie -- BIPS\\[5pt]}
+	{\small Leibniz Institute for Prevention Research\\[5pt]
+	\small and Epidemiology -- BIPS\\[5pt]}
+	\small Achterstraße 30\\[5pt]
+	\small D-28359 Bremen\\[5pt]
+	\small \textcolor{BIPSBlue}{\bips@email}
+	};
+	\node at (11, 2) {\includegraphics[width=0.25\textwidth]{bips-logo.png}};
+\end{tikzpicture}
+}
+
+\begin{frame}[c]
+\end{frame}
+}}
