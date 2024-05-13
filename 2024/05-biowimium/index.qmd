@@ -1,7 +1,9 @@
 ---
 title: |
-  Statistical Comparisons of Classifiers\
-  Over Multiple Data Sets
+  Journal Club\
+  "Statistical Comparisons of Classifiers\
+  Over Multiple Data Sets"\
+  (Dem\v{s}ar, 2006)
 author:
   - Lukas Burk\inst{1,2}
 date: "2024-05-13"
@@ -40,10 +42,14 @@ knitr::include_graphics("img/demsar_title.png")
 ::: {.incremental}
 - The year is 2006
 - Machine learning is happening
-- New classification algorithm is published every 4 nanoseconds
-- Authors compare their proposed method against SOTA
-- ...using whichever means necessary, appropriate, valid.
-- Comparing things is hard\textsuperscript{(citation needed)}
+- New algorithms published every 4 seconds
+- Authors compare their proposed method against SOTA\
+  ...using whichever means necessary, appropriate, valid.
+
+\vfill
+\pause 
+
+Comparing things is hard\textsuperscript{(citation needed)}
 
 :::
 
@@ -71,24 +77,29 @@ knitr::include_graphics("img/demsar_title.png")
   - Resampling for stability of scores only
 - Algorithms evaluated on same datasets
   - Sample size here "Number of datasets in benchmark"
-  - $\Rightarrow$ No independent samples
+  - $\Rightarrow$ Datasets are independent, scores are not
 
 :::
 
 ## Comparing 2 classifiers
 
 - Paired t-test
-  - Highest power when assumptions are met
+  - Highest power when assumptions met
   - Assumes commensurability of scores (questionable)
   - Normality, outliers
+
+\pause
+
 - Wilcoxon signed rank test
-  - Only assumes commensurability if ranks
-- Sign test
-  - Not even bothering with this one
+  - Only assumes commensurability of ranks
+
+\pause
+
+- Sign test: Not even bothering with this one
 
 ## Comparing multiple classifiers
 
-Scheme:
+General scheme:
 
 1. Perform global test to detect if any two algorithms differ at all
 2. If (1) is signif., perform post-hoc test to detect which algorithms differ in particular
@@ -103,12 +114,16 @@ Scheme:
 
 ### Friedman test
 
+- Non-parametric analogue to rmANOVA
 - Uses ranks from best (1) to worst (k), averages for ties
 - Test statistic $Fr \sim F(k-1, (k-1)(N-1))$
 
 ## Post-hoc tests
 
-Choices of all pairwise or one-to-many tests in either parametric or nonparametric flavors:
+Choices of all *pairwise* or *one-to-many* tests\
+in either *parametric* or *nonparametric* flavors:
+
+\vfill
 
 ```{r}
 tibble::tribble(
@@ -125,7 +140,7 @@ tibble::tribble(
 
 ## Nemenyi
 
-Critical differences between two algorithms calculates as
+Critical differences between two algorithms calculated as
 
 $$CD = q_\alpha \sqrt{\frac{k(k+1)}{6N}}$$
 
@@ -134,7 +149,8 @@ $$CD = q_\alpha \sqrt{\frac{k(k+1)}{6N}}$$
 
 ## Bonferroni-Dunn
 
-Test statistic (approx normal) is calculated based on average ranks ($R$) for algorithms $i$ and $j$
+Test statistic (approx. normal) is calculated based on average ranks ($R$)\
+for algorithms $i$ and $j$
 
 $$z = \frac{(R_i - R_j)}{\sqrt{\frac{k(k+1)}{6N}}}$$
 
@@ -158,20 +174,20 @@ knitr::include_graphics("img/table6.png")
   - Test not powerful enough
   
 
-- CD for $\alpha = 0.1$:
+- CD = 1.12 (for $\alpha = 0.1$):
   - Conclude that C4.5 is worse than C4.5+m and C4.5+m+cf
 	- Can't make statement about C4.5+cf
 
 
 ## Example 1: Result (BD, one-to-many)
 
-CD = 1.16
+- Hypothesis: Does tuning `m` and/or `cf` help compared to baseline C4.5?
+- CD = 1.16
 
 $$\begin{aligned}
-\text{C4.5 vs C4.5+m+cf} & \rightarrow 3.143 − 1.964 &= 1.179 > 1.16
-\text{C4.5 vs C4.5+cf}   & \rightarrow 3.143 − 2.893 &= 0.250 < 1.16
-\text{C4.5 vs C4.5+m}    & \rightarrow 3.143 − 2.000 &= 1.143 \approx 1.16
-
+\text{C4.5 vs. } & \text{C4.5+m+cf} & \rightarrow 3.143 − 1.964 = 1.179 > \color{green}{1.16} \\
+\text{C4.5 vs. } & \text{C4.5+cf}   & \rightarrow 3.143 − 2.893 = 0.250 < \color{red}{1.16} \\
+\text{C4.5 vs. } & \text{C4.5+m}    & \rightarrow 3.143 − 2.000 = 1.143 \approx \color{orange}{1.16}
 \end{aligned}$$
 
 \pause
@@ -193,6 +209,8 @@ knitr::include_graphics("img/fig1-b.png")
 
 ## Empirical comparison of tests
 
+::: {.incremental}
+
 - Comparing various algorithms on 10 randomly drawn out of pool of 40 real world datasets
 - No formal assessment of Type I / II error as correct test decision unclear
 - Measured performance of all algorithms on all datasets before experiment
@@ -201,7 +219,11 @@ knitr::include_graphics("img/fig1-b.png")
   - Allows testing different hypothesis
 - Calculate average p-values based on 1000 replicates
   
+:::
+
 ## Measures of reliability
+
+::: {.incremental}
 
 1. Variance of p values: $R(p) = 1 - 2 \cdot \mathrm{Var}(p)$
 2. Measure based on Bouckaert (2004):
@@ -213,6 +235,7 @@ where $e_i$ is outcome of $i$-th experiment out of $n$ (1 if accepted, 0 otherwi
 - $R(e) = 1$ if # of rejected or accepted is 0 respectively
 - Will show low replicability if e.g. p-values fluctuate closely around 0.05
 
+:::
 
 ## Results
 
