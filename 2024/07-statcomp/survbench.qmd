@@ -508,36 +508,3 @@ knitr::include_graphics(here::here("2024/07-statcomp/img/critical-difference-bas
 ::: -->
 
 [^beartooth]: Advanced Research Computing Center, Beartooth Computing Environment, University of Wyoming.
-
-
-
-<!---
-
-## Task Table (1)
-
-```{r}
-task_summary |>
-  slice(1:10) |>
-  kbl(booktabs = TRUE, linesep = "") |>
-  kable_styling(latex_options = c("scale_down"))
-```
-
-## Task Table (2)
-
-```{r}
-task_summary |>
-  slice(11:20) |>
-  kbl(booktabs = TRUE, linesep = "") |>
-  kable_styling(latex_options = c("scale_down"))
-```
-
-## Task Table (3)
-
-```{r}
-task_summary |>
-  slice(21:32) |>
-  kbl(booktabs = TRUE, linesep = "") |>
-  kable_styling(latex_options = c("scale_down"))
-```
-
---->
