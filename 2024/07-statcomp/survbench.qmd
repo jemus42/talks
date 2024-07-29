@@ -493,6 +493,12 @@ knitr::include_graphics(here::here("2024/07-statcomp/img/critical-difference-bas
   - Effective runtime (incl reruns) $\approx$ 32 days
 - Experimental design is not perfect, but it was _possible_ to conduct
 - **Conclusion**: Cox regression --- hard to beat since 1972!
+
+\vfill
+
+. . .
+
+More results at **_[projects.lukasburk.de](https://projects.lukasburk.de/survival_benchmark)_** and we have a **_[preprint](https://arxiv.org/abs/2406.04098)_** on arXiv!
 :::
 
 <!-- ## The "If I had to start over" slide
