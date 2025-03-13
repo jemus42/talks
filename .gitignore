@@ -53,3 +53,4 @@ vignettes/*.pdf
 *.fls
 *.fdb_latexmk
 README.html
+*.synctex.gz
