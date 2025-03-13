@@ -1,6 +1,7 @@
 data
 debug
 R
+README.html
 
 # History files
 .Rhistory
@@ -44,7 +45,6 @@ vignettes/*.pdf
 
 # Latex
 
-*.tex
 *.aux
 *.vrb
 *.out
@@ -52,5 +52,4 @@ vignettes/*.pdf
 *.bcf
 *.fls
 *.fdb_latexmk
-README.html
 *.synctex.gz

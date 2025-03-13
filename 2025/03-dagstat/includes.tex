@@ -1,0 +1,20 @@
+\usepackage{tikz}
+\usepackage{amsmath,amssymb}
+
+\definecolor{brewer1}{rgb}{0.105882,0.619608,0.466667}
+\definecolor{brewer2}{rgb}{0.85098,0.372549,0.00784314}
+\definecolor{brewer3}{rgb}{0.458824,0.439216,0.701961}
+\definecolor{brewer4}{rgb}{0.905882,0.160784,0.541176}
+
+\usetikzlibrary{arrows.meta, shapes, positioning, calc}
+
+\tikzset{
+  root/.style={rectangle, rounded corners, minimum width=2cm, minimum height=0.8cm, text centered, draw=black, fill=brewer2, line width=1pt},
+  internalnode/.style={rectangle, minimum width=1.7cm, minimum height=0.7cm, text centered, draw=black, fill=gray!2},
+  decision/.style={ellipse, minimum width=1.7cm, minimum height=0.7cm, text centered, draw=black, fill=gray!2},
+  rpfunique/.style={rectangle, minimum width=1.7cm, minimum height=0.7cm, text centered, draw=black, fill=brewer1},
+  rpfuniquedecision/.style={ellipse, minimum width=1.7cm, minimum height=0.7cm, text centered, draw=black, fill=brewer1},
+  interaction/.style={rectangle, minimum width=1.7cm, minimum height=0.7cm, text centered, draw=black, fill=brewer3},
+  arrow/.style={thick,->,>=stealth},
+  label/.style={font=\scriptsize}
+}

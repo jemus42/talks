@@ -1,0 +1,154 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Primary document settings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+$if(widescreen)$
+\documentclass[aspectratio=169,12pt]{beamer}
+$else$
+\documentclass{beamer}
+$endif$
+
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[$if(fontenc)$$fontenc$$else$T1$endif$]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+$if(mathspec)$
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{unicode-math}
+  \fi
+$else$
+  \usepackage{unicode-math}
+$endif$
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+
+\usepackage[
+    backend=biber,
+    natbib=true,
+    style=authoryear-comp,
+    %bibstyle=authoryear,
+    %autocite=footnote,
+    %style=authoryear,
+    sorting=nyt,
+    %sortlocale=de_DE,
+    sortlocale=en_US,
+    url=false,
+    doi=true,
+]{biblatex}
+
+$for(bibliography)$
+\addbibresource{$bibliography$}
+$endfor$
+
+\usepackage{fancyqr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Extra stuff for Rmarkdown to work (code blocks)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{2pt}\setlength{\parskip}{0pt}}
+
+\usepackage{graphicx}
+\makeatletter
+% New in pandoc https://github.com/jgm/pandoc-templates/commit/6c0e7b0a4f990debcd38b5c3bd8599193ae8f5a6#diff-f218051b4ca8f740a9f585a149101d4a3025037c568b391b5216edf7b14cfadc
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+\sbox\pandoc@box{#1}%
+\Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+\Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+\ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+\ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+\else\usebox{\pandoc@box}%
+\fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% kableExtra stuff (tables)
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main document
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usetheme[$for(themeoptions)$$themeoptions$$sep$,$endfor$]{BIPS}
+%\usetheme[german]{BIPS}  % for the German version
+%\usetheme[fira]{BIPS} % English with the Fira font
+%\usetheme[german,fira]{BIPS} % German with the Fira font
+
+% Note that for the Fira font, you need to use
+% XeLaTeX instead of pdfLaTeX. You can find this in
+% most interfaces
+
+\title{$title$}
+\subtitle{$subtitle$}
+\author{$for(author)$$author$$sep$ \and $endfor$}
+\date{$date$}
+\contactauthor{$contactauthor$}
+\occasion{$occasion$}
+\email{$email$}
+$if(institute)$
+\institute{$for(institute)$$institute$$sep$ \and $endfor$}
+$endif$
+
+
+%%% Title Page
+\setbeamertemplate{title page}{
+	\usebeamercolor{title page}
+	\begin{tikzpicture}
+		\useasboundingbox (1,0) rectangle (\the\paperwidth,\the\paperheight);
+		\node[font=\usebeamerfont{title}, color=BIPSBlue, text width=14cm, align=center] at (\paperwidth*.5,7) {\inserttitle} ;
+		% \node[align=center, font=\usebeamerfont{subtitle}, color=BIPSBlue] at (\paperwidth*.5, 5.5) {\insertsubtitle};
+		\node[align=center, font=\usebeamerfont{author}, color=BIPSBlue] at (\paperwidth*.5, 5) {\insertauthor};
+		\node[align=center, font=\usebeamerfont{institute}, color=BIPSTextGray] at (\paperwidth*.5, 3) {$if(institute)$$for(institute)$$institute$$sep$ \\ $endfor$$endif$};
+		\node[align=center, font=\usebeamerfont{date}, color=BIPSTextGray] at (\paperwidth*.5, 1.5) {\insertdate};
+		\node[align=center, font=\usebeamerfont{date}, color=BIPSTextGray] at (\paperwidth*.5, 1) {$occasion$};
+	\end{tikzpicture}
+}
+
+
+\input{includes.tex}
+
+\begin{document}
+\addtocounter{framenumber}{-1}
+\frame{\maketitle}
+
+% \setcounter{framenumber}{1}
+
+
+$body$
+
+%%% Final slide with contact information
+\thanksframe{$thankstext$}
+
+%%% bib?
+$if(bibliography)$
+\begin{frame}[allowframebreaks]{References}
+  \printbibliography[heading=none]
+\end{frame}
+$else$
+$endif$
+
+\end{document}

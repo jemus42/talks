@@ -1,0 +1,488 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Primary document settings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[aspectratio=169,12pt]{beamer}
+
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+
+\usepackage[
+    backend=biber,
+    natbib=true,
+    style=authoryear-comp,
+    %bibstyle=authoryear,
+    %autocite=footnote,
+    %style=authoryear,
+    sorting=nyt,
+    %sortlocale=de_DE,
+    sortlocale=en_US,
+    url=false,
+    doi=true,
+]{biblatex}
+
+\addbibresource{references.bib}
+
+\usepackage{fancyqr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Extra stuff for Rmarkdown to work (code blocks)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{2pt}\setlength{\parskip}{0pt}}
+
+\usepackage{graphicx}
+\makeatletter
+% New in pandoc https://github.com/jgm/pandoc-templates/commit/6c0e7b0a4f990debcd38b5c3bd8599193ae8f5a6#diff-f218051b4ca8f740a9f585a149101d4a3025037c568b391b5216edf7b14cfadc
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+\sbox\pandoc@box{#1}%
+\Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+\Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+\ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+\ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+\else\usebox{\pandoc@box}%
+\fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% kableExtra stuff (tables)
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main document
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usetheme[]{BIPS}
+%\usetheme[german]{BIPS}  % for the German version
+%\usetheme[fira]{BIPS} % English with the Fira font
+%\usetheme[german,fira]{BIPS} % German with the Fira font
+
+% Note that for the Fira font, you need to use
+% XeLaTeX instead of pdfLaTeX. You can find this in
+% most interfaces
+
+\title{Random Planted Forest\\
+A Directly Interpretable Tree Ensemble}
+\subtitle{Awwww yeah}
+\author{Meyer, J. T.\inst{5} \and Burk, L.\inst{1,2,3,4} \and Hiabu,
+M.\inst{6} \and Mammen, E.\inst{5}}
+\date{}
+\contactauthor{Lukas Burk}
+\occasion{DAGStat 2025 --- March 27th, 2025}
+\email{burk@leibniz-bips.de}
+\institute{\textsuperscript{1}Leibniz Institute for Prevention Research
+and Epidemiology -- BIPS \and \textsuperscript{2}LMU Munich
+\quad \textsuperscript{3}University of
+Bremen \and \textsuperscript{4}Munich Center for Machine Learning
+(MCML) \and \textsuperscript{5}Heidelberg University
+\quad \textsuperscript{6}University of Copenhagen}
+
+
+%%% Title Page
+\setbeamertemplate{title page}{
+	\usebeamercolor{title page}
+	\begin{tikzpicture}
+		\useasboundingbox (1,0) rectangle (\the\paperwidth,\the\paperheight);
+		\node[font=\usebeamerfont{title}, color=BIPSBlue, text width=14cm, align=center] at (\paperwidth*.5,7) {\inserttitle} ;
+		% \node[align=center, font=\usebeamerfont{subtitle}, color=BIPSBlue] at (\paperwidth*.5, 5.5) {\insertsubtitle};
+		\node[align=center, font=\usebeamerfont{author}, color=BIPSBlue] at (\paperwidth*.5, 5) {\insertauthor};
+		\node[align=center, font=\usebeamerfont{institute}, color=BIPSTextGray] at (\paperwidth*.5, 3) {\textsuperscript{1}Leibniz
+Institute for Prevention Research and Epidemiology --
+BIPS \\ \textsuperscript{2}LMU Munich
+\quad \textsuperscript{3}University of
+Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
+(MCML) \\ \textsuperscript{5}Heidelberg University
+\quad \textsuperscript{6}University of Copenhagen};
+		\node[align=center, font=\usebeamerfont{date}, color=BIPSTextGray] at (\paperwidth*.5, 1.5) {\insertdate};
+		\node[align=center, font=\usebeamerfont{date}, color=BIPSTextGray] at (\paperwidth*.5, 1) {DAGStat
+2025 --- March 27th, 2025};
+	\end{tikzpicture}
+}
+
+
+\input{includes.tex}
+
+\begin{document}
+\addtocounter{framenumber}{-1}
+\frame{\maketitle}
+
+% \setcounter{framenumber}{1}
+
+
+\begin{frame}{Motivation}
+\phantomsection\label{motivation}
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Individual decision trees: Easy to interpret
+\item
+  Random Forest (RF): Less so
+\item
+  \textbf{Desirable properties}:
+
+  \begin{itemize}[<+->]
+  \tightlist
+  \item
+    Meaningful feature importance rather than rankings
+  \item
+    Quantification of main- \emph{and interaction} effects
+  \end{itemize}
+\item
+  Additive models (LM, GAM, \ldots) can provide both
+\item
+  → Need to manually specify interactions in model fit
+\end{itemize}
+
+\textbf{Random Planted Forest} (RPF): Additive Random Forest
+\end{frame}
+
+\begin{frame}{Functional ANOVA Expansion}
+\phantomsection\label{functional-anova-expansion}
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Setting: Regression with target \(Y_i \in \mathbb{R}^p\) and feature
+  vector \(\mathbf{x_i}\)
+\item
+  Decompose prediction
+  \(\mathbb{E}(Y_i | X = \mathbf{x}_i) = \hat{m}(\mathbf{x_i})\) into
+
+  \begin{itemize}[<+->]
+  \tightlist
+  \item
+    Average prediction \(\hat{m}_{0}\) (``intercept'')
+  \item
+    Terms \(\hat{m}_S\) with \(S \subseteq \{1, \ldots, s\}\)
+  \end{itemize}
+\end{itemize}
+
+\pause
+
+\begin{align*}
+\hat{m}(\mathbf{x}) & = \hat{m}_{0} \\
+& + \underbrace{\hat{m}_1(x_1) + \hat{m}_2(x_2) + \hat{m}_3(x_3)}_{\text{Main effects}} \\
+& + \underbrace{\hat{m}_{1,2}(x_1,x_2) + \hat{m}_{1,3}(x_1,x_3) + \hat{m}_{2,3}(x_2,x_3)}_{\text{2nd order interactions}} \\ 
+& + \underbrace{\hat{m}_{1,2,3}(x_1,x_2,x_3)}_{\text{3rd order interaction}}
+\end{align*}
+\end{frame}
+
+\begin{frame}{Trees in Random Forest}
+\phantomsection\label{trees-in-random-forest}
+\begin{figure}[H]
+
+{\centering \includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{tree-cart.pdf}
+
+}
+
+\caption{CARTlike}
+
+\end{figure}%
+\end{frame}
+
+\begin{frame}{Planted Trees}
+\phantomsection\label{planted-trees}
+\begin{figure}
+
+\centering{
+
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{tree-planted-simple.pdf}
+
+}
+
+\caption{\label{fig-planted}Planted}
+
+\end{figure}%
+\end{frame}
+
+\begin{frame}{Planted Trees}
+\phantomsection\label{planted-trees-1}
+\begin{figure}
+
+\centering{
+
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{tree-planted-large.pdf}
+
+}
+
+\caption{\label{fig-planted}Planted-large}
+
+\end{figure}%
+\end{frame}
+
+\begin{frame}{Key Differences of RPF to RF}
+\phantomsection\label{key-differences-of-rpf-to-rf}
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Splits some nodes multiple times (→ non-binary trees)
+\item
+  Keeps track of features involved in split
+\item
+  Degree of interaction can be constrained
+\item
+  Stopping after adjustable number of splits
+\item
+  Prediction is average of additive \(\hat{m}_S\) estimates
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Application Example}
+\phantomsection\label{application-example}
+\begin{itemize}[<+->]
+\tightlist
+\item
+  \texttt{Bikeshare} regression dataset \footnote<.->{from
+    \href{https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset}{UCI
+    ML repository}}
+\item
+  Target \texttt{bikers}: Number of bikers on a given day in 2011/2012
+\item
+  Focus on 3 features for example
+
+  \begin{itemize}[<+->]
+  \tightlist
+  \item
+    \texttt{hour} of day \(\in \{0, 1, \ldots, 23\}\)
+  \item
+    \texttt{temp} normalized temperature \(\in [0, 1]\)
+  \item
+    \texttt{workingday} binary → \{\texttt{workingday},
+    \texttt{no\ workingday}\}
+  \end{itemize}
+\item
+  Average prediction: \(\hat{m}_0 \approx\) 143.7
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Main Effects}
+\phantomsection\label{main-effects}
+\begin{columns}[T]
+\begin{column}{0.33\linewidth}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/main-hr-1.png}
+\end{center}
+\end{column}
+
+\pause
+
+\begin{column}{0.33\linewidth}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/main-temp-1.png}
+\end{center}
+\end{column}
+
+\pause
+
+\begin{column}{0.33\linewidth}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/main-workingday-1.png}
+\end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Hour \(\times\) Working Day: ``Rush Hour Effect''}
+\phantomsection\label{hour-times-working-day-rush-hour-effect}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/twoway-hr-workingday-1.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{More 2nd Order Interactions}
+\phantomsection\label{more-2nd-order-interactions}
+\begin{columns}[T]
+\begin{column}{0.5\linewidth}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/unnamed-chunk-1-1.png}
+\end{center}
+\end{column}
+
+\pause
+
+\begin{column}{0.5\linewidth}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/unnamed-chunk-2-1.png}
+\end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{3rd Order Interaction}
+\phantomsection\label{rd-order-interaction}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/unnamed-chunk-3-1.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{Feature Importance}
+\phantomsection\label{feature-importance}
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Average of absolute values of term of interest
+\end{itemize}
+
+\pause
+
+\[\mathrm{VI}_S(X) = \frac{1}{n} \sum_{i=1}^n |\hat{m}_S(\mathbf{x}_i)|\]
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Unlike RF Feature importance:
+
+  \begin{itemize}[<+->]
+  \tightlist
+  \item
+    Scores \emph{per interaction} term
+  \item
+    Importance scores on same scale as prediction
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Feature Importance per Main Term}
+\phantomsection\label{feature-importance-per-main-term}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/vi-plot-1.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{Feature Importance per All Terms}
+\phantomsection\label{feature-importance-per-all-terms}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/vi-plot-thresh-1.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{Feature Importance by Order of Interaction}
+\phantomsection\label{feature-importance-by-order-of-interaction}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/vi-plot-degree-1.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Related work}
+\phantomsection\label{related-work}
+Glex\footnote<.->{\textcite{hiabu2023glex}}: Same ANOVA decomposition
+but generally for tree-based methods (e.g.~XGBoost)
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  \textbf{Idea}:
+
+  \begin{itemize}[<+->]
+  \tightlist
+  \item
+    Fit XGBoost with more shallow trees (e.g.~\texttt{max\_depth\ =\ 4}
+    \(\leftrightarrow\) \texttt{max\_interaction\ =\ 4})
+  \item
+    Extract component-wise predictions from tree structure
+  \end{itemize}
+\item
+  \textbf{Benefit}: Use existing / well known / well optimzied algorithm
+\item
+  \textbf{Drawback}: Computationally intensive post-hoc computation
+\end{itemize}
+\end{frame}
+
+\begin{frame}{No Free Lunch}
+\phantomsection\label{no-free-lunch}
+Better interpretibility → worse predictive performance?
+
+\pause
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Benchmark comparing RPF with XGBoost, RF incl.~tuning
+\item
+  28 datasets from OpenML-CTR23 regression benchmark suite
+  \footnote<.->{\textcite{fischer2023openmlctr}}
+\item
+  Also comparing XGBoost / RPF with interactions restrained to 2
+\item
+  Generally XGBoost best, RPF and RF closely behind
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Benchmark Results (Aggregated)}
+\phantomsection\label{benchmark-results-aggregated}
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Root-Relative Squared Error (RRSE)
+  \(\sqrt{\tfrac{SSE(Y, \hat{Y})}{SSE(Y, \bar{Y})}}\)
+\item
+  Featureless model scores 1, perfect score 0
+\end{itemize}
+
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/bm-aggr-rrse-1.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{Results for Selected Tasks}
+\phantomsection\label{results-for-selected-tasks}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/bm-scores-sel-1.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{Summary}
+\phantomsection\label{summary}
+\textbf{Random Planted Forests} = Additive Random Forests
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  (+) Interpretability on global and local perspective
+\item
+  (+) Interpretable on same scale as target
+\item
+  (\textasciitilde) Predictive performance worse but similar to
+  comparable algorithms
+\item
+  (-) Computationally heavy for large data
+\item
+  (+) R package available \footnote<.->{\href{https://github.com/PlantedML/randomPlantedForest}{github.com/PlantedML/randomPlantedForest}}
+\end{itemize}
+\end{frame}
+
+%%% Final slide with contact information
+\thanksframe{Thank you for your attention!}
+
+%%% bib?
+\begin{frame}[allowframebreaks]{References}
+  \printbibliography[heading=none]
+\end{frame}
+
+\end{document}
