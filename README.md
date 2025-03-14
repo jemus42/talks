@@ -37,6 +37,26 @@ Context
 
 <td style="text-align:right;">
 
+2025
+</td>
+
+<td style="text-align:left;">
+
+rpf
+</td>
+
+<td style="text-align:left;">
+
+<a href="2025/03-dagstat/rpf.pdf">DAGStat 2025: Random Planted
+Forests</a>
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:right;">
+
 2024
 </td>
 
@@ -47,7 +67,7 @@ surv-bench-statcomp
 
 <td style="text-align:left;">
 
-<a href="2024/07-statcomp/survbench.pdf">StatComp: Survival
+<a href="2024/07-statcomp/survbench.pdf">StatComp 2024: Survival
 Benchmark</a>
 </td>
 
