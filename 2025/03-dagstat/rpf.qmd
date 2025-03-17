@@ -250,7 +250,7 @@ $\ldots + \hat{m}_{\texttt{hr}, \texttt{workingday}}(\texttt{hr}, \texttt{workin
 
 :::: {.columns}
 
-::: {.column width="50%"}
+::: {.column width="50%" align=center}
 
 ```{r twoway-temp-workingday}
 #| out-height: "63%"
@@ -267,7 +267,7 @@ $+ \hat{m}_{\texttt{temp}, \texttt{workingday}}(\texttt{temp}, \texttt{workingda
 
 . . .
 
-::: {.column width="50%"}
+::: {.column width="50%" align=center}
 
 ```{r twoway-hr-temp}
 #| out-height: "63%"
@@ -430,16 +430,16 @@ $$\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}$
 
 ```{r bm-scores-sel}
 #| out-height: "75%"
-#| fig-height: 4
+#| fig-height: 3
 #| fig-width: 9
 # out-width: "70%"
 
 scores |>
     dplyr::filter(task_id %in% c(
       "space_ga", 
-      "kin8nm", 
-      "miami_housing", 
-      "white_wine"
+      #"kin8nm", 
+      #"white_wine",
+      "miami_housing" 
     )) |>
     dplyr::filter(learner_id != "featureless") |>
     dplyr::mutate(
@@ -465,20 +465,7 @@ scores |>
     )
 ```
 
-<!--
 
-## Related work: `{glex}`[^glex]
-
-- ANOVA decomposition _post-hoc_ for tree-based methods (e.g. XGBoost)
-<!-- - **Idea**: 
-  - Fit XGBoost (with `max_depth` restricted)
-  - Extract component-wise predictions from tree structure -->
-- **Benefit**: Use existing / well known / well optimzied algorithm
-- **Drawback**: Computationally intensive post-hoc computation
-
-[^glex]: @hiabu2023glex → [github.com/PlantedML/glex](https://github.com/PlantedML/glex)
-
--->
 
 ## Summary
 
@@ -490,7 +477,23 @@ scores |>
 - (↑) Quantifies _main effects_ and _interaction terms_
 - (↑) R package available [^rpfgh]
 - (→) Competetive predictive performance (mostly)
-- (↓) Computationally heavy for large data (implementation not fully optimized, WIP!)
+- (↓) Computationally heavy for large data (Optimization WIP!)
 
 
 [^rpfgh]: [github.com/PlantedML/randomPlantedForest](https://github.com/PlantedML/randomPlantedForest)
+
+
+<!--
+
+Related work: `{glex}`[^glex]
+
+- ANOVA decomposition _post-hoc_ for tree-based methods (e.g. XGBoost)
+- **Idea**: 
+  - Fit XGBoost (with `max_depth` restricted)
+  - Extract component-wise predictions from tree structure
+- **Benefit**: Use existing / well known / well optimzied algorithm
+- **Drawback**: Computationally intensive post-hoc computation
+
+[^glex]: @hiabu2023glex → [github.com/PlantedML/glex](https://github.com/PlantedML/glex)
+
+-->
