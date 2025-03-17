@@ -113,55 +113,60 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 
 ## Motivation
 
--   Individual decision trees: Easy to interpret
--   Random Forest (RF): Less so
--   **Desirable properties**: 
-    -   Meaningful feature importance rather than rankings
-    -   Quantification of main- _and interaction_ effects
--   Additive models (LM, GAM, ...) can provide both
--   → Need to manually specify interactions in model fit
+-   Goal: Fast, flexible, and **interpretable** predictive models
+-   Tree-based methods like Random Forest (RF):
+    -   Fast & flexible
+    -   Interpretable? → It depends
+-   Desirable properties: 
+    -   Meaningful _feature importance_
+    -   Quantification of main- _and interaction_ _effects_
+-   Additive models (LM, GAM, ...) can provide both  
+    → Need to manually specify interactions in model fit
 
-**Random Planted Forest** (RPF): Additive Random Forest
+. . .
 
+\vfill
+
+::: center
+→ **Random Planted Forest** (RPF): Additive Random Forest
+:::
 
 ## Functional ANOVA Expansion
 
-- Setting: Regression with target $Y_i \in \mathbb{R}^p$ and feature vector $\mathbf{x_i}$
--   Decompose prediction $\mathbb{E}(Y_i | X = \mathbf{x}_i) = \hat{m}(\mathbf{x_i})$ into 
-    -   Average prediction $\hat{m}_{0}$ ("intercept")
-    -   Terms $\hat{m}_S$ with $S \subseteq \{1, \ldots, s\}$
+- Setting: Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
+- Expand prediction $\mathbb{E}(Y_i | X = \mathbf{x}_i) = \hat{m}(\mathbf{x}_i)$ into 
+    -   $\hat{m}_{0}$: Average prediction (_"intercept"_) 
+    -   Terms $\hat{m}_S$ with feature set $S \subseteq \{1, \ldots, p\}$
 
 . . .
 
 \begin{align*}
-\hat{m}(\mathbf{x}) & = \hat{m}_{0} \\
-& + \underbrace{\hat{m}_1(x_1) + \hat{m}_2(x_2) + \hat{m}_3(x_3)}_{\text{Main effects}} \\
-& + \underbrace{\hat{m}_{1,2}(x_1,x_2) + \hat{m}_{1,3}(x_1,x_3) + \hat{m}_{2,3}(x_2,x_3)}_{\text{2nd order interactions}} \\ 
-& + \underbrace{\hat{m}_{1,2,3}(x_1,x_2,x_3)}_{\text{3rd order interaction}}
+\hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
+&  \underbrace{\hat{m}_1(x_1) + \hat{m}_2(x_2) + \hat{m}_3(x_3)}_{\text{Main effect terms}} + \\
+&  \underbrace{\hat{m}_{1,2}(x_1,x_2) + \hat{m}_{1,3}(x_1,x_3) + \hat{m}_{2,3}(x_2,x_3)}_{\text{2nd order interactions}} + \\ 
+&  \underbrace{\hat{m}_{1,2,3}(x_1,x_2,x_3)}_{\text{3rd order interaction}}
 \end{align*}
 
 ## Trees in Random Forest
 
 ![CARTlike](tree-cart.pdf){fig-align="center" height=75%}
 
-## Planted Trees
+## Planted Trees (I)
 
 ![Planted](tree-planted-simple.pdf){#fig-planted fig-align="center" height=75%}
 
-## Planted Trees
+## Planted Trees (II)
 
 ![Planted-large](tree-planted-large.pdf){#fig-planted fig-align="center" height=75%}
 
+## Key features of Random Planted Forests
 
-
-## Key Differences of RPF to RF
-
-- Splits some nodes multiple times (→ non-binary trees)
-- Keeps track of features involved in split
+- Ensemble of trees (like RF)
+- Splits nodes multiple times (→ _non-binary_ trees!)
+- Nodes keep track of features involved in construction
 - Degree of interaction can be constrained
-- Stopping after adjustable number of splits
-- Prediction is average of additive $\hat{m}_S$ estimates
-
+- Tree stops after adjustable number of splits
+- Prediction built up incrementally, guided by residuals (cf. Gradient Boosting)
 
 ## Application Example
 
@@ -171,7 +176,7 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
     -   `hour` of day $\in \{0, 1, \ldots, 23\}$
     -   `temp` normalized temperature $\in [0, 1]$
     -   `workingday` binary → \{`workingday`, `no workingday`\}
-- Average prediction: $\hat{m}_0 \approx$ `r round(rpglex$intercept, 1)`
+- Average prediction: $\hat{m}_0 \approx$ `r round(rpglex$intercept)`
 
 [^1]: from [UCI ML repository](https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset)
 
@@ -181,10 +186,11 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 
 ::: {.column width="33%"}
 
+
 ```{r main-hr}
-#| out-height: "75%"
+#| out-height: "70%"
 #| fig-width: 6
-plot_main_effect(rpglex, "hr") + theme_glex(base_size = 24)
+plot_main_effect(rpglex, "hr") + theme_glex(base_size = 28)
 ```
 
 :::
@@ -192,11 +198,12 @@ plot_main_effect(rpglex, "hr") + theme_glex(base_size = 24)
 . . .
 
 ::: {.column width="33%"}
+
 
 ```{r main-temp}
-#| out-height: "75%"
+#| out-height: "70%"
 #| fig-width: 6
-plot_main_effect(rpglex, "temp") + theme_glex(base_size = 24)
+plot_main_effect(rpglex, "temp") + theme_glex(base_size = 28)
 ```
 
 :::
@@ -205,26 +212,39 @@ plot_main_effect(rpglex, "temp") + theme_glex(base_size = 24)
 
 ::: {.column width="33%"}
 
+
 ```{r main-workingday}
-#| out-height: "75%"
+#| out-height: "70%"
 #| fig-width: 6
-plot_main_effect(rpglex, "workingday") + theme_glex(base_size = 24)
+plot_main_effect(rpglex, "workingday") + 
+  # labs(title = as.expression("hat(m)[1]")) +
+  theme_glex(base_size = 28)
 ```
 
 :::
 
 ::::
 
+. . .
+
+$\hat{m} = \hat{m}_0 + \hat{m}_{\texttt{hr}}(\texttt{hr}) + \hat{m}_{\texttt{temp}}(\texttt{temp}) + \hat{m}_{\texttt{workingday}}(\texttt{workingday}) + \ldots$
+
 
 ## Hour $\times$ Working Day: "Rush Hour Effect"
 
 ```{r twoway-hr-workingday} 
-#| out-height: "75%"
+#| out-height: "67%"
+#| fig-width: 12
+#| fig-height: 4
 
 plot_twoway_effects(rpglex, c("hr", "workingday")) + 
   scale_y_continuous(breaks = seq(-200, 200, 50)) +
-  labs(color = NULL)
+  labs(color = NULL) + 
+  theme_glex(base_size = 28) +
+  theme(legend.position = "right")
 ```
+
+$\ldots + \hat{m}_{\texttt{hr}, \texttt{workingday}}(\texttt{hr}, \texttt{workingday}) + \ldots$
 
 ## More 2nd Order Interactions
 
@@ -232,10 +252,16 @@ plot_twoway_effects(rpglex, c("hr", "workingday")) +
 
 ::: {.column width="50%"}
 
-```{r}
-#| out-height: "75%"
-plot_twoway_effects(rpglex, c("temp", "workingday")) + labs(color = NULL)
+```{r twoway-temp-workingday}
+#| out-height: "63%"
+#| fig-height: 6
+#| fig-width: 9
+plot_twoway_effects(rpglex, c("temp", "workingday")) + 
+  labs(color = NULL)  + 
+  theme_glex(base_size = 28)
 ```
+
+$+ \hat{m}_{\texttt{temp}, \texttt{workingday}}(\texttt{temp}, \texttt{workingday})$
 
 :::
 
@@ -243,10 +269,19 @@ plot_twoway_effects(rpglex, c("temp", "workingday")) + labs(color = NULL)
 
 ::: {.column width="50%"}
 
-```{r}
-#| out-height: "75%"
-plot_twoway_effects(rpglex, c("hr", "temp"))
+```{r twoway-hr-temp}
+#| out-height: "63%"
+#| fig-height: 6
+#| fig-width: 9
+plot_twoway_effects(rpglex, c("hr", "temp"))  + 
+  #labs(color = NULL) +
+  guides(color = guide_colorbar(title.position = "left", title.hjust = 0.5)) +
+  theme_glex(base_size = 28) +
+  theme(legend.key.width = unit("60", units = "pt"))
 ```
+
+$+ \hat{m}_{\texttt{hr}, \texttt{temp}}(\texttt{hr}, \texttt{temp}) + \ldots$
+
 
 :::
 
@@ -255,44 +290,56 @@ plot_twoway_effects(rpglex, c("hr", "temp"))
 
 ## 3rd Order Interaction
 
-```{r}
-#| out-height: "75%"
-
-plot_threeway_effects(rpglex, c("hr", "temp", "workingday"))
+```{r threeway-hr-temp-woringday}
+#| out-height: "77.5%"
+#| fig-width: 14
+plot_threeway_effects(rpglex, c("hr", "temp", "workingday")) + 
+  #labs(color = NULL) +
+  guides(color = guide_colorbar(title.position = "left", title.hjust = 0.5)) +
+  theme_glex(
+    base_size = 28
+  ) +
+  theme(legend.key.width = unit("60", units = "pt"))
 ```
 
-## Feature Importance
+<!-- $\ldots + \hat{m}_{\texttt{hr}, \texttt{temp}, \texttt{workingday}}(\texttt{hr}, \texttt{temp}, \texttt{workingday})$ -->
 
--   Average of absolute values of term of interest
-  
-. . .
+## Feature Importance in RPF
 
-$$\mathrm{VI}_S(X) = \frac{1}{n} \sum_{i=1}^n |\hat{m}_S(\mathbf{x}_i)|$$
+-   Average of absolute values of term $\hat{m}_S$ of interest
+
+$$\mathrm{FI}_S = \frac{1}{n} \sum_{i=1}^n |\hat{m}_S(\mathbf{x}_i)|$$
 
 -   Unlike RF Feature importance:
-    -   Scores _per interaction_ term
-    -   Importance scores on same scale as prediction
+    -   Scores also _per interaction_ term
+    -   Importance scores on _same scale_ as prediction
 
 
 ## Feature Importance per Main Term
 
-```{r vi-plot}
+```{r vi-plot-main}
 #| fig-width: 8
-#| fig-height: 4
-#| out-height: "75%"
+#| fig-height: 3
+#| out-height: "72%"
 vi_rpf <- glex_vi(rpglex)
 
 keep_vis <- sapply(c("hr", "temp", "workingday"), \(term) {
   glex:::find_term_matches(term, vi_rpf$term)
 }) |> unlist() |> unique()
 
+drop_vis <- sapply(c("season", "weathersit", "windspeed", "hum"), \(term) {
+  glex:::find_term_matches(term, vi_rpf$term)
+}) |> unlist() |> unique()
+
 
 vi_rpf_subset <- vi_rpf[keep_vis, ]
+vi_rpf_subset_neg <- vi_rpf[-drop_vis]
 
 autoplot(vi_rpf_subset[degree == 1]) + 
   labs(title = NULL) + 
+  theme_glex(base_size = 22, grid_x = FALSE, grid_y = TRUE) +
   theme(
-    axis.text.y = element_text(size = rel(1.25)),
+    #axis.text.y = element_text(size = rel(1.25)),
     legend.position = "none"
   )
 ```
@@ -301,39 +348,43 @@ autoplot(vi_rpf_subset[degree == 1]) +
 ## Feature Importance for All Terms
 
 ```{r vi-plot-thresh}
-#| out-height: "75%"
-#| fig-height: 4
-autoplot(vi_rpf_subset, threshold = 2) + 
-  labs(title = NULL, caption = "Values <2 aggregated under 'Remaining terms'") +
-  theme(
-    axis.text.y = element_text(size = rel(1.25))
-  )
+#| out-height: "72%"
+#| fig-height: 6
+vi_rpf_subset_neg |>
+  autoplot() + 
+    labs(title = NULL) +
+    theme_glex(base_size = 22, grid_x = FALSE, grid_y = TRUE)
 ```
 
 ## Feature Importance by Order of Interaction
 
 ```{r vi-plot-degree}
-#| out-height: "75%"
+#| out-height: "72%"
 #| fig-height: 4
 autoplot(vi_rpf, by_degree = TRUE) + 
+  scale_x_continuous(breaks = seq(0, 200, 25)) +
   labs(title = NULL, y = "Order of Interaction") +
-  theme(
-    axis.text.y = element_text(size = rel(1.25))
-  )
+  theme_glex(base_size = 18, grid_x = FALSE, grid_y = TRUE)
 ```
 
 ## No Free Lunch
 
-Better interpretibility → worse predictive performance?
+Gains in interpretibility → sacrifices in predictive performance?
+
+\vfill
 
 . . .
 
--   Benchmark comparing RPF with XGBoost, RF incl. tuning
--   28 datasets from OpenML-CTR23 regression benchmark suite [^ctr23]
--   Also comparing XGBoost / RPF with interactions restrained to 2
--   Generally XGBoost best, RPF and RF closely behind
+-   Benchmark on 28 datasets [^ctr23] comparing RPF with XGBoost & RF, incl. tuning
+-   Additionally comparing XGBoost & RPF with constrained order of interaction to _2_
 
-[^ctr23]: @fischer2023openmlctr
+. . .
+
+\vfill
+
+→ Generally: RPF never best, rarely bad, usually close
+
+[^ctr23]: OpenML-CTR23 regression benchmark suite: @fischer2023openmlctr
 
 ## Benchmark Results (Aggregated)
 
@@ -360,25 +411,36 @@ aggr |>
       #title = "Aggregated scores over all tasks",
       x = "RRSE (%)", y = NULL
     ) +
-    theme_minimal(base_size = 14) +
+    theme_minimal(base_size = 20) +
     theme(
       plot.title.position = "plot"
     )
 ```
 
-Root-Relative Squared Error (RRSE) $\sqrt{\tfrac{SSE(Y, \hat{Y})}{SSE(Y, \bar{Y})}}$\\
+::: small
+
+$$\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}$$
 → Featureless model scores 1, perfect score 0
 
 :::
 
-## Results for Selected Tasks
+:::
+
+## Benchmark Results (Selected Tasks)
 
 ```{r bm-scores-sel}
 #| out-height: "75%"
-#| out-width: "70%"
-#| fig-height: 5
+#| fig-height: 4
+#| fig-width: 9
+# out-width: "70%"
+
 scores |>
-    dplyr::filter(task_id %in% c("space_ga", "kin8nm", "miami_housing", "white_wine")) |>
+    dplyr::filter(task_id %in% c(
+      "space_ga", 
+      "kin8nm", 
+      "miami_housing", 
+      "white_wine"
+    )) |>
     dplyr::filter(learner_id != "featureless") |>
     dplyr::mutate(
       task_label = stringr::str_replace(task_label, "\\s\\(", "\\\n("),
@@ -396,33 +458,39 @@ scores |>
       # subtitle = "Tasks ordered by n * p, decreasing",
       y = NULL, x = "RRSE (%)"
     ) +
-    theme_minimal(base_size = 13) +
+    theme_minimal(base_size = 16) +
     theme(
       panel.spacing.x = unit(1, "cm"),
       plot.title.position = "plot"
     )
 ```
 
-## Related work
+<!--
 
-- Glex[^glex]: Same ANOVA decomposition but generally for tree-based methods (e.g. XGBoost)
-- **Idea**: 
-  - Fit XGBoost with more shallow trees
-  - Extract component-wise predictions from tree structure
+## Related work: `{glex}`[^glex]
+
+- ANOVA decomposition _post-hoc_ for tree-based methods (e.g. XGBoost)
+<!-- - **Idea**: 
+  - Fit XGBoost (with `max_depth` restricted)
+  - Extract component-wise predictions from tree structure -->
 - **Benefit**: Use existing / well known / well optimzied algorithm
 - **Drawback**: Computationally intensive post-hoc computation
 
-[^glex]: @hiabu2023glex / [github.com/PlantedML/glex](https://github.com/PlantedML/glex)
+[^glex]: @hiabu2023glex → [github.com/PlantedML/glex](https://github.com/PlantedML/glex)
+
+-->
 
 ## Summary
 
 **Random Planted Forests** = Additive Random Forests
 
-- (+) Interpretability on global and local perspective
-- (+) Interpretable on same scale as target
-- (~) Predictive performance worse but similar to comparable algorithms
-- (-) Computationally heavy for large data
-- (+) R package available [^rpfgh]
+\vfill
+
+- (↑) Nicely interpretable feature _importance_ on same scale as target
+- (↑) Quantifies _main effects_ and _interaction terms_
+- (↑) R package available [^rpfgh]
+- (→) Competetive predictive performance (mostly)
+- (↓) Computationally heavy for large data (implementation not fully optimized, WIP!)
 
 
 [^rpfgh]: [github.com/PlantedML/randomPlantedForest](https://github.com/PlantedML/randomPlantedForest)

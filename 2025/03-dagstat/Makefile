@@ -1,4 +1,4 @@
-TIKZ=tree-cart.tex tree-planted-simple.tex tree-planted-large.tex
+TIKZ= tree-planted-large.tex
 
 TIKZPDF=$(TIKZ:%.tex=%.pdf)
 
