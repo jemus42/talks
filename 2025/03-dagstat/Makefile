@@ -1,11 +1,14 @@
-TIKZ= tree-planted-large.tex
-
+TIKZ= tree-cart.tex tree-planted-simple.tex tree-planted-large.tex
 TIKZPDF=$(TIKZ:%.tex=%.pdf)
 
 all: rpf.pdf
 
-$(TIKZPDF): $(TIKZ)
+$(TIKZPDF):  %.pdf: %.tex
 	latexmk -halt-on-error -pdf $<
+
+list:
+	echo $(TIKZ)
+	echo $(TIKZPDF)
 
 tikz: $(TIKZPDF)
 
