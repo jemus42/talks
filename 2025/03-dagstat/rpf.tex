@@ -141,8 +141,6 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \begin{itemize}[<+->]
 \tightlist
 \item
-  Goal: Fast, flexible, and \textbf{interpretable} predictive models
-\item
   Tree-based methods like Random Forest (RF):
 
   \begin{itemize}[<+->]
@@ -163,8 +161,7 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
     Quantification of main- \emph{and interaction} \emph{effects}
   \end{itemize}
 \item
-  Additive models (LM, GAM, \ldots) can provide both\\
-  → Need to manually specify interactions in model fit
+  Additive models (LMs, GAMs, \ldots) can provide both
 \end{itemize}
 
 \pause
@@ -172,7 +169,7 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \vfill
 
 \begin{center}
-→ **Random Planted Forest** (RPF): Additive Random Forest
+→ \textbf{Random Planted Forest} (RPF): Additive Random Forest
 \end{center}
 \end{frame}
 
@@ -181,23 +178,84 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \begin{itemize}[<+->]
 \tightlist
 \item
-  Setting: Regression with target \(Y_i \in \mathbb{R}\), features
+  Regression with target \(Y_i \in \mathbb{R}\), features
   \(X_i \in \mathbb{R}^p\), instance \(\mathbf{x}_i\)
 \item
-  Expand prediction
-  \(\mathbb{E}(Y_i | X = \mathbf{x}_i) = \hat{m}(\mathbf{x}_i)\) into
+  Expand prediction \(\hat{m}(\mathbf{x}_i)\) for \(Y_i\) into
 
   \begin{itemize}[<+->]
   \tightlist
   \item
     \(\hat{m}_{0}\): Average prediction (\emph{``intercept''})
+    plus\ldots{}
   \item
     Terms \(\hat{m}_S\) with feature set
     \(S \subseteq \{1, \ldots, p\}\)
   \end{itemize}
 \end{itemize}
 
+\vfill
+
 \pause
+
+\begin{align*}
+\hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
+&  \underbrace{\hat{m}_1(x_1) + \hat{m}_2(x_2) + \hat{m}_3(x_3)}_{\text{Main effect terms}} +
+\end{align*}
+\end{frame}
+
+\begin{frame}{Functional ANOVA Expansion}
+\phantomsection\label{functional-anova-expansion-1}
+\begin{itemize}
+\tightlist
+\item
+  Regression with target \(Y_i \in \mathbb{R}\), features
+  \(X_i \in \mathbb{R}^p\), instance \(\mathbf{x}_i\)
+\item
+  Expand prediction \(\hat{m}(\mathbf{x}_i)\) for \(Y_i\) into
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(\hat{m}_{0}\): Average prediction (\emph{``intercept''})
+    plus\ldots{}
+  \item
+    Terms \(\hat{m}_S\) with feature set
+    \(S \subseteq \{1, \ldots, p\}\)
+  \end{itemize}
+\end{itemize}
+
+\vfill
+
+\begin{align*}
+\hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
+&  \underbrace{\hat{m}_1(x_1) + \hat{m}_2(x_2) + \hat{m}_3(x_3)}_{\text{Main effect terms}} + \\
+&  \underbrace{\hat{m}_{1,2}(x_1,x_2) + \hat{m}_{1,3}(x_1,x_3) + \hat{m}_{2,3}(x_2,x_3)}_{\text{2nd order interactions}} +
+\end{align*}
+\end{frame}
+
+\begin{frame}{Functional ANOVA Expansion}
+\phantomsection\label{functional-anova-expansion-2}
+\begin{itemize}
+\tightlist
+\item
+  Regression with target \(Y_i \in \mathbb{R}\), features
+  \(X_i \in \mathbb{R}^p\), instance \(\mathbf{x}_i\)
+\item
+  Expand prediction \(\hat{m}(\mathbf{x}_i)\) for \(Y_i\) into
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(\hat{m}_{0}\): Average prediction (\emph{``intercept''})
+    plus\ldots{}
+  \item
+    Terms \(\hat{m}_S\) with feature set
+    \(S \subseteq \{1, \ldots, p\}\)
+  \end{itemize}
+\end{itemize}
+
+\vfill
 
 \begin{align*}
 \hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
@@ -255,17 +313,17 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \begin{itemize}[<+->]
 \tightlist
 \item
-  Ensemble of trees (like RF)
+  Ensemble of trees like RF
 \item
   Splits nodes multiple times (→ \emph{non-binary} trees!)
 \item
   Nodes keep track of features involved in construction
 \item
-  Degree of interaction can be constrained
+  \emph{Degree of interaction} can be constrained
 \item
-  Tree stops after adjustable number of splits
+  Tree stops after adjustable \emph{number of splits}
 \item
-  Prediction built up incrementally, guided by residuals (cf.~Gradient
+  Prediction built up incrementally using residuals (cf.~Gradient
   Boosting)
 \end{itemize}
 \end{frame}
@@ -326,7 +384,11 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 
 \pause
 
-\(\hat{m} = \hat{m}_0 + \hat{m}_{\texttt{hr}}(\texttt{hr}) + \hat{m}_{\texttt{temp}}(\texttt{temp}) + \hat{m}_{\texttt{workingday}}(\texttt{workingday}) + \ldots\)
+\begin{center}
+
+$\hat{m} = \hat{m}_0 + \hat{m}_{\texttt{hr}}(\texttt{hr}) + \hat{m}_{\texttt{temp}}(\texttt{temp}) + \hat{m}_{\texttt{workingday}}(\texttt{workingday}) + \ldots$
+
+\end{center}
 \end{frame}
 
 \begin{frame}{Hour \(\times\) Working Day: ``Rush Hour Effect''}
@@ -335,7 +397,11 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \includegraphics[width=\linewidth,height=0.67\textheight,keepaspectratio]{rpf_files/figure-beamer/twoway-hr-workingday-1.png}
 \end{center}
 
-\(\ldots + \hat{m}_{\texttt{hr}, \texttt{workingday}}(\texttt{hr}, \texttt{workingday}) + \ldots\)
+\begin{center}
+
+$\ldots + \hat{m}_{\texttt{hr}, \texttt{workingday}}(\texttt{hr}, \texttt{workingday}) + \ldots$
+
+\end{center}
 \end{frame}
 
 \begin{frame}{More 2nd Order Interactions}
@@ -373,7 +439,8 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \begin{itemize}[<+->]
 \tightlist
 \item
-  Average of absolute values of term \(\hat{m}_S\) of interest
+  Average of absolute values of terms \(\hat{m}_S\) for \(S\) of
+  interest
 \end{itemize}
 
 \[\mathrm{FI}_S = \frac{1}{n} \sum_{i=1}^n |\hat{m}_S(\mathbf{x}_i)|\]
@@ -393,24 +460,17 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Feature Importance per Main Term}
-\phantomsection\label{feature-importance-per-main-term}
+\begin{frame}{Feature Importance: Main Terms}
+\phantomsection\label{feature-importance-main-terms}
 \begin{center}
 \includegraphics[width=\linewidth,height=0.72\textheight,keepaspectratio]{rpf_files/figure-beamer/vi-plot-main-1.png}
 \end{center}
 \end{frame}
 
-\begin{frame}{Feature Importance for All Terms}
-\phantomsection\label{feature-importance-for-all-terms}
+\begin{frame}{Feature Importance: All Terms}
+\phantomsection\label{feature-importance-all-terms}
 \begin{center}
 \includegraphics[width=\linewidth,height=0.72\textheight,keepaspectratio]{rpf_files/figure-beamer/vi-plot-thresh-1.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{Feature Importance by Order of Interaction}
-\phantomsection\label{feature-importance-by-order-of-interaction}
-\begin{center}
-\includegraphics[width=\linewidth,height=0.72\textheight,keepaspectratio]{rpf_files/figure-beamer/vi-plot-degree-1.png}
 \end{center}
 \end{frame}
 
@@ -437,17 +497,7 @@ Gains in interpretibility → sacrifices in predictive performance?
 
 \vfill
 
-→ Generally: RPF never best, rarely bad, usually close
-\end{frame}
-
-\begin{frame}{Benchmark Results (Aggregated)}
-\phantomsection\label{benchmark-results-aggregated}
-\begin{center}
-\includegraphics[width=\linewidth,height=0.7\textheight,keepaspectratio]{rpf_files/figure-beamer/bm-aggr-rrse-1.png}
-\end{center}
-
-\[\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}\]
-→ Featureless model scores 1, perfect score 0
+→ Generally: RPF never best, rarely bad, usually close to XGBoost
 \end{frame}
 
 \begin{frame}{Benchmark Results (Selected Tasks)}
@@ -455,11 +505,15 @@ Gains in interpretibility → sacrifices in predictive performance?
 \begin{center}
 \includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/bm-scores-sel-1.png}
 \end{center}
+
+\{\small \(\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}\)\}
 \end{frame}
 
 \begin{frame}{Summary}
 \phantomsection\label{summary}
+\begin{center}
 \textbf{Random Planted Forests} = Additive Random Forests
+\end{center}
 
 \vfill
 

@@ -113,31 +113,67 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 
 ## Motivation
 
--   Want: Fast, flexible, and **interpretable** predictive models
 -   Tree-based methods like Random Forest (RF):
     -   Fast & flexible
     -   Interpretable? → It depends
 -   Desirable properties: 
     -   Meaningful _feature importance_
     -   Quantification of main- _and interaction_ _effects_
--   Additive models (LM, GAM, ...) can provide both
+-   Additive models (LMs, GAMs, ...) can provide both
 
 . . .
 
 \vfill
 
 \begin{center}
-→ \textbf{andom Planted Forest} (RPF): Additive Random Forest
+→ \textbf{Random Planted Forest} (RPF): Additive Random Forest
 \end{center}
 
 ## Functional ANOVA Expansion
 
-- Setting: Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
-- Expand prediction $\mathbb{E}(Y_i | X = \mathbf{x}_i) = \hat{m}(\mathbf{x}_i)$ into 
-    -   $\hat{m}_{0}$: Average prediction (_"intercept"_) 
+- Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
+- Expand prediction $\hat{m}(\mathbf{x}_i)$ for $Y_i$ into
+    -   $\hat{m}_{0}$: Average prediction (_"intercept"_) plus...
     -   Terms $\hat{m}_S$ with feature set $S \subseteq \{1, \ldots, p\}$
 
+\vfill
+
 . . .
+
+\begin{align*}
+\hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
+&  \underbrace{\hat{m}_1(x_1) + \hat{m}_2(x_2) + \hat{m}_3(x_3)}_{\text{Main effect terms}} +
+\end{align*}
+
+## Functional ANOVA Expansion
+
+::: nonincremental
+
+- Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
+- Expand prediction $\hat{m}(\mathbf{x}_i)$ for $Y_i$ into
+    -   $\hat{m}_{0}$: Average prediction (_"intercept"_) plus...
+    -   Terms $\hat{m}_S$ with feature set $S \subseteq \{1, \ldots, p\}$
+
+\vfill
+
+\begin{align*}
+\hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
+&  \underbrace{\hat{m}_1(x_1) + \hat{m}_2(x_2) + \hat{m}_3(x_3)}_{\text{Main effect terms}} + \\
+&  \underbrace{\hat{m}_{1,2}(x_1,x_2) + \hat{m}_{1,3}(x_1,x_3) + \hat{m}_{2,3}(x_2,x_3)}_{\text{2nd order interactions}} +
+\end{align*}
+
+:::
+
+## Functional ANOVA Expansion
+
+::: nonincremental
+
+- Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
+- Expand prediction $\hat{m}(\mathbf{x}_i)$ for $Y_i$ into
+    -   $\hat{m}_{0}$: Average prediction (_"intercept"_) plus...
+    -   Terms $\hat{m}_S$ with feature set $S \subseteq \{1, \ldots, p\}$
+
+\vfill
 
 \begin{align*}
 \hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
@@ -145,6 +181,9 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 &  \underbrace{\hat{m}_{1,2}(x_1,x_2) + \hat{m}_{1,3}(x_1,x_3) + \hat{m}_{2,3}(x_2,x_3)}_{\text{2nd order interactions}} + \\ 
 &  \underbrace{\hat{m}_{1,2,3}(x_1,x_2,x_3)}_{\text{3rd order interaction}}
 \end{align*}
+
+:::
+
 
 ## Trees in Random Forest
 
@@ -160,7 +199,7 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 
 ## Key features of Random Planted Forests
 
-- Ensemble of trees like RF, different structure
+- Ensemble of trees like RF
 - Splits nodes multiple times (→ _non-binary_ trees!)
 - Nodes keep track of features involved in construction
 - _Degree of interaction_ can be constrained
@@ -312,7 +351,7 @@ plot_threeway_effects(rpglex, c("hr", "temp", "workingday")) +
 
 ## Feature Importance in RPF
 
--   Average of absolute values of term $\hat{m}_S$ of interest
+-   Average of absolute values of terms $\hat{m}_S$ for $S$ of interest
 
 $$\mathrm{FI}_S = \frac{1}{n} \sum_{i=1}^n |\hat{m}_S(\mathbf{x}_i)|$$
 
@@ -392,9 +431,12 @@ Gains in interpretibility → sacrifices in predictive performance?
 
 \vfill
 
-→ Generally: RPF never best, rarely bad, usually close
+→ Generally: RPF never best, rarely bad, usually close to XGBoost
 
 [^ctr23]: OpenML-CTR23 regression benchmark suite: @fischer2023openmlctr
+
+
+ <!--
 
 ## Benchmark Results (Aggregated)
 
@@ -431,7 +473,7 @@ $\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}$
 
 :::
 
-<!--
+-->
 
 ## Benchmark Results (Selected Tasks)
 
@@ -443,8 +485,8 @@ $\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}$
 
 scores |>
     dplyr::filter(task_id %in% c(
-      "space_ga", 
-      #"kin8nm", 
+      #"space_ga", 
+      "kin8nm", 
       #"white_wine",
       "miami_housing" 
     )) |>
@@ -472,11 +514,15 @@ scores |>
     )
 ```
 
--->
+
+{\small $\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}$}
+
 
 ## Summary
 
-**Random Planted Forests** = Additive Random Forests
+\begin{center}
+\textbf{Random Planted Forests} = Additive Random Forests
+\end{center}
 
 \vfill
 
