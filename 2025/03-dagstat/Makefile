@@ -3,7 +3,7 @@ TIKZPDF=$(TIKZ:%.tex=%.pdf)
 
 all: rpf.pdf
 
-$(TIKZPDF):  %.pdf: %.tex
+$(TIKZPDF): %.pdf: %.tex
 	latexmk -halt-on-error -pdf $<
 
 list:

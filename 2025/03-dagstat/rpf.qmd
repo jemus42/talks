@@ -113,23 +113,22 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 
 ## Motivation
 
--   Goal: Fast, flexible, and **interpretable** predictive models
+-   Want: Fast, flexible, and **interpretable** predictive models
 -   Tree-based methods like Random Forest (RF):
     -   Fast & flexible
     -   Interpretable? → It depends
 -   Desirable properties: 
     -   Meaningful _feature importance_
     -   Quantification of main- _and interaction_ _effects_
--   Additive models (LM, GAM, ...) can provide both  
-    → Need to manually specify interactions in model fit
+-   Additive models (LM, GAM, ...) can provide both
 
 . . .
 
 \vfill
 
-::: center
-→ **Random Planted Forest** (RPF): Additive Random Forest
-:::
+\begin{center}
+→ \textbf{andom Planted Forest} (RPF): Additive Random Forest
+\end{center}
 
 ## Functional ANOVA Expansion
 
@@ -161,12 +160,12 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 
 ## Key features of Random Planted Forests
 
-- Ensemble of trees (like RF)
+- Ensemble of trees like RF, different structure
 - Splits nodes multiple times (→ _non-binary_ trees!)
 - Nodes keep track of features involved in construction
-- Degree of interaction can be constrained
-- Tree stops after adjustable number of splits
-- Prediction built up incrementally, guided by residuals (cf. Gradient Boosting)
+- _Degree of interaction_ can be constrained
+- Tree stops after adjustable _number of splits_
+- Prediction built up incrementally using residuals (cf. Gradient Boosting)
 
 ## Application Example
 
@@ -227,8 +226,11 @@ plot_main_effect(rpglex, "workingday") +
 
 . . .
 
+\begin{center}
+
 $\hat{m} = \hat{m}_0 + \hat{m}_{\texttt{hr}}(\texttt{hr}) + \hat{m}_{\texttt{temp}}(\texttt{temp}) + \hat{m}_{\texttt{workingday}}(\texttt{workingday}) + \ldots$
 
+\end{center}
 
 ## Hour $\times$ Working Day: "Rush Hour Effect"
 
@@ -244,7 +246,11 @@ plot_twoway_effects(rpglex, c("hr", "workingday")) +
   theme(legend.position = "right")
 ```
 
+\begin{center}
+
 $\ldots + \hat{m}_{\texttt{hr}, \texttt{workingday}}(\texttt{hr}, \texttt{workingday}) + \ldots$
+
+\end{center}
 
 ## More 2nd Order Interactions
 
@@ -315,7 +321,7 @@ $$\mathrm{FI}_S = \frac{1}{n} \sum_{i=1}^n |\hat{m}_S(\mathbf{x}_i)|$$
     -   Importance scores on _same scale_ as prediction
 
 
-## Feature Importance per Main Term
+## Feature Importance: Main Terms
 
 ```{r vi-plot-main}
 #| fig-width: 8
@@ -337,7 +343,7 @@ vi_rpf_subset_neg <- vi_rpf[-drop_vis]
 
 autoplot(vi_rpf_subset[degree == 1]) + 
   labs(title = NULL) + 
-  theme_glex(base_size = 22, grid_x = FALSE, grid_y = TRUE) +
+  theme_glex(base_size = 20, grid_x = FALSE, grid_y = TRUE) +
   theme(
     #axis.text.y = element_text(size = rel(1.25)),
     legend.position = "none"
@@ -345,16 +351,18 @@ autoplot(vi_rpf_subset[degree == 1]) +
 ```
 
 
-## Feature Importance for All Terms
+## Feature Importance: All Terms
 
 ```{r vi-plot-thresh}
 #| out-height: "72%"
-#| fig-height: 6
+#| fig-height: 5
 vi_rpf_subset_neg |>
   autoplot() + 
     labs(title = NULL) +
     theme_glex(base_size = 22, grid_x = FALSE, grid_y = TRUE)
 ```
+
+<!--
 
 ## Feature Importance by Order of Interaction
 
@@ -366,6 +374,8 @@ autoplot(vi_rpf, by_degree = TRUE) +
   labs(title = NULL, y = "Order of Interaction") +
   theme_glex(base_size = 18, grid_x = FALSE, grid_y = TRUE)
 ```
+
+-->
 
 ## No Free Lunch
 
@@ -409,7 +419,7 @@ aggr |>
     scale_fill_manual(values = learner_cols, guide = "none") +
     labs(
       #title = "Aggregated scores over all tasks",
-      x = "RRSE (%)", y = NULL
+      x = "RRSE (%) (lower is better)", y = NULL
     ) +
     theme_minimal(base_size = 20) +
     theme(
@@ -417,14 +427,11 @@ aggr |>
     )
 ```
 
-::: small
-
-$$\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}$$
-→ Featureless model scores 1, perfect score 0
+$\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}$
 
 :::
 
-:::
+<!--
 
 ## Benchmark Results (Selected Tasks)
 
@@ -456,7 +463,7 @@ scores |>
     labs(
       # title = "Scores per task",
       # subtitle = "Tasks ordered by n * p, decreasing",
-      y = NULL, x = "RRSE (%)"
+      y = NULL, x = "RRSE (%) (lower is better)"
     ) +
     theme_minimal(base_size = 16) +
     theme(
@@ -465,7 +472,7 @@ scores |>
     )
 ```
 
-
+-->
 
 ## Summary
 
