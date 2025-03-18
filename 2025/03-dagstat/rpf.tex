@@ -151,7 +151,7 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
     Interpretable? → It depends
   \end{itemize}
 \item
-  Desirable properties:
+  Interpretability wishlist:
 
   \begin{itemize}[<+->]
   \tightlist
@@ -161,7 +161,7 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
     Quantification of main- \emph{and interaction} \emph{effects}
   \end{itemize}
 \item
-  Additive models (LMs, GAMs, \ldots) can provide both
+  Additive models can provide both (with limitations)
 \end{itemize}
 
 \pause
@@ -170,6 +170,7 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 
 \begin{center}
 → \textbf{Random Planted Forest} (RPF): Additive Random Forest
+
 \end{center}
 \end{frame}
 
@@ -195,6 +196,8 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \end{itemize}
 
 \pause
+
+\vfill
 
 \begin{align*}
 \hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
@@ -225,6 +228,8 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
   \end{itemize}
 \end{itemize}
 
+\vfill
+
 \begin{align*}
 \hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
 &  \underbrace{\hat{m}_1(x_1) + \hat{m}_2(x_2) + \hat{m}_3(x_3)}_{\text{Main effect terms}} + \\
@@ -254,6 +259,8 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
     \(S \subseteq \{1, \ldots, p\}\)
   \end{itemize}
 \end{itemize}
+
+\vfill
 
 \begin{align*}
 \hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
@@ -321,10 +328,10 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \item
   \emph{Degree of interaction} can be constrained
 \item
-  Tree stops after adjustable \emph{number of splits}
-\item
   Prediction built up incrementally using residuals (cf.~Gradient
   Boosting)
+\item
+  Tree stops after adjustable \emph{number of splits}
 \end{itemize}
 \end{frame}
 
@@ -382,8 +389,6 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \end{column}
 \end{columns}
 
-\pause
-
 \begin{center}
 
 $\hat{m} = \hat{m}_0 + \hat{m}_{\texttt{hr}}(\texttt{hr}) + \hat{m}_{\texttt{temp}}(\texttt{temp}) + \hat{m}_{\texttt{workingday}}(\texttt{workingday}) + \ldots$
@@ -439,32 +444,20 @@ $\ldots + \hat{m}_{\texttt{hr}, \texttt{workingday}}(\texttt{hr}, \texttt{workin
 \begin{itemize}[<+->]
 \tightlist
 \item
-  Average of absolute values of terms \(\hat{m}_S\) for \(S\) of
-  interest
+  Average of absolute terms \(\hat{m}_S\) for \(S\) of interest
 \end{itemize}
+
+\pause
 
 \[\mathrm{FI}_S = \frac{1}{n} \sum_{i=1}^n |\hat{m}_S(\mathbf{x}_i)|\]
 
 \begin{itemize}[<+->]
 \tightlist
 \item
-  Unlike RF Feature importance:
-
-  \begin{itemize}[<+->]
-  \tightlist
-  \item
-    Scores also \emph{per interaction} term
-  \item
-    Importance scores on \emph{same scale} as prediction
-  \end{itemize}
+  Scores also \emph{per interaction} term
+\item
+  Importance scores on \emph{same scale} as prediction
 \end{itemize}
-\end{frame}
-
-\begin{frame}{Feature Importance: Main Terms}
-\phantomsection\label{feature-importance-main-terms}
-\begin{center}
-\includegraphics[width=\linewidth,height=0.72\textheight,keepaspectratio]{rpf_files/figure-beamer/vi-plot-main-1.png}
-\end{center}
 \end{frame}
 
 \begin{frame}{Feature Importance: All Terms}
@@ -476,58 +469,68 @@ $\ldots + \hat{m}_{\texttt{hr}, \texttt{workingday}}(\texttt{hr}, \texttt{workin
 
 \begin{frame}{No Free Lunch}
 \phantomsection\label{no-free-lunch}
-Gains in interpretibility → sacrifices in predictive performance?
+\begin{center}
+(↑) Gains in interpretibility \(\Rightarrow\) (↓) sacrifices in
+predictive performance?
+
+\end{center}
 
 \vfill
 
 \pause
 
-\begin{itemize}[<+->]
-\tightlist
-\item
-  Benchmark on 28 datasets \footnote<.->{OpenML-CTR23 regression
-    benchmark suite: \textcite{fischer2023openmlctr}} comparing RPF with
-  XGBoost \& RF, incl.~tuning
-\item
-  Additionally comparing XGBoost \& RPF with constrained order of
-  interaction to \emph{2}
-\end{itemize}
+Benchmark on \textbf{28} datasets \footnote<.->{OpenML-CTR23 regression
+  benchmark suite: \textcite{fischer2023openmlctr}} comparing RPF with
+\emph{XGBoost} \& \emph{RF}
 
-\pause
+\begin{center}
+→ RPF never best, rarely bad, usually close to XGBoost
 
-\vfill
-
-→ Generally: RPF never best, rarely bad, usually close to XGBoost
+\end{center}
 \end{frame}
 
 \begin{frame}{Benchmark Results (Selected Tasks)}
 \phantomsection\label{benchmark-results-selected-tasks}
+\begin{columns}[T]
+\begin{column}{0.5\linewidth}
 \begin{center}
-\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/bm-scores-sel-1.png}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/bm-scores-sel-1-1.png}
 \end{center}
+\end{column}
+
+\pause
+
+\begin{column}{0.5\linewidth}
+\begin{center}
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{rpf_files/figure-beamer/bm-scores-sel-2-1.png}
+\end{center}
+\end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}{Summary}
 \phantomsection\label{summary}
 \begin{center}
 \textbf{Random Planted Forests} = Additive Random Forests
+
 \end{center}
+
+\pause
 
 \vfill
 
 \begin{itemize}[<+->]
 \tightlist
 \item
-  (↑) Nicely interpretable feature \emph{importance} on same scale as
-  target
+  (↑) Feature \emph{importance} on same scale as target
 \item
-  (↑) Quantifies \emph{main effects} and \emph{interaction terms}
+  (↑) \emph{Main-} and \emph{interaction effects}
 \item
   (↑) R package available \footnote<.->{\href{https://github.com/PlantedML/randomPlantedForest}{github.com/PlantedML/randomPlantedForest}}
 \item
   (→) Competetive predictive performance (mostly)
 \item
-  (↓) Computationally heavy for large data (Optimization WIP!)
+  (↓) Slower for large data (Optimization WIP!)
 \end{itemize}
 \end{frame}
 

@@ -2,7 +2,7 @@
 title: |
   Random Planted Forest\
   A Directly Interpretable Tree Ensemble
-subtitle: "Awwww yeah"
+# subtitle: ""
 author:
   - Meyer, J. T.\inst{5}
   - Burk, L.\inst{1,2,3,4}
@@ -33,8 +33,10 @@ preview:
   port: 7777
 editor_options: 
   chunk_output_type: console
-# pdf-engine: xelatex
 bibliography: references.bib
+filters:
+   - latex-environment
+environments: center
 ---
 
 ```{r setup, include=FALSE}
@@ -116,18 +118,18 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 -   Tree-based methods like Random Forest (RF):
     -   Fast & flexible
     -   Interpretable? → It depends
--   Desirable properties: 
+-   Interpretability wishlist: 
     -   Meaningful _feature importance_
     -   Quantification of main- _and interaction_ _effects_
--   Additive models (LMs, GAMs, ...) can provide both
+-   Additive models can provide both (with limitations)
 
 . . .
 
 \vfill
 
-\begin{center}
-→ \textbf{Random Planted Forest} (RPF): Additive Random Forest
-\end{center}
+::: center
+→ **Random Planted Forest** (RPF): Additive Random Forest
+:::
 
 ## Functional ANOVA Expansion
 
@@ -137,6 +139,8 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
     -   Terms $\hat{m}_S$ with feature set $S \subseteq \{1, \ldots, p\}$
 
 . . .
+
+\vfill
 
 \begin{align*}
 \hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
@@ -153,6 +157,8 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 - Expand prediction $\hat{y}_i = \hat{m}(\mathbf{x}_i)$ into
     -   $\hat{m}_{0}$: Average prediction (_"intercept"_) plus...
     -   Terms $\hat{m}_S$ with feature set $S \subseteq \{1, \ldots, p\}$
+
+\vfill
 
 \begin{align*}
 \hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
@@ -172,6 +178,8 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 - Expand prediction $\hat{y}_i = \hat{m}(\mathbf{x}_i)$ into
     -   $\hat{m}_{0}$: Average prediction (_"intercept"_) plus...
     -   Terms $\hat{m}_S$ with feature set $S \subseteq \{1, \ldots, p\}$
+
+\vfill
 
 \begin{align*}
 \hat{m}(\mathbf{x}_i) = & \hat{m}_{0} + \\
@@ -203,8 +211,8 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 - Splits nodes multiple times (→ _non-binary_ trees!)
 - Nodes keep track of features involved in construction
 - _Degree of interaction_ can be constrained
-- Tree stops after adjustable _number of splits_
 - Prediction built up incrementally using residuals (cf. Gradient Boosting)
+- Tree stops after adjustable _number of splits_
 
 ## Application Example
 
@@ -263,7 +271,6 @@ plot_main_effect(rpglex, "workingday") +
 
 ::::
 
-. . .
 
 \begin{center}
 
@@ -351,14 +358,16 @@ plot_threeway_effects(rpglex, c("hr", "temp", "workingday")) +
 
 ## Feature Importance in RPF
 
--   Average of absolute values of terms $\hat{m}_S$ for $S$ of interest
+-   Average of absolute terms $\hat{m}_S$ for $S$ of interest
+
+. . .
 
 $$\mathrm{FI}_S = \frac{1}{n} \sum_{i=1}^n |\hat{m}_S(\mathbf{x}_i)|$$
 
--   Unlike RF Feature importance:
-    -   Scores also _per interaction_ term
-    -   Importance scores on _same scale_ as prediction
+-   Scores also _per interaction_ term
+-   Importance scores on _same scale_ as prediction
 
+<!--
 
 ## Feature Importance: Main Terms
 
@@ -382,19 +391,21 @@ vi_rpf_subset_neg <- vi_rpf[-drop_vis]
 
 autoplot(vi_rpf_subset[degree == 1]) + 
   labs(title = NULL) + 
-  theme_glex(base_size = 20, grid_x = FALSE, grid_y = TRUE) +
+  theme_glex(base_size = 18, grid_x = FALSE, grid_y = TRUE) +
   theme(
     #axis.text.y = element_text(size = rel(1.25)),
     legend.position = "none"
   )
 ```
 
+-->
 
 ## Feature Importance: All Terms
 
 ```{r vi-plot-thresh}
 #| out-height: "72%"
 #| fig-height: 5
+#| fig-width: 8
 vi_rpf_subset_neg |>
   autoplot() + 
     labs(title = NULL) +
@@ -418,20 +429,23 @@ autoplot(vi_rpf, by_degree = TRUE) +
 
 ## No Free Lunch
 
-Gains in interpretibility → sacrifices in predictive performance?
+::: center
+
+(↑) Gains in interpretibility $\Rightarrow$ (↓) sacrifices in predictive performance?
+
+:::
 
 \vfill
 
 . . .
 
--   Benchmark on 28 datasets [^ctr23] comparing RPF with XGBoost & RF, incl. tuning
--   Additionally comparing XGBoost & RPF with constrained order of interaction to _2_
+Benchmark on **28** datasets [^ctr23] comparing RPF with _XGBoost_ & _RF_
 
-. . .
+::: center
 
-\vfill
+→ RPF never best, rarely bad, usually close to XGBoost
 
-→ Generally: RPF never best, rarely bad, usually close to XGBoost
+:::
 
 [^ctr23]: OpenML-CTR23 regression benchmark suite: @fischer2023openmlctr
 
@@ -483,12 +497,13 @@ $\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}$
 #| fig-width: 9
 # out-width: "70%"
 
+p <- lapply(c("kin8nm", "miami_housing"), \(x) {
 scores |>
-    dplyr::filter(task_id %in% c(
-      #"space_ga", 
-      "kin8nm", 
-      #"white_wine",
-      "miami_housing" 
+    dplyr::filter(task_id %in% c(x
+      # #"space_ga", 
+      # "kin8nm", 
+      # #"white_wine",
+      # "miami_housing" 
     )) |>
     dplyr::filter(learner_id != "featureless") |>
     dplyr::mutate(
@@ -497,7 +512,7 @@ scores |>
       #task_label = stringr::str_wrap(task_label, width = 20, whitespace_only = FALSE)
     ) |>
     ggplot(aes(y = learner_id, x = rmse, fill = learner_id, color = learner_id)) +
-    facet_wrap(vars(task_label), ncol = 2, scales = "free") +
+    facet_wrap(vars(task_label), ncol = 1, scales = "free") +
     geom_boxplot(alpha = .5) +
     geom_jitter(shape = 21, stroke = .5, alpha = .15, size = 1) +
     scale_fill_manual(values = learner_cols, guide = "none", aesthetics = c("color", "fill")) +
@@ -512,7 +527,45 @@ scores |>
       panel.spacing.x = unit(1, "cm"),
       plot.title.position = "plot"
     )
+})
+
+
 ```
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+```{r bm-scores-sel-1}
+#| out-height: "75%"
+#| fig-height: 4
+#| fig-width: 5
+# out-width: "70%"
+
+p[[1]]
+
+```
+
+:::
+
+. . .
+
+::: {.column width="50%"}
+
+```{r bm-scores-sel-2}
+#| out-height: "75%"
+#| fig-height: 4
+#| fig-width: 5
+# out-width: "70%"
+
+p[[2]]
+
+```
+
+
+:::
+
+::::
 
 
 <!-- $\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}$ -->
@@ -520,17 +573,19 @@ scores |>
 
 ## Summary
 
-\begin{center}
-\textbf{Random Planted Forests} = Additive Random Forests
-\end{center}
+::: center
+**Random Planted Forests** = Additive Random Forests
+:::
+
+. . .
 
 \vfill
 
-- (↑) Nicely interpretable feature _importance_ on same scale as target
-- (↑) Quantifies _main effects_ and _interaction terms_
+- (↑) Feature _importance_ on same scale as target
+- (↑) _Main-_ and _interaction effects_
 - (↑) R package available [^rpfgh]
 - (→) Competetive predictive performance (mostly)
-- (↓) Computationally heavy for large data (Optimization WIP!)
+- (↓) Slower for large data (Optimization WIP!)
 
 
 [^rpfgh]: [github.com/PlantedML/randomPlantedForest](https://github.com/PlantedML/randomPlantedForest)
