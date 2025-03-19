@@ -88,9 +88,9 @@
 % XeLaTeX instead of pdfLaTeX. You can find this in
 % most interfaces
 
-\title{Random Planted Forest\\
+\title{Random Planted Forest:\\
 A Directly Interpretable Tree Ensemble}
-\subtitle{Awwww yeah}
+\subtitle{}
 \author{Meyer, J. T.\inst{5} \and Burk, L.\inst{1,2,3,4} \and Hiabu,
 M.\inst{6} \and Mammen, E.\inst{5}}
 \date{}
@@ -151,7 +151,7 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
     Interpretable? → It depends
   \end{itemize}
 \item
-  Interpretability wishlist:
+  Wishlist:
 
   \begin{itemize}[<+->]
   \tightlist
@@ -161,7 +161,7 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
     Quantification of main- \emph{and interaction} \emph{effects}
   \end{itemize}
 \item
-  Additive models can provide both (with limitations)
+  Additive models useful for both
 \end{itemize}
 
 \pause
@@ -190,8 +190,7 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
     \(\hat{m}_{0}\): Average prediction (\emph{``intercept''})
     plus\ldots{}
   \item
-    Terms \(\hat{m}_S\) with feature set
-    \(S \subseteq \{1, \ldots, p\}\)
+    Terms \(\hat{m}_S\) with feature \(S \subseteq \{1, \ldots, p\}\)
   \end{itemize}
 \end{itemize}
 
@@ -223,8 +222,7 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
     \(\hat{m}_{0}\): Average prediction (\emph{``intercept''})
     plus\ldots{}
   \item
-    Terms \(\hat{m}_S\) with feature set
-    \(S \subseteq \{1, \ldots, p\}\)
+    Terms \(\hat{m}_S\) with feature \(S \subseteq \{1, \ldots, p\}\)
   \end{itemize}
 \end{itemize}
 
@@ -253,10 +251,8 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
   \tightlist
   \item
     \(\hat{m}_{0}\): Average prediction (\emph{``intercept''})
-    plus\ldots{}
   \item
-    Terms \(\hat{m}_S\) with feature set
-    \(S \subseteq \{1, \ldots, p\}\)
+    Terms \(\hat{m}_S\) with features \(S \subseteq \{1, \ldots, p\}\)
   \end{itemize}
 \end{itemize}
 
@@ -328,8 +324,8 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \item
   \emph{Degree of interaction} can be constrained
 \item
-  Prediction built up incrementally using residuals (cf.~Gradient
-  Boosting)
+  Prediction built incrementally using residuals (cf.~\emph{Gradient
+  Boosting})
 \item
   Tree stops after adjustable \emph{number of splits}
 \end{itemize}
@@ -344,9 +340,9 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
     \href{https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset}{UCI
     ML repository}}
 \item
-  Target \texttt{bikers}: Number of bikers on a given day in 2011/2012
+  Target \texttt{bikers}: Number of bikers per hour in 2011/2012
 \item
-  Focus on 3 features for example
+  Focus on 3 features for illustration
 
   \begin{itemize}[<+->]
   \tightlist
@@ -355,7 +351,7 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
   \item
     \texttt{temp} normalized temperature \(\in [0, 1]\)
   \item
-    \texttt{workingday} binary → \{\texttt{workingday},
+    \texttt{workingday} \(\in\) \{\texttt{workingday},
     \texttt{no\ workingday}\}
   \end{itemize}
 \item
@@ -441,18 +437,12 @@ $\ldots + \hat{m}_{\texttt{hr}, \texttt{workingday}}(\texttt{hr}, \texttt{workin
 
 \begin{frame}{Feature Importance in RPF}
 \phantomsection\label{feature-importance-in-rpf}
-\begin{itemize}[<+->]
-\tightlist
-\item
-  Average of absolute terms \(\hat{m}_S\) for \(S\) of interest
-\end{itemize}
-
-\pause
-
 \[\mathrm{FI}_S = \frac{1}{n} \sum_{i=1}^n |\hat{m}_S(\mathbf{x}_i)|\]
 
 \begin{itemize}[<+->]
 \tightlist
+\item
+  Average of absolute terms \(\hat{m}_S\) for \(S\) of interest
 \item
   Scores also \emph{per interaction} term
 \item
@@ -470,7 +460,7 @@ $\ldots + \hat{m}_{\texttt{hr}, \texttt{workingday}}(\texttt{hr}, \texttt{workin
 \begin{frame}{No Free Lunch}
 \phantomsection\label{no-free-lunch}
 \begin{center}
-(↑) Gains in interpretibility \(\Rightarrow\) (↓) sacrifices in
+(↑) Gains in interpretability \(\Rightarrow\) (↓) sacrifices in
 predictive performance?
 
 \end{center}
@@ -479,14 +469,17 @@ predictive performance?
 
 \pause
 
-Benchmark on \textbf{28} datasets \footnote<.->{OpenML-CTR23 regression
-  benchmark suite: \textcite{fischer2023openmlctr}} comparing RPF with
-\emph{XGBoost} \& \emph{RF}
-
-\begin{center}
-→ RPF never best, rarely bad, usually close to XGBoost
-
-\end{center}
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Benchmark on \textbf{28} datasets \footnote<.->{OpenML-CTR23
+    regression benchmark suite: \textcite{fischer2023openmlctr}}
+  comparing RPF with \emph{XGBoost} \& \emph{RF}
+\item
+  → RPF never best, rarely bad, usually close to XGBoost
+\item
+  RPF slower (especially with large data)
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Benchmark Results (Selected Tasks)}

@@ -1,6 +1,6 @@
 ---
 title: |
-  Random Planted Forest\
+  Random Planted Forest:\
   A Directly Interpretable Tree Ensemble
 # subtitle: ""
 author:
@@ -118,10 +118,10 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 -   Tree-based methods like Random Forest (RF):
     -   Fast & flexible
     -   Interpretable? → It depends
--   Interpretability wishlist: 
+-   Wishlist: 
     -   Meaningful _feature importance_
     -   Quantification of main- _and interaction_ _effects_
--   Additive models can provide both (with limitations)
+-   Additive models useful for both
 
 . . .
 
@@ -136,7 +136,7 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 - Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
 - Expand prediction $\hat{y}_i = \hat{m}(\mathbf{x}_i)$ into
     -   $\hat{m}_{0}$: Average prediction (_"intercept"_) plus...
-    -   Terms $\hat{m}_S$ with feature set $S \subseteq \{1, \ldots, p\}$
+    -   Terms $\hat{m}_S$ with feature $S \subseteq \{1, \ldots, p\}$
 
 . . .
 
@@ -156,7 +156,7 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 - Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
 - Expand prediction $\hat{y}_i = \hat{m}(\mathbf{x}_i)$ into
     -   $\hat{m}_{0}$: Average prediction (_"intercept"_) plus...
-    -   Terms $\hat{m}_S$ with feature set $S \subseteq \{1, \ldots, p\}$
+    -   Terms $\hat{m}_S$ with feature $S \subseteq \{1, \ldots, p\}$
 
 \vfill
 
@@ -176,8 +176,8 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 
 - Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
 - Expand prediction $\hat{y}_i = \hat{m}(\mathbf{x}_i)$ into
-    -   $\hat{m}_{0}$: Average prediction (_"intercept"_) plus...
-    -   Terms $\hat{m}_S$ with feature set $S \subseteq \{1, \ldots, p\}$
+    -   $\hat{m}_{0}$: Average prediction (_"intercept"_)
+    -   Terms $\hat{m}_S$ with features $S \subseteq \{1, \ldots, p\}$
 
 \vfill
 
@@ -211,17 +211,17 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 - Splits nodes multiple times (→ _non-binary_ trees!)
 - Nodes keep track of features involved in construction
 - _Degree of interaction_ can be constrained
-- Prediction built up incrementally using residuals (cf. Gradient Boosting)
+- Prediction built incrementally using residuals (cf. _Gradient Boosting_)
 - Tree stops after adjustable _number of splits_
 
 ## Application Example
 
--   `Bikeshare` regression dataset [^1]
--   Target `bikers`: Number of bikers on a given day in 2011/2012
--   Focus on 3 features for example
+-   `Bikeshare` regression dataset [^1] 
+-   Target `bikers`: Number of bikers per hour in 2011/2012
+-   Focus on 3 features for illustration
     -   `hour` of day $\in \{0, 1, \ldots, 23\}$
     -   `temp` normalized temperature $\in [0, 1]$
-    -   `workingday` binary → \{`workingday`, `no workingday`\}
+    -   `workingday` $\in$ \{`workingday`, `no workingday`\}
 - Average prediction: $\hat{m}_0 \approx$ `r round(rpglex$intercept)`
 
 [^1]: from [UCI ML repository](https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset)
@@ -358,12 +358,10 @@ plot_threeway_effects(rpglex, c("hr", "temp", "workingday")) +
 
 ## Feature Importance in RPF
 
--   Average of absolute terms $\hat{m}_S$ for $S$ of interest
-
-. . .
 
 $$\mathrm{FI}_S = \frac{1}{n} \sum_{i=1}^n |\hat{m}_S(\mathbf{x}_i)|$$
 
+-   Average of absolute terms $\hat{m}_S$ for $S$ of interest
 -   Scores also _per interaction_ term
 -   Importance scores on _same scale_ as prediction
 
@@ -405,11 +403,17 @@ autoplot(vi_rpf_subset[degree == 1]) +
 ```{r vi-plot-thresh}
 #| out-height: "72%"
 #| fig-height: 5
-#| fig-width: 8
+#| fig-width: 9
 vi_rpf_subset_neg |>
   autoplot() + 
     labs(title = NULL) +
-    theme_glex(base_size = 22, grid_x = FALSE, grid_y = TRUE)
+    theme_glex(base_size = 18, grid_x = FALSE, grid_y = TRUE) +
+    theme(
+      axis.text.y = element_text(size = 22)
+      # axis.title.x = element_text(size = 20),
+      # legend.title = element_text(size = 18)
+    )
+
 ```
 
 <!--
@@ -431,7 +435,7 @@ autoplot(vi_rpf, by_degree = TRUE) +
 
 ::: center
 
-(↑) Gains in interpretibility $\Rightarrow$ (↓) sacrifices in predictive performance?
+(↑) Gains in interpretability $\Rightarrow$ (↓) sacrifices in predictive performance?
 
 :::
 
@@ -439,13 +443,9 @@ autoplot(vi_rpf, by_degree = TRUE) +
 
 . . .
 
-Benchmark on **28** datasets [^ctr23] comparing RPF with _XGBoost_ & _RF_
-
-::: center
-
-→ RPF never best, rarely bad, usually close to XGBoost
-
-:::
+- Benchmark on **28** datasets [^ctr23] comparing RPF with _XGBoost_ & _RF_
+- → RPF never best, rarely bad, usually close to XGBoost
+- RPF slower (especially with large data)
 
 [^ctr23]: OpenML-CTR23 regression benchmark suite: @fischer2023openmlctr
 
