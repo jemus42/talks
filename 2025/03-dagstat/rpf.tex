@@ -88,11 +88,11 @@
 % XeLaTeX instead of pdfLaTeX. You can find this in
 % most interfaces
 
-\title{Random Planted Forest:\\
-A Directly Interpretable Tree Ensemble}
-\subtitle{}
-\author{Meyer, J. T.\inst{5} \and Burk, L.\inst{1,2,3,4} \and Hiabu,
-M.\inst{6} \and Mammen, E.\inst{5}}
+\title{Random Planted Forest}
+\subtitle{A Directly Interpretable Tree Ensemble}
+\author{Joseph T.
+Meyer\inst{5} \and \textbf{Lukas Burk}\inst{1,2,3,4} \and Munir
+Hiabu\inst{6} \and Enno Mammen\inst{5}}
 \date{}
 \contactauthor{Lukas Burk}
 \occasion{DAGStat 2025 --- March 27th, 2025}
@@ -111,7 +111,7 @@ Bremen \and \textsuperscript{4}Munich Center for Machine Learning
 	\begin{tikzpicture}
 		\useasboundingbox (1,0) rectangle (\the\paperwidth,\the\paperheight);
 		\node[font=\usebeamerfont{title}, color=BIPSBlue, text width=14cm, align=center] at (\paperwidth*.5,7) {\inserttitle} ;
-		% \node[align=center, font=\usebeamerfont{subtitle}, color=BIPSBlue] at (\paperwidth*.5, 5.5) {\insertsubtitle};
+		\node[align=center, font=\usebeamerfont{subtitle}, color=BIPSBlue] at (\paperwidth*.5, 6.25) {\insertsubtitle};
 		\node[align=center, font=\usebeamerfont{author}, color=BIPSBlue] at (\paperwidth*.5, 5) {\insertauthor};
 		\node[align=center, font=\usebeamerfont{institute}, color=BIPSTextGray] at (\paperwidth*.5, 3) {\textsuperscript{1}Leibniz
 Institute for Prevention Research and Epidemiology --
@@ -125,7 +125,6 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 2025 --- March 27th, 2025};
 	\end{tikzpicture}
 }
-
 
 \input{includes.tex}
 

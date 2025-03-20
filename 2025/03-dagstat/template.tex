@@ -120,14 +120,13 @@ $endif$
 	\begin{tikzpicture}
 		\useasboundingbox (1,0) rectangle (\the\paperwidth,\the\paperheight);
 		\node[font=\usebeamerfont{title}, color=BIPSBlue, text width=14cm, align=center] at (\paperwidth*.5,7) {\inserttitle} ;
-		% \node[align=center, font=\usebeamerfont{subtitle}, color=BIPSBlue] at (\paperwidth*.5, 5.5) {\insertsubtitle};
+		\node[align=center, font=\usebeamerfont{subtitle}, color=BIPSBlue] at (\paperwidth*.5, 6.25) {\insertsubtitle};
 		\node[align=center, font=\usebeamerfont{author}, color=BIPSBlue] at (\paperwidth*.5, 5) {\insertauthor};
 		\node[align=center, font=\usebeamerfont{institute}, color=BIPSTextGray] at (\paperwidth*.5, 3) {$if(institute)$$for(institute)$$institute$$sep$ \\ $endfor$$endif$};
 		\node[align=center, font=\usebeamerfont{date}, color=BIPSTextGray] at (\paperwidth*.5, 1.5) {\insertdate};
 		\node[align=center, font=\usebeamerfont{date}, color=BIPSTextGray] at (\paperwidth*.5, 1) {$occasion$};
 	\end{tikzpicture}
 }
-
 
 \input{includes.tex}
 

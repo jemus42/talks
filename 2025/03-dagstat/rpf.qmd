@@ -1,13 +1,11 @@
 ---
-title: |
-  Random Planted Forest:\
-  A Directly Interpretable Tree Ensemble
-# subtitle: ""
+title: Random Planted Forest  
+subtitle: "A Directly Interpretable Tree Ensemble"
 author:
-  - Meyer, J. T.\inst{5}
-  - Burk, L.\inst{1,2,3,4}
-  - Hiabu, M.\inst{6}
-  - Mammen, E.\inst{5}
+  - Joseph T. Meyer\inst{5}
+  - \textbf{Lukas Burk}\inst{1,2,3,4}
+  - Munir Hiabu\inst{6}
+  - Enno Mammen\inst{5}
 #date: "2024-03-01"
 format:
   beamer:
