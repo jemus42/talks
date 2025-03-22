@@ -17,4 +17,4 @@ rpf.pdf: rpf.qmd $(TIKZPDF)
 
 clean:
 	latexmk -c $(TIKZ)
-	rm rpf.pdf
+	-rm rpf.pdf

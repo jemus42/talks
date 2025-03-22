@@ -23,15 +23,11 @@ format:
         - \textsuperscript{2}LMU Munich \quad \textsuperscript{3}University of Bremen
         - \textsuperscript{4}Munich Center for Machine Learning (MCML)
         - \textsuperscript{5}Heidelberg University \quad \textsuperscript{6}University of Copenhagen
-    # bibliography:
-    #   - references.bib
-    cite-method: biblatex
     keep-tex: true
 preview:
   port: 7777
 editor_options: 
   chunk_output_type: console
-bibliography: references.bib
 filters:
    - latex-environment
 environments: center
@@ -69,7 +65,8 @@ if (FALSE) {
     splits = 100,
     t_try = 0.9,
     split_try = 5,
-    nthreads = 10
+    nthreads = 10,
+    purify = TRUE
   )
   rpglex <- glex(rpfit, bike)
   saveRDS(rpglex, here::here("2025/03-dagstat/rpglex.rds")) 
@@ -116,9 +113,9 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 -   Tree-based methods like Random Forest (RF):
     -   Fast & flexible
     -   Interpretable? → It depends
--   Wishlist: 
-    -   Meaningful _feature importance_
-    -   Quantification of main- _and interaction_ _effects_
+-   Wishlist:
+    -   Meaningful *feature importance*
+    -   Quantification of main- *and interaction* *effects*
 -   Additive models useful for both
 
 . . .
@@ -131,9 +128,9 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 
 ## Functional ANOVA Expansion
 
-- Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
-- Expand prediction $\hat{y}_i = \hat{m}(\mathbf{x}_i)$ into
-    -   $\hat{m}_{0}$: Average prediction (_"intercept"_) plus...
+-   Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
+-   Expand prediction $\hat{y}_i = \hat{m}(\mathbf{x}_i)$ into
+    -   $\hat{m}_{0}$: Average prediction (*"intercept"*)
     -   Terms $\hat{m}_S$ with feature $S \subseteq \{1, \ldots, p\}$
 
 . . .
@@ -150,10 +147,9 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 ## Functional ANOVA Expansion
 
 ::: nonincremental
-
-- Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
-- Expand prediction $\hat{y}_i = \hat{m}(\mathbf{x}_i)$ into
-    -   $\hat{m}_{0}$: Average prediction (_"intercept"_) plus...
+-   Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
+-   Expand prediction $\hat{y}_i = \hat{m}(\mathbf{x}_i)$ into
+    -   $\hat{m}_{0}$: Average prediction (*"intercept"*)
     -   Terms $\hat{m}_S$ with feature $S \subseteq \{1, \ldots, p\}$
 
 \vfill
@@ -165,16 +161,14 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 \end{align*}
 
 \vfill
-
 :::
 
 ## Functional ANOVA Expansion
 
 ::: nonincremental
-
-- Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
-- Expand prediction $\hat{y}_i = \hat{m}(\mathbf{x}_i)$ into
-    -   $\hat{m}_{0}$: Average prediction (_"intercept"_)
+-   Regression with target $Y_i \in \mathbb{R}$, features $X_i \in \mathbb{R}^p$, instance $\mathbf{x}_i$
+-   Expand prediction $\hat{y}_i = \hat{m}(\mathbf{x}_i)$ into
+    -   $\hat{m}_{0}$: Average prediction (*"intercept"*)
     -   Terms $\hat{m}_S$ with features $S \subseteq \{1, \ldots, p\}$
 
 \vfill
@@ -187,76 +181,63 @@ scores[, learner_id := factor(learner_id, levels = rev(learner_order))]
 \end{align*}
 
 \vfill
-
 :::
-
 
 ## Trees in Random Forest
 
-![CARTlike](tree-cart.pdf){fig-align="center" height=75%}
+![CARTlike](tree-cart.pdf){fig-align="center" height="75%"}
 
 ## Planted Trees (I)
 
-![Planted](tree-planted-simple.pdf){#fig-planted fig-align="center" height=75%}
+![Planted](tree-planted-simple.pdf){#fig-planted fig-align="center" height="75%"}
 
 ## Planted Trees (II)
 
-![Planted-large](tree-planted-large.pdf){#fig-planted fig-align="center" height=75%}
+![Planted-large](tree-planted-large.pdf){fig-align="center" height="75%"}
 
 ## Key features of Random Planted Forests
 
-- Ensemble of trees like RF
-- Splits nodes multiple times (→ _non-binary_ trees!)
-- Nodes keep track of features involved in construction
-- _Degree of interaction_ can be constrained
-- Prediction built incrementally using residuals (cf. _Gradient Boosting_)
-- Tree stops after adjustable _number of splits_
+-   Ensemble of trees like RF
+-   Splits nodes multiple times (→ *non-binary* trees!)
+-   Nodes keep track of features involved in construction
+-   *Degree of interaction* can be constrained
+-   Prediction built incrementally using residuals (cf. *Gradient Boosting*)
+-   Tree stops after adjustable *number of splits*
 
 ## Application Example
 
--   `Bikeshare` regression dataset [^1] 
+-   `Bikeshare` regression dataset [^1]
 -   Target `bikers`: Number of bikers per hour in 2011/2012
 -   Focus on 3 features for illustration
     -   `hour` of day $\in \{0, 1, \ldots, 23\}$
     -   `temp` normalized temperature $\in [0, 1]$
-    -   `workingday` $\in$ \{`workingday`, `no workingday`\}
-- Average prediction: $\hat{m}_0 \approx$ `r round(rpglex$intercept)`
-
-[^1]: from [UCI ML repository](https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset)
+    -   `workingday` $\in$ {`workingday`, `no workingday`}
+-   Average prediction: $\hat{m}_0 \approx$ `r round(rpglex$intercept)`
 
 ## Main Effects
 
-:::: {.columns}
-
+:::::: columns
 ::: {.column width="33%"}
-
-
 ```{r main-hr}
 #| out-height: "70%"
 #| fig-width: 6
 plot_main_effect(rpglex, "hr") + theme_glex(base_size = 28)
 ```
-
 :::
 
 . . .
 
 ::: {.column width="33%"}
-
-
 ```{r main-temp}
 #| out-height: "70%"
 #| fig-width: 6
 plot_main_effect(rpglex, "temp") + theme_glex(base_size = 28)
 ```
-
 :::
 
 . . .
 
 ::: {.column width="33%"}
-
-
 ```{r main-workingday}
 #| out-height: "70%"
 #| fig-width: 6
@@ -264,11 +245,8 @@ plot_main_effect(rpglex, "workingday") +
   # labs(title = as.expression("hat(m)[1]")) +
   theme_glex(base_size = 28)
 ```
-
 :::
-
-::::
-
+::::::
 
 \begin{center}
 
@@ -278,7 +256,7 @@ $\hat{m} = \hat{m}_0 + \hat{m}_{\texttt{hr}}(\texttt{hr}) + \hat{m}_{\texttt{tem
 
 ## Hour $\times$ Working Day: "Rush Hour Effect"
 
-```{r twoway-hr-workingday} 
+```{r twoway-hr-workingday}
 #| out-height: "67%"
 #| fig-width: 12
 #| fig-height: 4
@@ -298,10 +276,8 @@ $\ldots + \hat{m}_{\texttt{hr}, \texttt{workingday}}(\texttt{hr}, \texttt{workin
 
 ## More 2nd Order Interactions
 
-:::: {.columns}
-
-::: {.column width="50%" align=center}
-
+::::: columns
+::: {.column width="50%" align="center"}
 ```{r twoway-temp-workingday}
 #| out-height: "63%"
 #| fig-height: 6
@@ -312,13 +288,11 @@ plot_twoway_effects(rpglex, c("temp", "workingday")) +
 ```
 
 $+ \hat{m}_{\texttt{temp}, \texttt{workingday}}(\texttt{temp}, \texttt{workingday})$
-
 :::
 
 . . .
 
-::: {.column width="50%" align=center}
-
+::: {.column width="50%" align="center"}
 ```{r twoway-hr-temp}
 #| out-height: "63%"
 #| fig-height: 6
@@ -331,12 +305,8 @@ plot_twoway_effects(rpglex, c("hr", "temp"))  +
 ```
 
 $+ \hat{m}_{\texttt{hr}, \texttt{temp}}(\texttt{hr}, \texttt{temp}) + \ldots$
-
-
 :::
-
-::::
-
+:::::
 
 ## 3rd Order Interaction
 
@@ -356,13 +326,13 @@ plot_threeway_effects(rpglex, c("hr", "temp", "workingday")) +
 
 ## Feature Importance in RPF
 
-
 $$\mathrm{FI}_S = \frac{1}{n} \sum_{i=1}^n |\hat{m}_S(\mathbf{x}_i)|$$
 
 -   Average of absolute terms $\hat{m}_S$ for $S$ of interest
--   Scores also _per interaction_ term
--   Importance scores on _same scale_ as prediction
+-   Scores also *per interaction* term
+-   Importance scores on *same scale* as prediction
 
+````{=html}
 <!--
 
 ## Feature Importance: Main Terms
@@ -395,6 +365,7 @@ autoplot(vi_rpf_subset[degree == 1]) +
 ```
 
 -->
+````
 
 ## Feature Importance: All Terms
 
@@ -414,6 +385,7 @@ vi_rpf_subset_neg |>
 
 ```
 
+````{=html}
 <!--
 
 ## Feature Importance by Order of Interaction
@@ -428,27 +400,24 @@ autoplot(vi_rpf, by_degree = TRUE) +
 ```
 
 -->
+````
 
 ## No Free Lunch
 
 ::: center
-
 (↑) Gains in interpretability $\Rightarrow$ (↓) sacrifices in predictive performance?
-
 :::
 
 \vfill
 
 . . .
 
-- Benchmark on **28** datasets [^ctr23] comparing RPF with _XGBoost_ & _RF_
-- → RPF never best, rarely bad, usually close to XGBoost
-- RPF slower (especially with large data)
-
-[^ctr23]: OpenML-CTR23 regression benchmark suite: @fischer2023openmlctr
+-   Benchmark on **28** datasets [^2] comparing RPF with *XGBoost* & *RF*
+-   → RPF never best, rarely bad, usually close to XGBoost
+-   RPF slower (especially with large data)
 
 
- <!--
+<!--
 
 ## Benchmark Results (Aggregated)
 
@@ -486,6 +455,7 @@ $\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}$
 :::
 
 -->
+
 
 ## Benchmark Results (Selected Tasks)
 
@@ -530,10 +500,8 @@ scores |>
 
 ```
 
-:::: {.columns}
-
+::::: columns
 ::: {.column width="50%"}
-
 ```{r bm-scores-sel-1}
 #| out-height: "75%"
 #| fig-height: 4
@@ -543,13 +511,11 @@ scores |>
 p[[1]]
 
 ```
-
 :::
 
 . . .
 
 ::: {.column width="50%"}
-
 ```{r bm-scores-sel-2}
 #| out-height: "75%"
 #| fig-height: 4
@@ -559,47 +525,33 @@ p[[1]]
 p[[2]]
 
 ```
-
-
 :::
-
-::::
-
+:::::
 
 <!-- $\mathrm{RRSE} := \sqrt{\mathrm{SSE}(Y, \hat{Y})\ /\ \mathrm{SSE}(Y, \bar{Y})}$ -->
-
 
 ## Summary
 
 ::: center
-**Random Planted Forests** = Additive Random Forests
+**Random Planted Forests**: Additive Random Forests
 :::
 
 . . .
 
 \vfill
 
-- (↑) Feature _importance_ on same scale as target
-- (↑) _Main-_ and _interaction effects_
-- (↑) R package available [^rpfgh]
-- (→) Competetive predictive performance (mostly)
-- (↓) Slower for large data (Optimization WIP!)
+-   (↑) Feature *importance* on same scale as target
+-   (↑) *Main-* and *interaction effects*
+-   (↑) R package available [^3]
+-   (→) Competetive predictive performance (mostly)
+-   (↓) Slower for large data (Optimization WIP!)
+-   Related work: `glex` [^4]: Same decomposition but post-hoc for XGBoost & RF
 
 
-[^rpfgh]: [github.com/PlantedML/randomPlantedForest](https://github.com/PlantedML/randomPlantedForest)
+[^1]: [UCI ML repository](https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset)
 
+[^2]: Fischer et al. (2023): OpenML-CTR23
 
-<!--
+[^3]: [github.com/PlantedML/randomPlantedForest](https://github.com/PlantedML/randomPlantedForest)
 
-Related work: `{glex}`[^glex]
-
-- ANOVA decomposition _post-hoc_ for tree-based methods (e.g. XGBoost)
-- **Idea**: 
-  - Fit XGBoost (with `max_depth` restricted)
-  - Extract component-wise predictions from tree structure
-- **Benefit**: Use existing / well known / well optimzied algorithm
-- **Drawback**: Computationally intensive post-hoc computation
-
-[^glex]: @hiabu2023glex → [github.com/PlantedML/glex](https://github.com/PlantedML/glex)
-
--->
+[^4]: Hiabu et al. (2023): Unifying local and global model explanations [...]

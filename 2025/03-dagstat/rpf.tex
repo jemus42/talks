@@ -28,7 +28,6 @@
     doi=true,
 ]{biblatex}
 
-\addbibresource{references.bib}
 
 \usepackage{fancyqr}
 
@@ -187,7 +186,6 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
   \tightlist
   \item
     \(\hat{m}_{0}\): Average prediction (\emph{``intercept''})
-    plus\ldots{}
   \item
     Terms \(\hat{m}_S\) with feature \(S \subseteq \{1, \ldots, p\}\)
   \end{itemize}
@@ -219,7 +217,6 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
   \tightlist
   \item
     \(\hat{m}_{0}\): Average prediction (\emph{``intercept''})
-    plus\ldots{}
   \item
     Terms \(\hat{m}_S\) with feature \(S \subseteq \{1, \ldots, p\}\)
   \end{itemize}
@@ -297,15 +294,13 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 
 \begin{frame}{Planted Trees (II)}
 \phantomsection\label{planted-trees-ii}
-\begin{figure}
+\begin{figure}[H]
 
-\centering{
-
-\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{tree-planted-large.pdf}
+{\centering \includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{tree-planted-large.pdf}
 
 }
 
-\caption{\label{fig-planted}Planted-large}
+\caption{Planted-large}
 
 \end{figure}%
 \end{frame}
@@ -335,8 +330,7 @@ Bremen \\ \textsuperscript{4}Munich Center for Machine Learning
 \begin{itemize}[<+->]
 \tightlist
 \item
-  \texttt{Bikeshare} regression dataset \footnote<.->{from
-    \href{https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset}{UCI
+  \texttt{Bikeshare} regression dataset \footnote<.->{\href{https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset}{UCI
     ML repository}}
 \item
   Target \texttt{bikers}: Number of bikers per hour in 2011/2012
@@ -471,9 +465,8 @@ predictive performance?
 \begin{itemize}[<+->]
 \tightlist
 \item
-  Benchmark on \textbf{28} datasets \footnote<.->{OpenML-CTR23
-    regression benchmark suite: \textcite{fischer2023openmlctr}}
-  comparing RPF with \emph{XGBoost} \& \emph{RF}
+  Benchmark on \textbf{28} datasets \footnote<.->{Fischer et al.~(2023):
+    OpenML-CTR23} comparing RPF with \emph{XGBoost} \& \emph{RF}
 \item
   → RPF never best, rarely bad, usually close to XGBoost
 \item
@@ -500,10 +493,10 @@ predictive performance?
 \end{columns}
 \end{frame}
 
-\begin{frame}{Summary}
+\begin{frame}[fragile]{Summary}
 \phantomsection\label{summary}
 \begin{center}
-\textbf{Random Planted Forests} = Additive Random Forests
+\textbf{Random Planted Forests}: Additive Random Forests
 
 \end{center}
 
@@ -523,6 +516,10 @@ predictive performance?
   (→) Competetive predictive performance (mostly)
 \item
   (↓) Slower for large data (Optimization WIP!)
+\item
+  Related work: \texttt{glex} \footnote<.->{Hiabu et al.~(2023):
+    Unifying local and global model explanations {[}\ldots{]}}: Same
+  decomposition but post-hoc for XGBoost \& RF
 \end{itemize}
 \end{frame}
 
@@ -530,8 +527,5 @@ predictive performance?
 \thanksframe{Thank you for your attention!}
 
 %%% bib?
-\begin{frame}[allowframebreaks]{References}
-  \printbibliography[heading=none]
-\end{frame}
 
 \end{document}
