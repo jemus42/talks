@@ -12,7 +12,7 @@
   subtitle: [Doing cluster stuff for fun and #strike[profit] science],
   author: "Lukas Burk",
   institute: bips_en,
-  date: datetime.today().display(),
+  date: datetime.today().display("[year]-[month]-[day]"),
   occasion: "BioWiMium",
 )
 
@@ -23,19 +23,23 @@
 
   #two-columns()[
     == What we cover today:
-
+    
     - What is it
-    - How does it work (Slurm)
+    - How does it work (using R / Python, Slurm)
     - How do *you* do stuff on it
-    - I know it's noisy stop throwing stuff #emoji.face.cry
-
+  
   ][
     #pause
     == We *don't* cover
-
+    
     - How to Linux (from the command line)
-    - How to use `batchtools` or targets
+    - How to use `batchtools` (or `targets`)
     - How to setup a simulation study
+  ]
+  #pause
+  #vfill
+  #callout(type: "note", icon: emoji.face.cry)[
+    I know it's noisy stop throwing stuff
   ]
 
 ]
@@ -64,7 +68,7 @@
     == Workstation / Server
     - TermServ, Bertha
     - Run looong tasks unsupervised
-    - Powerful
+    - 1 powerful computer
     - Shared
     - Convenience: Mixed
   ][
@@ -72,9 +76,8 @@
     == HPC ("Cluster")
     - Many powerful computers
     - Access indirectly (head node)
-    - Shared (job management)
+    - Shared (job management) #pause
     - Convenience: You'll get there
-
   ]
 ]
 
@@ -101,13 +104,21 @@
     edge("-|>", [SSH]),
     // Head node
     node((1, 0), align(center)[#emoji.computer Head Node], corner-radius: 2pt),
-    edge("-|>", [Slurm]),
+    edge("-|>", [sbatch\ salloc]),
     // Slurm scheduler
     node((2, 0), align(center)[#emoji.gear Slurm\ Scheduler], corner-radius: 2pt, fill: rgb("#cce0ff")),
     // Branching to compute nodes
-    edge((2, 0), (3, -1), "-|>"),
-    edge((2, 0), (3, 0), "-|>"),
-    edge((2, 0), (3, 1), "-|>"),
+    edge(
+      (2, 0),
+      (3, -1),
+      "-|>",
+      [jobs],
+      label-angle: 20deg,
+      label-pos: 60%,
+      label-anchor: "base",
+    ),
+    edge((2, 0), (3, 0), "-|>", [jobs], label-angle: 1deg, label-pos: 60%, label-anchor: "base"),
+    edge((2, 0), (3, 1), "-|>", [jobs], label-angle: -20deg, label-pos: 60%, label-anchor: "base"),
     // Compute nodes
     node((3, -1), align(center)[#emoji.computer Node 01], corner-radius: 2pt, fill: rgb("#ccf2cc")),
     node((3, 0), align(center)[#emoji.computer Node 02], corner-radius: 2pt, fill: rgb("#ccf2cc")),
@@ -118,21 +129,84 @@
 #bips-slide(
   title: "Terminology",
   subtitle: "Just to make sure you're confused",
+  text-size: 16pt,
 )[
-
+  
+  #two-columns(columns: (2fr, 1fr))[
   - The cluster has 12 compute *nodes* (self-contained computer)
     - Each node has 1 *CPU* (physical processor)
     - Each processor is made up of independent 96 *cores*
-    - Each core can handle 2 *threads* (_not_ independent)
-
-  #pause
-  - Terminology here weird and confusing because history
-    - Until the 90s: 1 CPU = 1 core = 1 thread
-    - Here: 1 Node = 1 CPU = 96 Cores = 192 threads
-  #pause
-  #callout(type: "warning")[
+    - Each core can handle 2 *threads* #pause
+  - Terminology here weird and confusing because history #emoji.person.shrug
+    - Until the 90s: *1* CPU = *1* core = *1* thread #pause
+    - Then: Hyperthreading: *1* CPU = *1* core = *2* threads #pause
+    - *Now*: *1* CPU = *96* cores = *192* threads #pause
     *Slurm*: When you want 10 *threads* you request 10 "cpus"
-  ]
+  // #callout(type: "warning")[
+  //   *Slurm*: When you want 10 *threads* you request 10 "cpus"
+  // ] 
+][
+  #set text(size: 10pt)
+  #let thread-box = rect(
+    fill: rgb("#e8d5f5"),
+    radius: 2pt,
+    inset: 4pt,
+    width: 100%,
+    align(center)[T],
+  )
+  #let core-box(n) = rect(
+    fill: rgb("#ccf2cc"),
+    radius: 3pt,
+    inset: 5pt,
+    width: 100%,
+    [*Core #n*
+      #grid(
+        columns: 2,
+        gutter: 3pt,
+        thread-box, thread-box,
+      )],
+  )
+  #rect(
+    stroke: 1.5pt,
+    radius: 4pt,
+    inset: 8pt,
+    width: 100%,
+    [*Node 01*
+      #rect(
+        fill: rgb("#cce0ff"),
+        radius: 3pt,
+        inset: 6pt,
+        width: 100%,
+        [*CPU*
+          #grid(
+            columns: 2,
+            gutter: 4pt,
+            core-box(1), core-box(2),
+            core-box("n"), core-box(96),
+          )],
+      )],
+  )
+]
+  
+
+]
+
+#bips-slide(
+  title: "But what is Slurm even",
+)[
+  - Slurm is the job management system
+  - Every CPU, every Byte of RAM on the compute nodes is _kept track of_
+  
+  #pause
+  #sym.arrow *You can only use resources allocated to you*
+  
+  #pause
+  
+  == Things that _do not _happen on a cluster:
+  
+  - "My job took too much RAM so your jobs got killed alongside mine sorry"
+  #pause
+  - "I used 2374123 threads but only meant to use 10 sorry your jobs are smothered"
 ]
 
 
@@ -141,8 +215,12 @@
   subtitle: "",
 )[
 
-  1. Log in (land in *head node*)
-  2. Start your *job*(s)
+  1. Log in (land in *head node*) #pause
+  2. Start your *job*(s) #pause
+  3. Monitor jobs with `squeue` and other commands #pause
+  4. Log out, check back later #pause
+  5. If jobs failed, debug & resubmit #pause
+  6. Repeat until #strike("insane") done
 
 ]
 
@@ -151,7 +229,7 @@
   subtitle: "Different environments for different tasks",
 )[
 
-  Connect to the cluster *head node* via SSH in one of two ways
+  Connect to the cluster *head node* via SSH in one of two ways: #pause
 
   #two-columns(gutter: 2em, columns: (1fr, 1.2fr))[
     == Terminal
@@ -161,7 +239,7 @@
     ]
 
     #align(center)[
-      #image("img/terminal.png", height: 40%)
+      #image("img/terminal.png", height: 30%)
     ]
   ][
     #pause
@@ -177,13 +255,27 @@
   ]
 ]
 
+#bips-slide(
+  title: "Software is managed differently",
+  subtitle: "Environment modules",
+)[
+  
+  - Common on HPC systems: Hundreds of users need dozens of programs
+  - Programs exist in dozens of versions (R, Python, specialized tools) #pause
+  - Different users need different versions of different things #pause
+  
+  == Solution: *Environment modules*
+  - Log in on head node: R not available
+  - Run `module load R/4.4.3` #sym.arrow R v4.4.3 is available
+  - Log in, load modules, _then_ run `salloc`, `sbatch` etc.
+]
 
 #bips-slide(
   title: "How are resources allocated?",
   subtitle: "Slurm manages resources on the cluster",
 )[
 
-  - Example: You need  *20 threads* for *6 hours* and *4GB of RAM* for `analysis.R`
+  - Example: You need  *20 threads* for *6 hours* and *4GB of RAM* for `analysis.R` #pause
 
   #two-columns()[
     == Interactive
@@ -196,11 +288,12 @@
     ```
     salloc: Granted job allocation 137031
     salloc: Nodes node01 are ready for job
-
+    
     # start R session
     R
-
-    # Run your script
+    
+    # Do work or run script
+    ranger::ranger(foo ~ ., data = bar)
     source("analysis.R")
     ```
 
@@ -227,24 +320,39 @@
 
 
 #bips-slide(
-  title: "Software is managed differently",
-  subtitle: "Environment modules",
+  title: "Slurm resource allocation",
+  subtitle: "A job is not a job",
 )[
+  - Slurm is very generic and supports diverse types of jobs
+  - Easiest us: 1 job = 1 R/py process = Some number of threads on 1 node
+  - Slurm allocates *cores*, not *threads*
+  - You only care about threads
+  - You need 1 thread, you ask for `cpus-per-task=`*`1`*, you get *1* core reserved
 
-  - Common on HPC systems: Hundreds of users who need dozens of programs
-  - Programs exist in dozens of versions (R, Python, specialized tools)
-  #pause
-  - Different users need different versions of different things
-    - _Example_: I needed *R 4.4* for survival benchmark, *R 4.5* for other projects
-  - Can't have everything loaded all the time simulataneously
-  #pause
-  - Common solution: environment modules
-    - Log in on head node: R not available
-    - Run `module load R/4.4.3` #sym.arrow R v4.4.3 is available
-  - Log in, load modules, _then_ run `salloc`, `sbatch` etc.
 ]
 
-#thanks-slide(
-  contact-author: "Lukas Burk",
-  email: "burk@leibniz-bips.de",
-)
+#bips-slide(
+  title: "Efficiently using a node",
+)[
+  == If your goal is to fully utilize 1 node, you can... #pause
+  - 1 job with 192 threads #emoji.checkmark.box #pause
+  - 96 jobs with 2 threads #emoji.checkmark.box #pause
+  - 8 jobs with 24 threads #emoji.checkmark.box #pause
+  
+  - 192 jobs with 1 thread #emoji.crossmark #pause
+  
+
+]
+
+
+#bips-slide(
+  title: "Further reading",
+  text-size: 22pt,
+)[
+  - Documentation:
+    - #link("https://cluster.bips.coffee")[cluster.bips.coffee] (public)
+  - Dashboard (current usage):
+    - #link("http://srvcluster.bips.de/")[http://srvcluster.bips.de/] (no https!)
+  - Demos / usage examples for `batchtools`, `mirai`, `targets`:
+    - #link("https://srvgit.bips.eu/bips/bips-cluster-demos")[srvgit.bips.eu/bips/bips-cluster-demos]
+]
