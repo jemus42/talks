@@ -189,6 +189,7 @@
     //   *Slurm*: When you want 10 *threads* you request 10 "cpus"
     // ] 
   ][
+    #meanwhile
     #set text(size: 10pt)
     #let thread-box = rect(
       fill: rgb("#e8d5f5"),
@@ -258,11 +259,12 @@
 )[
   
   1. Log in (land in *head node*) #pause
-    2. Start your *job*(s) #pause
-    3. Monitor jobs with `squeue` and other commands #pause
-    4. Log out, check back later #pause
-    5. If jobs failed, debug & resubmit #pause
-    6. Repeat until #strike("insane") done
+  2. Move to your project (`git` helps)
+  3. Start your *job*(s) #pause
+  4. Monitor jobs with `squeue` and other commands #pause
+  5. Log out, check back later #pause
+  6. If jobs failed, debug & resubmit #pause
+  7. Repeat until #strike("insane") done
 
 ]
 
@@ -281,19 +283,18 @@
     ]
 
     #align(center)[
-      #image("img/terminal.png", height: 30%)
+      #image("img/terminal.jpeg", height: 30%)
     ]
   ][
     #pause
-    == VScode / Positron
+    == Positron (VScode)
 
     - Uses SSH for communication with head node
     - GUI like on your own device
     - All content is on the head node
     - Edit files conveniently
-    - VSCode / Positron runs *on your device*
+    - Positron/VSCode run *on your device*
     - Terminal / R console runs *on head node*
-
   ]
 ]
 
@@ -400,12 +401,26 @@
 
 
 #bips-slide(
-  title: "Further reading",
-  text-size: 22pt,
+  title: "Getting started",
 )[
-  - Documentation:
+  == If your goal is to fully utilize 1 node, you can... #pause
+  - 1 job with 192 threads #emoji.checkmark.box #pause
+  - 96 jobs with 2 threads #emoji.checkmark.box #pause
+  - 8 jobs with 24 threads #emoji.checkmark.box #pause
+  - 192 jobs with 1 thread #emoji.crossmark #pause
+]
+
+
+#bips-slide(
+  title: "Getting started",
+  subtitle: "And further reading material",
+  text-size: 21pt,
+)[
+  
+  - Ask me for an account, I will send you credentials
+  - Read the docs:
     - #link("https://cluster.bips.coffee")[cluster.bips.coffee] (public)
-  - Dashboard (current usage):
+  - Bookmark the dashboard (current usage):
     - #link("http://srvcluster.bips.de/")[http://srvcluster.bips.de/] (no https!)
   - Demos / usage examples for `batchtools`, `mirai`, `targets`:
     - #link("https://srvgit.bips.eu/bips/bips-cluster-demos")[srvgit.bips.eu/bips/bips-cluster-demos]
