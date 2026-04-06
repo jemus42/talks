@@ -5,6 +5,7 @@
   base-size: 18pt, // Smaller base text
   slide-title-size: 26pt, // Smaller slide titles
   slide-subtitle-size: 20pt, // Smaller slide subtitles
+  code-inline-scale: 1,
 )
 
 #title-slide(
@@ -22,24 +23,24 @@
 )[
 
 #two-columns()[
-    == What we cover today:
-    
-    - What is it
-    - How does it work (using R / Python, Slurm)
-    - How do *you* do stuff on it
+  == What we cover today:
   
-  ][
-    #pause
-    == We *don't* cover
-    
-    - How to Linux (from the command line)
-    - How to use `batchtools` (or `targets`)
-    - How to setup a simulation study
-  ]
+  - What is this cluster thing
+  - How does it work (using R / Python, Slurm)
+  - How do *you* do stuff on it in general
+
+][
+  #pause
+  == We *don't* cover
+  
+  - How to Linux (from the command line)
+  - How to use `batchtools` (or `targets`)
+  - Everything you ever need to know
+]
   #pause
   #vfill
   #callout(type: "note", icon: emoji.face.cry)[
-    I know it's noisy stop throwing stuff
+    I know it's noisy and no I don't know when that is fixed
   ]
 
 ]
@@ -54,7 +55,7 @@
   #v(1em)
   
   #three-columns(
-    columns: (0.7fr, 1fr, 1fr),
+    columns: (0.8fr, 1fr, 1fr),
     gutter: 0.2em,
   )[
     #pause
@@ -66,17 +67,17 @@
   ][
     #pause
     == Workstation / Server
-    - TermServ, Bertha
-    - Run looong tasks unsupervised
+    - Bertha / new GePaRD server
+    - Run looong tasks
     - 1 powerful computer
     - Shared
     - Convenience: Mixed
   ][
     #pause
-    == HPC ("Cluster")
-    - Many powerful computers
-    - Access indirectly (head node)
-    - Shared (job management) #pause
+    == HPC Cluster
+    - Many computers connected
+    - Access via _head node_
+    - Shared (scheduling: _Slurm_) #pause
     - Convenience: You'll get there
   ]
 ]
@@ -87,10 +88,63 @@
   subtitle: "Kind of like this",
   content-align: horizon + center,
 )[
-
+  #pause
   #image("img/stock-rack.jpg", height: 70%)
 ]
 
+#bips-slide(
+  title: "The HPC workflow",
+  subtitle: "It's a freight truck, not a bicycle",
+)[
+  
+  You don't hop on the cluster for a quick ride, you *submit work* to it #pause
+  
+  #two-columns(gutter: 2em)[
+    == What you are used to
+    - Open RStudio / VSCode/ Positron
+    - Write code, run it, see results
+    - Everything is _interactive_
+    - One computer does it all
+  ][
+    #pause
+    == How HPC works
+    - Prepare your code on the _head node_
+    - *Submit* it as a job (it gets _queued_)
+    - Go make coffee #emoji.coffee
+    - Come back, check results
+    - Debug if needed, resubmit
+  ]
+  
+  #pause
+  #vfill
+  #callout(type: "tip")[
+    There's a learning curve, but the payoff is huge
+  ]
+]
+
+#bips-slide(
+  title: "HPC Workflow",
+  subtitle: "The typical cycle",
+)[
+  
+  1. Log in (land on *head node*) #pause
+  2. Load software (`module load R/4.5.3`) #pause
+  3. Move to your project (`git` helps) #pause
+  4. Submit your *job*(s) via `sbatch` #small[(or `salloc` for inetractive work)] #pause
+  5. Monitor with `squeue --me` #pause
+  6. Log out, check back later #pause
+  7. If jobs failed, debug & resubmit #pause
+  8. Repeat until #strike("insane") done
+
+]
+
+#bips-slide(
+  title: "The first thing you see when you log in",
+  subtitle: "Trying to point you in the right direction",
+  content-align: center + horizon,
+)[
+  #image("img/motd.png", height: 74%)
+]
 
 
 #bips-slide(
@@ -170,24 +224,55 @@
 ]
 
 #bips-slide(
+  title: "The head node",
+  subtitle: "Your gateway",
+)[
+  
+  The head node is where you land when you log in #pause
+  
+  #two-columns(gutter: 2em)[
+    == Do #emoji.checkmark
+    - Install R / Python packages
+    - Edit scripts and code
+    - Submit and monitor jobs
+    - Use `git`
+  ][
+    #pause
+    == Don't #emoji.crossmark
+    - Run heavy computations
+    - Launch long-running scripts
+    - Load huge datasets into memory
+  ]
+  
+  #pause
+  #vfill
+  #callout(type: "warning")[
+    The head node is shared by _everyone_. Heavy processes will be _terminated_.
+  ]
+]
+
+#bips-slide(
   title: "Terminology",
   subtitle: "Just to make sure you're confused",
   text-size: 17pt,
 )[
   
   #two-columns(columns: (2fr, 1fr))[
-    - The cluster has 12 compute *nodes* (self-contained computer)
-      - Each node has 1 *CPU* (physical processor)
-      - Each processor is made up of independent 96 *cores*
-      - Each core can handle 2 *threads* #pause
-    - Terminology here weird and confusing because history #emoji.person.shrug
-      - Until the 90s: *1* CPU = *1* core = *1* thread #pause
-      - Then: Hyperthreading: *1* CPU = *1* core = *2* threads #pause
-      - *Now*: *1* CPU = *96* cores = *192* threads #pause
-      *Slurm*: When you want 10 *threads* you request 10 "cpus"
-    // #callout(type: "warning")[
-    //   *Slurm*: When you want 10 *threads* you request 10 "cpus"
-    // ] 
+    #compact(spacing: 1em)[
+      - The cluster has 12 compute *nodes* #tiny[(self-contained computer)] #pause
+        - Each node has 1 *CPU* #tiny[(physical processor)] #pause
+        - Each processor is made up of 96 *cores* #tiny[(independent units)] #pause
+        - Each core can juggle 2 *threads* #tiny[(e.g. R processes)] #pause
+      - Terminology here weird / confusing because: _history_ #emoji.person.shrug
+        - Until the 90s: *1* CPU = *1* core = *1* thread #pause
+        - Then: "Hyperthreading": *1* CPU = *1* core = *2* threads #pause
+        - Then: "Dual core": *1* CPU = *2* cores = *4* threads #pause
+        - *Now*: *1* CPU = *96* cores = *192* threads #pause
+    ]
+    #vfill
+    #callout(type: "warning")[
+      *Slurm*: You need 10 *threads* #sym.arrow you request 10 *"cpus"*
+    ]
   ][
     #meanwhile
     #set text(size: 10pt)
@@ -238,34 +323,23 @@
 #bips-slide(
   title: "But what is Slurm even",
 )[
-  - Slurm is the job management system
-  - Every CPU, every Byte of RAM on the compute nodes is _kept track of_
+  - Slurm is the job management system #small[(see #link("https://slurm.schedmd.com/documentation.html")[slurm.schedmd.com])]
+  - Every CPU _core_, every Byte of _RAM_ on the compute nodes is _kept track of_
   
-  #pause
-  #sym.arrow *You can only use resources allocated to you*
+  // #v(1em)
+  #pause 
+  #large[#blue[#sym.arrow You can only use resources allocated to you]]
+  // #v(1em)
   
-  #pause
+  #pause 
   
-  == Things that _do not _happen on a cluster:
+  ==== Things that _do not_ happen on a cluster:
   
   - "My job took too much RAM so your jobs got killed alongside mine sorry"
   #pause
-  - "I used 2374123 threads but only meant to use 10 sorry your jobs are smothered"
-]
-
-
-#bips-slide(
-  title: "HPC Workflow",
-)[
-  
-  1. Log in (land in *head node*) #pause
-  2. Move to your project (`git` helps)
-  3. Start your *job*(s) #pause
-  4. Monitor jobs with `squeue` and other commands #pause
-  5. Log out, check back later #pause
-  6. If jobs failed, debug & resubmit #pause
-  7. Repeat until #strike("insane") done
-
+  - "I used 1000 threads but only meant to use 10 sorry your jobs are smothered"
+  #pause
+  #sym.arrow It's impossible to "endanger" other people's compute jobs
 ]
 
 #bips-slide(
@@ -290,11 +364,10 @@
     == Positron (VScode)
 
     - Uses SSH for communication with head node
-    - GUI like on your own device
-    - All content is on the head node
-    - Edit files conveniently
-    - Positron/VSCode run *on your device*
+    - GUI on your own device (PC, laptop)
     - Terminal / R console runs *on head node*
+    - All files you see are on the head node
+    - #emoji.face.cool Edit files conveniently
   ]
 ]
 
@@ -309,8 +382,9 @@
   
   == Solution: *Environment modules*
   - Log in on head node: R not available
-  - Run `module load R/4.4.3` #sym.arrow R v4.4.3 is available
-  - Log in, load modules, _then_ run `salloc`, `sbatch` etc.
+  - Run `module load R/4.5.3` #sym.arrow R v4.5.3 is available
+  - Load modules *before* running `salloc` or `sbatch` --- they inherit your environment #pause
+  - (Python: Use `uv`, no need for modules: #small[(#link("https://docs.astral.sh/uv/")[docs.astral.sh/uv])])
 ]
 
 #bips-slide(
@@ -319,7 +393,7 @@
 )[
 
   - Example: You need  *20 threads* for *6 hours* and *4GB of RAM* for `analysis.R` #pause
-
+  #vfill
   #two-columns()[
     == Interactive: `salloc`
 
@@ -331,10 +405,10 @@
     ```
     salloc: Granted job allocation 137031
     salloc: Nodes node01 are ready for job
-    
+
     # start R session
     R
-    
+
     # Do work or run script
     ranger::ranger(foo ~ ., data = bar)
     source("analysis.R")
@@ -348,9 +422,9 @@
     ```
     #!/bin/bash
     #SBATCH --job-name=my-analysis
-    #SBATCH --output=job_%j.out
+    #SBATCH --output=logs/%x_%j.out
     #SBATCH --cpus-per-task=20
-    #SBATCH --mem=4096M
+    #SBATCH --mem=4G
     #SBATCH --time=06:00:00
 
     Rscript analysis.R
@@ -366,14 +440,19 @@
   subtitle: "Partitions and QoS",
 )[
   - Slurm groups hardware in _partitions_
-  - 2 partitions: `compute` (12 nodes) and `gpu` (1 node)
-  - Prioritization is done in _Quality of Service_ (QoS) queues:
-  - Different queues hav different constraints (time, how many per user)
-    - *interactive*: 3 days, 2 per user (auto-applies to `salloc`)
-    - For `sbatch` or `#SBATCH --qos=<name>`:
-      - *short*: 1 hour
-      - *medium* (default): 1 day
-      - *long*: 7 days
+  - 2 partitions: #blue[`compute`] (12 nodes, _default_) and #blue[`gpu`] (1 node)
+  - Prioritization is done in _Quality of Service_ (QoS) queues: #pause
+  - Different queues have different constraints (time, how jobs many per user)
+    - *interactive*: 3 days, 2 per user #small[(auto-applies to `salloc`)] #pause
+  - For `sbatch` or `#SBATCH --qos=<name>`:
+    
+    #three-columns()[
+      *short*: 1 hour
+    ][
+      *medium* #tiny[(default)]: 1 day
+    ][
+      *long*: 7 days
+    ]
 ]
 
 #bips-slide(
@@ -381,33 +460,122 @@
   subtitle: "A job is not a job",
 )[
   - Slurm is very generic and supports diverse types of jobs
-  - Easiest us: 1 job = 1 R/py process = Some number of threads on 1 node
-  - Slurm allocates *cores*, not *threads*
-  - You only care about threads
-  - You need 1 thread, you ask for `cpus-per-task=`*`1`*, you get *1* core reserved
-
+  - Slurm also has concept of "tasks": #pause For us *1 task == 1 job*  #pause
+  - Easiest use: 1 job = 1 R/py process = Some number of threads on 1 node #pause
+  - Technically possible to have 1 job spanning multiple nodes #sym.arrow headache country  #pause
+  - Slurm allocates *cores*, not *threads* #pause
+  - But: You only care about threads #pause
+  - You need 1 thread, you ask for `cpus-per-task=`*`1`*, you get *1* core reserved #pause
+  - #sym.arrow More efficient to just aks for 2 "cpus" and 1 full core
 ]
 
-
 #bips-slide(
-  title: "Efficiently using a node",
+  title: "Example: Efficiently using a node",
+  subtitle: "If your goal is to fully utilize 1 node (96 cores, 192 threads)",
 )[
-  == If your goal is to fully utilize 1 node, you can... #pause
-  - 1 job with 192 threads #emoji.checkmark.box #pause
-  - 96 jobs with 2 threads #emoji.checkmark.box #pause
-  - 8 jobs with 24 threads #emoji.checkmark.box #pause
-  - 192 jobs with 1 thread #emoji.crossmark #pause
+  
+  #two-columns(columns: (1fr, 1.5fr))[
+    == What works
+    - 1 job with 192 threads #emoji.checkmark.box #pause
+    - 96 jobs with 2 threads #emoji.checkmark.box #pause
+    - 8 jobs with 24 threads #emoji.checkmark.box #pause
+  ][
+    == What does *not* work
+    - 192 jobs with 1 thread #emoji.crossmark #pause
+    - Each job reserves 1 *core* (actual hardware)
+    - 192 jobs allocate 192 cores, but a node only has 96!
+  
+  ]
+  #vfill
+  #pause
+  #callout(type: "warning")[
+    If you're used to `batchtools`, you probably default to single-threaded jobs
+  ]
 ]
 
+#bips-slide(
+  title: "Did it work?",
+  subtitle: "Checking on your jobs",
+  text-size: 17pt,
+)[
+  
+  #two-columns(gutter: 2em)[
+    While running:
+    - `squeue --me`: list your jobs
+    - `tail -f logs/job_12345.out`: watch output
+    - `scancel <jobid>`: cancel a job
+  ][
+    After completion:
+    - Check your output files (e.g. `logs/`)
+    - `sacct --starttime=today`: job history
+    - `sacct -j <jobid> --format=JobID,State,Elapsed,MaxRSS`
+  ]
+  
+  #pause
+  // #v(1em)
+  Common failure modes
+  - *TIMEOUT*: job ran out of time, request more with `--time`
+  - *OUT_OF_MEMORY*: request more RAM with `--mem`
+  - *FAILED*: your script has a bug, check the log output #small[(_did you load modules?_)]
+]
 
 #bips-slide(
-  title: "Getting started",
+  title: "Where does your stuff live?",
+  subtitle: "Two storage tiers",
 )[
-  == If your goal is to fully utilize 1 node, you can... #pause
-  - 1 job with 192 threads #emoji.checkmark.box #pause
-  - 96 jobs with 2 threads #emoji.checkmark.box #pause
-  - 8 jobs with 24 threads #emoji.checkmark.box #pause
-  - 192 jobs with 1 thread #emoji.crossmark #pause
+  
+  #two-columns(gutter: 2em)[
+    == Home directory
+    `/srv/home/<user>`
+    - Fast
+    - Limited space, also shared with software
+    - Scripts, code, _active_ projects
+  ][
+    #pause
+    == Archive storage
+    `/mnt/sas/users/<user>`
+    - Large capacity
+    - Slower
+    - Big datasets, _inactive_ projects
+  ]
+  
+  #pause
+  #vfill
+  - Both are *shared across all nodes* (head + compute) via internal network
+  - Compute nodes also have fast *local scratch* (`$TMPDIR`, auto-cleaned after job)
+  #pause
+  #callout(type: "warning")[
+    There are *no backups*. Use `git` for code, be careful with data.
+  ]
+]
+
+#bips-slide(
+  title: "User utilities",
+  subtitle: "Command-line aliases/functions",
+)[
+  
+  - I have prepared a few shorthand tools based on things I need often
+  - On head node, get info with `slurm_user_help`:
+  
+  
+  ```sh
+  ❯ slurm_user_help
+  === Slurm User Helper Functions ===
+  
+  JOB MONITORING:
+    sq              - Enhanced squeue with better formatting
+    sqm             - My jobs queue
+    sqs             - Job status summary with colors
+  [...]
+  
+  JOB ACCOUNTING:
+    slac              - Enhanced sacct
+    slac1h/1d/3d/1w   - Jobs from last hour/day/3days/week (excludes PENDING)
+      State filters:  -a (all), -p (pending), -c (completed), -f (failed), -r (running)
+    sltoday           - Jobs submitted today
+  
+  ```
+
 ]
 
 
@@ -416,12 +584,12 @@
   subtitle: "And further reading material",
   text-size: 21pt,
 )[
-  
-  - Ask me for an account, I will send you credentials
-  - Read the docs:
-    - #link("https://cluster.bips.coffee")[cluster.bips.coffee] (public)
-  - Bookmark the dashboard (current usage):
-    - #link("http://srvcluster.bips.de/")[http://srvcluster.bips.de/] (no https!)
-  - Demos / usage examples for `batchtools`, `mirai`, `targets`:
-    - #link("https://srvgit.bips.eu/bips/bips-cluster-demos")[srvgit.bips.eu/bips/bips-cluster-demos]
+
+- Ask me for an account, I will send you login credentials
+- Read the docs:
+  - #link("https://cluster.bips.coffee")[cluster.bips.coffee] (public)
+- Bookmark the dashboard (current usage):
+  - #link("http://srvcluster.bips.de/")[http://srvcluster.bips.de/] (no https!)
+- Demos / usage examples for `batchtools`, `mirai`, `targets`:
+  - #link("https://srvgit.bips.eu/bips/bips-cluster-demos")[srvgit.bips.eu/bips/bips-cluster-demos]
 ]
