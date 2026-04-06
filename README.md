@@ -37,6 +37,26 @@ Context
 
 <td style="text-align:right;">
 
+2026
+</td>
+
+<td style="text-align:left;">
+
+Cluster intro
+</td>
+
+<td style="text-align:left;">
+
+<a href="2026/04-wimium/slides.pdf">Short introduction to the BIPS
+cluster</a>
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:right;">
+
 2025
 </td>
 
