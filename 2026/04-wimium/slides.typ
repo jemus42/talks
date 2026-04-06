@@ -139,15 +139,6 @@
 ]
 
 #bips-slide(
-  title: "The first thing you see when you log in",
-  subtitle: "Trying to point you in the right direction",
-  content-align: center + horizon,
-)[
-  #image("img/motd.png", height: 74%)
-]
-
-
-#bips-slide(
   title: "Cluster topology",
   subtitle: "Partitions",
   content-align: horizon + center,
@@ -372,6 +363,14 @@
 ]
 
 #bips-slide(
+  title: "The first thing you see when you log in",
+  subtitle: "Trying to point you in the right direction",
+  content-align: center + horizon,
+)[
+  #image("img/motd.png", height: 74%)
+]
+
+#bips-slide(
   title: "Software is managed differently",
   subtitle: "Environment modules",
 )[
@@ -474,7 +473,7 @@
   subtitle: "If your goal is to fully utilize 1 node (96 cores, 192 threads)",
 )[
   
-  #two-columns(columns: (1fr, 1.5fr))[
+  #two-columns(columns: (1fr, 1.7fr))[
     == What works
     - 1 job with 192 threads #emoji.checkmark.box #pause
     - 96 jobs with 2 threads #emoji.checkmark.box #pause
@@ -482,8 +481,8 @@
   ][
     == What does *not* work
     - 192 jobs with 1 thread #emoji.crossmark #pause
-    - Each job reserves 1 *core* (actual hardware)
-    - 192 jobs allocate 192 cores, but a node only has 96!
+    - Each job reserves 1 *core*
+    - #sym.arrow 192 jobs allocate 192 cores, but a node only has 96!
   
   ]
   #vfill
@@ -585,11 +584,11 @@
   text-size: 21pt,
 )[
 
-- Ask me for an account, I will send you login credentials
-- Read the docs:
+1. Ask me for an account, I will send you login credentials
+2. Read (and bookmark) the docs:
   - #link("https://cluster.bips.coffee")[cluster.bips.coffee] (public)
-- Bookmark the dashboard (current usage):
+3. Bookmark the dashboard (current cluster usage):
   - #link("http://srvcluster.bips.de/")[http://srvcluster.bips.de/] (no https!)
-- Demos / usage examples for `batchtools`, `mirai`, `targets`:
+4. Try demos / usage examples for `batchtools`, `mirai`, `targets`:
   - #link("https://srvgit.bips.eu/bips/bips-cluster-demos")[srvgit.bips.eu/bips/bips-cluster-demos]
 ]
