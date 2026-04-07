@@ -130,7 +130,7 @@
   1. Log in (land on *head node*) #pause
   2. Load software (`module load R/4.5.3`) #pause
   3. Move to your project (`git` helps) #pause
-  4. Submit your *job*(s) via `sbatch` #small[(or `salloc` for inetractive work)] #pause
+  4. Submit your *job*(s) via `sbatch` #small[(or `salloc` for interactive work)] #pause
   5. Monitor with `squeue --me` #pause
   6. Log out, check back later #pause
   7. If jobs failed, debug & resubmit #pause
