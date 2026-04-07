@@ -12,7 +12,7 @@
   title: "Hey look we have a cluster now isn't that cool what does it do does it do stuff yes it does it's cool",
   subtitle: [Doing cluster stuff for fun and #strike[profit] science],
   author: "Lukas Burk",
-  institute: bips_en,
+  institute: bips-en,
   date: datetime.today().display(),
   occasion: "BioWiMium",
 )
