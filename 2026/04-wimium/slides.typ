@@ -1,4 +1,4 @@
-#import "@local/bips-typst:0.2.0": *
+#import "@local/bypst:0.2.0": *
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, edge, node
 
 #show: bips-theme.with(
