@@ -101,7 +101,7 @@
   
   #two-columns(gutter: 2em)[
     == What you are used to
-    - Open RStudio / VSCode/ Positron
+    - Open RStudio / VSCode / Positron
     - Write code, run it, see results
     - Everything is _interactive_
     - One computer does it all
@@ -441,7 +441,7 @@
   - Slurm groups hardware in _partitions_
   - 2 partitions: #blue[`compute`] (12 nodes, _default_) and #blue[`gpu`] (1 node)
   - Prioritization is done in _Quality of Service_ (QoS) queues: #pause
-  - Different queues have different constraints (time, how jobs many per user)
+  - Different queues have different constraints (time, how many jobs per user)
     - *interactive*: 3 days, 2 per user #small[(auto-applies to `salloc`)] #pause
   - For `sbatch` or `#SBATCH --qos=<name>`:
     
@@ -465,7 +465,7 @@
   - Slurm allocates *cores*, not *threads* #pause
   - But: You only care about threads #pause
   - You need 1 thread, you ask for `cpus-per-task=`*`1`*, you get *1* core reserved #pause
-  - #sym.arrow More efficient to just aks for 2 "cpus" and 1 full core
+  - #sym.arrow More efficient to just ask for 2 "cpus" and 1 full core
 ]
 
 #bips-slide(
