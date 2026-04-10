@@ -2,6 +2,7 @@
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, edge, node
 
 #show: bips-theme.with(
+  logo: image("../../assets/bips-logo.png"),
   base-size: 18pt, // Smaller base text
   slide-title-size: 26pt, // Smaller slide titles
   slide-subtitle-size: 20pt, // Smaller slide subtitles
@@ -81,7 +82,6 @@
     - Convenience: You'll get there
   ]
 ]
-
 
 #bips-slide(
   title: "What does it look like?",
