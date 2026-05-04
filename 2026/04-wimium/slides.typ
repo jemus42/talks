@@ -1,8 +1,8 @@
-#import "@local/bypst:0.2.0": *
+#import "@preview/bypst:0.2.0": *
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, edge, node
 
 #show: bips-theme.with(
-  logo: image("../../assets/bips-logo.png"),
+  logo: image("bips-logo.png"),
   base-size: 18pt, // Smaller base text
   slide-title-size: 26pt, // Smaller slide titles
   slide-subtitle-size: 20pt, // Smaller slide subtitles
@@ -10,7 +10,7 @@
 )
 
 #title-slide(
-  title: "Hey look we have a cluster now isn't that cool what does it do does it do stuff yes it does it's cool",
+  title: "Hey look we have a cluster now\n isn't that cool what does it do does it do stuff yes it does it's cool",
   subtitle: [Doing cluster stuff for fun and #strike[profit] science],
   author: "Lukas Burk",
   institute: bips-en,
@@ -23,21 +23,21 @@
   subtitle: [You might have _heard_],
 )[
 
-#two-columns()[
-  == What we cover today:
-  
-  - What is this cluster thing
-  - How does it work (using R / Python, Slurm)
-  - How do *you* do stuff on it in general
+  #two-columns()[
+    == What we cover today:
 
-][
-  #pause
-  == We *don't* cover
-  
-  - How to Linux (from the command line)
-  - How to use `batchtools` (or `targets`)
-  - Everything you ever need to know
-]
+    - What is this cluster thing
+    - How does it work (using R / Python, Slurm)
+    - How do *you* do stuff on it in general
+
+  ][
+    #pause
+    == We *don't* cover
+
+    - How to Linux (from the command line)
+    - How to use `batchtools` (or `targets`)
+    - Everything you ever need to know
+  ]
   #pause
   #vfill
   #callout(type: "note", icon: emoji.face.cry)[
@@ -51,10 +51,10 @@
   subtitle: "And why should you care",
 )[
   #set list(spacing: 0.3em)
-  
+
   Many ways to shave a yak, and now you have one more!
   #v(1em)
-  
+
   #three-columns(
     columns: (0.8fr, 1fr, 1fr),
     gutter: 0.2em,
@@ -96,9 +96,9 @@
   title: "The HPC workflow",
   subtitle: "It's a freight truck, not a bicycle",
 )[
-  
+
   You don't hop on the cluster for a quick ride, you *submit work* to it #pause
-  
+
   #two-columns(gutter: 2em)[
     == What you are used to
     - Open RStudio / VSCode / Positron
@@ -114,7 +114,7 @@
     - Come back, check results
     - Debug if needed, resubmit
   ]
-  
+
   #pause
   #vfill
   #callout(type: "tip")[
@@ -126,7 +126,7 @@
   title: "HPC Workflow",
   subtitle: "The typical cycle",
 )[
-  
+
   1. Log in (land on *head node*) #pause
   2. Load software (`module load R/4.5.3`) #pause
   3. Move to your project (`git` helps) #pause
@@ -218,9 +218,9 @@
   title: "The head node",
   subtitle: "Your gateway",
 )[
-  
+
   The head node is where you land when you log in #pause
-  
+
   #two-columns(gutter: 2em)[
     == Do #emoji.checkmark
     - Install R / Python packages
@@ -234,7 +234,7 @@
     - Launch long-running scripts
     - Load huge datasets into memory
   ]
-  
+
   #pause
   #vfill
   #callout(type: "warning")[
@@ -247,7 +247,7 @@
   subtitle: "Just to make sure you're confused",
   text-size: 17pt,
 )[
-  
+
   #two-columns(columns: (2fr, 1fr))[
     #compact(spacing: 1em)[
       - The cluster has 12 compute *nodes* #tiny[(self-contained computer)] #pause
@@ -307,7 +307,7 @@
         )],
     )
   ]
-  
+
 
 ]
 
@@ -316,16 +316,16 @@
 )[
   - Slurm is the job management system #small[(see #link("https://slurm.schedmd.com/documentation.html")[slurm.schedmd.com])]
   - Every CPU _core_, every Byte of _RAM_ on the compute nodes is _kept track of_
-  
+
   // #v(1em)
-  #pause 
+  #pause
   #large[#blue[#sym.arrow You can only use resources allocated to you]]
   // #v(1em)
-  
-  #pause 
-  
+
+  #pause
+
   ==== Things that _do not_ happen on a cluster:
-  
+
   - "My job took too much RAM so your jobs got killed alongside mine sorry"
   #pause
   - "I used 1000 threads but only meant to use 10 sorry your jobs are smothered"
@@ -374,11 +374,11 @@
   title: "Software is managed differently",
   subtitle: "Environment modules",
 )[
-  
+
   - Common on HPC systems: Hundreds of users need dozens of programs
   - Programs exist in dozens of versions (R, Python, specialized tools) #pause
   - Different users need different versions of different things #pause
-  
+
   == Solution: *Environment modules*
   - Log in on head node: R not available
   - Run `module load R/4.5.3` #sym.arrow R v4.5.3 is available
@@ -444,7 +444,7 @@
   - Different queues have different constraints (time, how many jobs per user)
     - *interactive*: 3 days, 2 per user #small[(auto-applies to `salloc`)] #pause
   - For `sbatch` or `#SBATCH --qos=<name>`:
-    
+
     #three-columns()[
       *short*: 1 hour
     ][
@@ -472,7 +472,7 @@
   title: "Example: Efficiently using a node",
   subtitle: "If your goal is to fully utilize 1 node (96 cores, 192 threads)",
 )[
-  
+
   #two-columns(columns: (1fr, 1.7fr))[
     == What works
     - 1 job with 192 threads #emoji.checkmark.box #pause
@@ -483,7 +483,7 @@
     - 192 jobs with 1 thread #emoji.crossmark #pause
     - Each job reserves 1 *core*
     - #sym.arrow 192 jobs allocate 192 cores, but a node only has 96!
-  
+
   ]
   #vfill
   #pause
@@ -497,7 +497,7 @@
   subtitle: "Checking on your jobs",
   text-size: 17pt,
 )[
-  
+
   #two-columns(gutter: 2em)[
     While running:
     - `squeue --me`: list your jobs
@@ -509,7 +509,7 @@
     - `sacct --starttime=today`: job history
     - `sacct -j <jobid> --format=JobID,State,Elapsed,MaxRSS`
   ]
-  
+
   #pause
   // #v(1em)
   Common failure modes
@@ -522,7 +522,7 @@
   title: "Where does your stuff live?",
   subtitle: "Two storage tiers",
 )[
-  
+
   #two-columns(gutter: 2em)[
     == Home directory
     `/srv/home/<user>`
@@ -537,7 +537,7 @@
     - Slower
     - Big datasets, _inactive_ projects
   ]
-  
+
   #pause
   #vfill
   - Both are *shared across all nodes* (head + compute) via internal network
@@ -552,27 +552,27 @@
   title: "User utilities",
   subtitle: "Command-line aliases/functions",
 )[
-  
+
   - I have prepared a few shorthand tools based on things I need often
   - On head node, get info with `slurm_user_help`:
-  
-  
+
+
   ```sh
   ❯ slurm_user_help
   === Slurm User Helper Functions ===
-  
+
   JOB MONITORING:
     sq              - Enhanced squeue with better formatting
     sqm             - My jobs queue
     sqs             - Job status summary with colors
   [...]
-  
+
   JOB ACCOUNTING:
     slac              - Enhanced sacct
     slac1h/1d/3d/1w   - Jobs from last hour/day/3days/week (excludes PENDING)
       State filters:  -a (all), -p (pending), -c (completed), -f (failed), -r (running)
     sltoday           - Jobs submitted today
-  
+
   ```
 
 ]
@@ -584,11 +584,11 @@
   text-size: 21pt,
 )[
 
-1. Ask me for an account, I will send you login credentials
-2. Read (and bookmark) the docs:
-  - #link("https://cluster.bips.coffee")[cluster.bips.coffee] (public)
-3. Bookmark the dashboard (current cluster usage):
-  - #link("http://srvcluster.bips.de/")[http://srvcluster.bips.de/] (no https!)
-4. Try demos / usage examples for `batchtools`, `mirai`, `targets`:
-  - #link("https://srvgit.bips.eu/bips/bips-cluster-demos")[srvgit.bips.eu/bips/bips-cluster-demos]
+  1. Ask me for an account, I will send you login credentials
+  2. Read (and bookmark) the docs:
+    - #link("https://cluster.bips.coffee")[cluster.bips.coffee] (public)
+  3. Bookmark the dashboard (current cluster usage):
+    - #link("http://srvcluster.bips.de/")[http://srvcluster.bips.de/] (no https!)
+  4. Try demos / usage examples for `batchtools`, `mirai`, `targets`:
+    - #link("https://srvgit.bips.eu/bips/bips-cluster-demos")[srvgit.bips.eu/bips/bips-cluster-demos]
 ]
