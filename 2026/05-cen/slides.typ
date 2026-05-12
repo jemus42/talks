@@ -118,10 +118,10 @@
     - *LOCO* automatically refits, includes learner variability #pause
     - *Any method*: Repeat across resampling (e.g. 15 subsampling iters)
     - Captures variability from data sampling and learner stochasticity
-  #pause
-  - Estimand should match the research question
-    - "Why does _this_ model predict X?" #to model-level
-    - "Which features does _this prediction algorithm_ rely on?" #to learner-level
+  // #pause
+  // - Estimand should match the research question
+  //   - "Why does _this_ model predict X?" #to model-level
+  //   - "Which features does _this prediction algorithm_ rely on?" #to learner-level
 ]
 
 // #bips-slide(
@@ -154,7 +154,7 @@
 ]
 
 #bips-slide(
-  title: [Analysis: Any PCC prediction],
+  title: [Analysis: 'Any PCC' prediction],
   subtitle: [Preliminary, exploratory],
 )[
   - Learners: Gradient boosting (`XGBoost`), random forest (`ranger`)
@@ -188,27 +188,41 @@
   #image("img/plot-loco-1.png", height: 75%)
 ]
 
-#bips-slide(
-  title: [Same features, different rankings],
-  subtitle: [What changes between methods?],
-)[
-  - Top-ranked features under PFI not always top under CFI / LOCO
-    - CFI _should_ de-value importance of correlated features
-    - PFI can over-credit features that are easy to extrapolate around
-  #pause
-  - *Ranks more interpretable than raw values* #pause
-    - Raw PFI/CFI/LOCO are on the scale of the evaluation metrics
-    - Magnitudes hard to compare across methods
-]
+// #bips-slide(
+//   title: [Results: LOCO],
+//   subtitle: [Top 10 features],
+//   content-align: horizon + center,
+// )[
+//   #three-columns(columns: (1fr, 1fr, 1fr))[
+//     #image("img/plot-pfi-1.png", height: 55%)
+//   ][
+//     #image("img/plot-cfi-1.png", height: 55%)
+//   ][
+//     #image("img/plot-loco-1.png", height: 55%)
+//   ]
+// ]
+
+// #bips-slide(
+//   title: [Same features, different rankings],
+//   subtitle: [What changes between methods?],
+// )[
+//   - Top-ranked features under PFI not always top under CFI / LOCO
+//     - CFI _should_ de-value importance of correlated features
+//     - PFI can over-credit features that are easy to extrapolate around
+//   #pause
+//   - *Ranks more interpretable than raw values* #pause
+//     - Raw PFI/CFI/LOCO are on the scale of the evaluation metrics
+//     - Magnitudes hard to compare across methods
+// ]
 
 #bips-slide(
-  title: [Cocnlusion],
+  title: [Conclusion],
   subtitle: [Everything is complicated, always],
 )[
   - Feature importance is useful, but *not a single number*
   - Each method answers a slightly different question
-    - PFI: marginal, model-faithful but extrapolation-prone
-    - CFI: conditional, more faithful to joint, sampling-dependent
+    - PFI: marginal, model-faithful but extrapolation issue
+    - CFI: conditional, more faithful to joint distr., sampling-dependent
     - LOCO: refit-based, expensive but assumption-light
   #pause
   - Match the *estimand* to the *research question*
