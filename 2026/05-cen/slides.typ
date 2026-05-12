@@ -39,13 +39,13 @@
 )[
   - Persistent / recurring symptoms long after SARS-CoV-2 infection
   - Clinically heterogenous (symptoms & severity) #pause
-  - Working definition #small[@mikolajczyk2024likelihoodpostcovid]:
+  - Working definition #small[@mikolajczyk2024likelihoodpostcovid]: #pause
     - "Any" PCC: at least *1*, "severe" PCC: at least *9*
     - ... symptoms persistent *4+ months after* infection
   #pause
   - Many open questions: risk factors, causal factors, subgroups? #pause
   
-  #to *RESOLVE-PCC* project funded by the German BMFTR\ #h(21em) #pause #tiny[(Federal Ministry of Research, Technology and Space)]
+  #to *RESOLVE-PCC* project funded by the German BMFTR #h(2em) #pause #box[#tiny[(Federal Ministry of\ Research, Technology and Space)]]
 ]
 
 #bips-slide(
@@ -56,9 +56,8 @@
   - Which ones actually drive predictions? #pause
   - Applications:
     - Feature selection #emoji.hands.shake feature importance #pause
-    - Hypothesis generation (e.g. for causal analyses) #pause
-    - Communicate model behavior to collaborators #pause
     - Sanity check: is the model relying on plausible signal? #pause
+    - Hypothesis generation #pause
   #pause
   - *FI $eq.not$ causal effect* but associations still informative #tiny[@ewald2024guidefeatureb]
   - "Importance" itself is not a single quantity #pause #to _method choice_ defines the answer
@@ -69,25 +68,25 @@
   subtitle: [How "important" is feature $X_j$?],
 )[
   #pause
-  #two-columns(columns: (1fr, 1fr))[
+  #two-columns(columns: (1fr, 1.3fr))[
+    *Refitting* without feature $X_j$
+    1. Fit full model
+    2. Fit model without $X_j$
+    3. Compare performance #pause
+    4. (Repeat $k$ times for stability) #pause
+    #vfill
+    Leave-one-covariate-out (_LOCO_)
+  ][
+    #pause
     *Perturbation* of $X_j$
     1. Fit full model
     2. Measure performance on... #pause
       - a) all test data #pause
       - b) same data where $X_j$ is _randomly permuted_
     3. Compare performance #pause
-    4. (Repeat $k$ times for stability)
+    4. (Repeat $k$ times for stability) #pause
     #vfill
     Permutation feature importance (_PFI_)
-  ][
-    #pause
-    *Refitting* without feature $X_j$
-    1. Fit full model
-    2. Fit model without $X_j$
-    3. Compare performance
-    4. (Repeat $k$ times for stability)
-    #vfill
-    Leave-one-covariate-out (_LOCO_)
   ]
 ]
 
@@ -98,13 +97,14 @@
   - PFI permutes $X_j$ marginally #to implausible combinations #tiny[@hooker2021unrestrictedpermutationb]
   - E.g.: "20-year-old with 30 years smoking history"
   #pause
-  - CFI: perturbation _conditional_ on other features
-    - PFI: $tilde(X)_j tilde F_(X_j)$, with $tilde(X)_j indep (X_(-j), Y)$
-    - CFI: $tilde(X)_j tilde F_(X_j | X_(-j))$, with $tilde(X)_j indep Y | X_(-j)$
+  - CFI: perturbation *conditional* on other features
+  // - PFI: $tilde(X)_j tilde F_(X_j)$, with $tilde(X)_j indep (X_(-j), Y)$
+  // - CFI: $tilde(X)_j tilde F_(X_j | X_(-j))$, with $tilde(X)_j indep Y | X_(-j)$
   #pause
-  - Requires _conditional sampling_, some options:
-    - Conditional Gaussian #to fast, but only continuous data
-    - Adversarial random forests (ARF) #to handles mixed data, computationally heavier
+  - Requires _conditional sampling_ $tilde(X)_j tilde F_(X_j | X_(-j))$, some options: #pause
+    - Conditional Gaussian #to fast, but only continuous data #pause
+    - Adversarial random forests (ARF)\
+      #to handles _mixed_ data, _missing values_, computationally more expensive
 ]
 
 #bips-slide(
@@ -158,13 +158,10 @@
   subtitle: [Preliminary, exploratory],
 )[
   - Learners: Gradient boosting (`XGBoost`), random forest (`ranger`)
-  - Tuned on *PR-AUC* (due to imbalance) #pause
-    - #to general performance  *42--44% PR-AUC* (baseline = 24%)
-  - PFI, CFI (+ARF), LOCO computed via `xplainfi` #pause
+  - Tuned on *PR-AUC* (due to imbalance, baseline = 24%) #pause
+    - #to general performance  *42--44% PR-AUC*
+  - *PFI*, *CFI* (+ARF), *LOCO* computed via `xplainfi` #pause
   - FI here on test set (i.e. *model importance*)
-  - FI scores on scale of metric, hard to interpret #pause
-    - #to Scaled such that 100 = most important feature
-    - Noteworthy: Do rankings change between methods, learners?
 ]
 
 #bips-slide(
@@ -199,7 +196,7 @@
     - CFI _should_ de-value importance of correlated features
     - PFI can over-credit features that are easy to extrapolate around
   #pause
-  - *Ranks are often more interpretable than raw values*
+  - *Ranks more interpretable than raw values* #pause
     - Raw PFI/CFI/LOCO are on the scale of the evaluation metrics
     - Magnitudes hard to compare across methods
 ]
