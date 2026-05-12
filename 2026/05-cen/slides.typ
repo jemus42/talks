@@ -58,8 +58,8 @@
     - Feature selection #emoji.hands.shake feature importance #pause
     - Sanity check: is the model relying on plausible signal? #pause
     - Hypothesis generation #pause
-  #pause
-  - *FI $eq.not$ causal effect* but associations still informative #tiny[@ewald2024guidefeatureb]
+    
+    - *FI $eq.not$ causal effect* but associations still informative #tiny[@ewald2024guidefeatureb]
   - "Importance" itself is not a single quantity #pause #to _method choice_ defines the answer
 ]
 
