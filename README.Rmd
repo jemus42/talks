@@ -20,6 +20,7 @@ Talks, pitches, journal club presentations, almost organized. But not really, le
 ```{r}
 tibble::tribble(
   ~year , ~short                , ~desc                                           , ~link                                    ,
+   2026,  "resolve-xplainfi-cen", "CEN 2026: RESOLVE-PCC xplainfi"                , "2026/05-cen/slides.pdf"                 ,
    2026 , "Cluster intro"       , "Short introduction to the BIPS cluster"        , "2026/04-wimium/slides.pdf"              ,
    2025 , "rpf"                 , "DAGStat 2025: Random Planted Forests"          , "2025/03-dagstat/rpf.pdf"                ,
    2024 , "surv-bench-statcomp" , "StatComp 2024: Survival Benchmark"             , "2024/07-statcomp/survbench.pdf"         ,
