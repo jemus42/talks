@@ -9,6 +9,11 @@
 #let to = sym.arrow
 #let indep = math.class("relation", $perp #h(-2pt) perp$)
 
+#let sideref(body, size: "tiny", gap: 2em) = {
+  h(gap)
+  if size == "small" { small(body) } else { tiny(body) }
+}
+
 
 #title-slide(
   title: [Identifying Post-COVID Risk Factors\ with Model-Agnostic Feature Importance],
@@ -39,13 +44,13 @@
 )[
   - Persistent / recurring symptoms long after SARS-CoV-2 infection
   - Clinically heterogenous (symptoms & severity) #pause
-  - Working definition #small[@mikolajczyk2024likelihoodpostcovid]: #pause
-    - "Any" PCC: at least *1*, "severe" PCC: at least *9*
-    - ... symptoms persistent *4+ months after* infection
+  - Working definition: #sideref(size: "small")[@mikolajczyk2024likelihoodpostcovid] #pause
+    - "Any" PCC: at least *1* symptom persistent *4+ months after* infection #pause
+    - "severe" PCC: at least *9*
   #pause
   - Many open questions: risk factors, causal factors, subgroups? #pause
   
-  #to *RESOLVE-PCC* project funded by the German BMFTR #h(2em) #pause #box[#tiny[(Federal Ministry of\ Research, Technology and Space)]]
+  #to *RESOLVE-PCC* project funded by the German BMFTR #h(2em) #pause #box[#align(horizon + center)[#tiny[Federal Ministry of\ Research, Technology and Space]]]
 ]
 
 #bips-slide(
@@ -59,7 +64,7 @@
     - Sanity check: is the model relying on plausible signal? #pause
     - Hypothesis generation #pause
     
-    - *FI $eq.not$ causal effect* but associations still informative #tiny[@ewald2024guidefeatureb]
+    - *FI $eq.not$ causal effect* but associations still informative #sideref[@ewald2024guidefeatureb]
   - "Importance" itself is not a single quantity #pause #to _method choice_ defines the answer
 ]
 
@@ -94,7 +99,7 @@
   title: [Conditional FI],
   subtitle: [Permute, but respect feature dependence],
 )[
-  - PFI permutes $X_j$ marginally #to implausible combinations #tiny[@hooker2021unrestrictedpermutationb]
+  - PFI permutes $X_j$ marginally #to implausible combinations #sideref[@hooker2021unrestrictedpermutationb]
   - E.g.: "20-year-old with 30 years smoking history"
   #pause
   - CFI: perturbation *conditional* on other features
@@ -124,25 +129,14 @@
   //   - "Which features does _this prediction algorithm_ rely on?" #to learner-level
 ]
 
-// #bips-slide(
-//   title: [Stability through repetition],
-//   subtitle: [Different sources of variance],
-// )[
-//   - PFI/CFI are stochastic via the permutation step
-//     - Repeat permutations on the same fitted model #to cheap
-//   - LOCO requires a refit per feature
-//     - Stochastic only if the learner is (random forests, NN init, ...)
-//   #pause
-//   - Learner-level estimands wrap _all_ of this in an outer resampling loop
-//     - Honest uncertainty, but cost multiplies
-// ]
 
 #bips-slide(
   title: [Analysis dataset: NAKO],
   subtitle: [German National Cohort],
 )[
   - $N approx 66250$ participants reporting $gt.eq 1$ SARS-CoV-2 infection
-  - $approx 24%$ classified as *"any PCC"* #h(1em)#small[("Severe PCC" much rarer #to not shown today)]
+  - $approx 24%$ classified as *"any PCC"* #h(1em)#small[("Severe PCC" much rarer #to not shown today)] #pause
+  - #to Goal: Predict "any PCC" vs. "no PCC"
   #pause
   - Mix of _survey_ + _in-person assessment_:
     - demographics, anthropometrics, socioeconomic
@@ -158,34 +152,36 @@
   subtitle: [Preliminary, exploratory],
 )[
   - Learners: Gradient boosting (`XGBoost`), random forest (`ranger`)
-  - Tuned on *PR-AUC* (due to imbalance, baseline = 24%) #pause
-    - #to general performance  *42--44% PR-AUC*
+  - Tuned on *PR-AUC* (baseline = 24%)
+  - General performance:
+    - PR-AUC $approx$ 43%
+    - ROC-AUC $approx$ 64% #pause
   - *PFI*, *CFI* (+ARF), *LOCO* computed via `xplainfi` #pause
   - FI here on test set (i.e. *model importance*)
 ]
 
 #bips-slide(
-  title: [Results: PFI],
-  subtitle: [Top 10 features],
+  title: [Results: Permutation Feature Importance (PFI)],
+  subtitle: [Top 10 features (between RF + XGBoost)],
   content-align: horizon + center,
 )[
-  #image("img/plot-pfi-1.png", height: 75%)
+  #image("img/top10_pfi_narrow.png", height: 75%)
 ]
 
 #bips-slide(
-  title: [Results: CFI],
-  subtitle: [Top 10 features],
+  title: [Results: Conditional Feature Importance (CFI)],
+  subtitle: [Top 10 features, one-sided 95% CIs],
   content-align: horizon + center,
 )[
-  #image("img/plot-cfi-1.png", height: 75%)
+  #image("img/top10_cfi_narrow.png", height: 75%)
 ]
 
 #bips-slide(
-  title: [Results: LOCO],
-  subtitle: [Top 10 features],
+  title: [Results: Leave-one-covariate-out (LOCO)],
+  subtitle: [Top 10 features, one-sided 95% CIs],
   content-align: horizon + center,
 )[
-  #image("img/plot-loco-1.png", height: 75%)
+  #image("img/top10_loco_narrow.png", height: 75%)
 ]
 
 // #bips-slide(
@@ -221,13 +217,13 @@
 )[
   - Feature importance is useful, but *not a single number*
   - Each method answers a slightly different question
-    - PFI: marginal, model-faithful but extrapolation issue
-    - CFI: conditional, more faithful to joint distr., sampling-dependent
-    - LOCO: refit-based, expensive but assumption-light
+    - *PFI*: marginal, model-faithful but extrapolation issue
+    - *CFI*: conditional, more faithful to joint distr., sampling-dependent
+    - *LOCO*: refit-based, expensive but assumption-light
   #pause
-  - Match the *estimand* to the *research question*
+  // - Match the *estimand* to the *research question*
   - Compare methods #to robustness check, not contradiction
-  - `xplainfi` provides a unified interface for all of the above #small[@burk2026xplainfifeature]
+  - `xplainfi` provides a unified interface for all of the above #sideref(size: "small")[@burk2026xplainfifeature]
 ]
 
 #thanks-slide(
