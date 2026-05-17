@@ -17,7 +17,7 @@
 
 #title-slide(
   title: [Identifying Post-COVID Risk Factors\ with Model-Agnostic Feature Importance],
-  subtitle: [using the `xplainfi` R package on the German national cohort (NAKO)],
+  subtitle: [using the `xplainfi` R package with the German national cohort (NAKO)],
   author: me,
   author-size: 24pt,
   institute: [#bips-en \ Bremen, Germany],
@@ -31,7 +31,7 @@
 )[
   // #figure(image("img/blot04.jpg", height: 69%), caption: [Rohrschach inkblot (Public domain)])
   #image("img/blot04.jpg", height: 69%)
-  
+
   // #align(bottom + center)[
   //   #tiny[Rohrschach inkblot test (public domain)]
   // ]
@@ -40,16 +40,16 @@
 
 #bips-slide(
   title: [Post-COVID condition (PCC)],
-  subtitle: ["Long- / Post-COVID"],
+  subtitle: [Not to be confused with "long COVID"],
 )[
   - Persistent / recurring symptoms long after SARS-CoV-2 infection
   - Clinically heterogenous (symptoms & severity) #pause
   - Working definition: #sideref(size: "small")[@mikolajczyk2024likelihoodpostcovid] #pause
     - "Any" PCC: at least *1* symptom persistent *4+ months after* infection #pause
-    - "severe" PCC: at least *9*
+    - "Severe" PCC: at least *9*
   #pause
   - Many open questions: risk factors, causal factors, subgroups? #pause
-  
+
   #to *RESOLVE-PCC* project funded by the German BMFTR #h(2em) #pause #box[#align(horizon + center)[#tiny[Federal Ministry of\ Research, Technology and Space]]]
 ]
 
@@ -57,20 +57,19 @@
   title: [Why feature importance?],
   subtitle: [What it can and can't tell us about PCC],
 )[
-  - Predictive models use many candidate risk factors
+  - Predictive machine learning models use many candidate risk factors
   - Which ones actually drive predictions? #pause
   - Applications:
     - Feature selection #emoji.hands.shake feature importance #pause
     - Sanity check: is the model relying on plausible signal? #pause
     - Hypothesis generation #pause
-    
-    - *FI $eq.not$ causal effect* but associations still informative #sideref[@ewald2024guidefeatureb]
+    - *FI $eq.not$ causal effect* but associations still informative #sideref[@ewald2024guidefeatureb] #pause
   - "Importance" itself is not a single quantity #pause #to _method choice_ defines the answer
 ]
 
 #bips-slide(
   title: [Common FI methods],
-  subtitle: [How "important" is feature $X_j$?],
+  subtitle: [How "important" is feature $X_j$ for prediction?],
 )[
   #pause
   #two-columns(columns: (1fr, 1.3fr))[
@@ -108,7 +107,7 @@
   #pause
   - Requires _conditional sampling_ $tilde(X)_j tilde F_(X_j | X_(-j))$, some options: #pause
     - Conditional Gaussian #to fast, but only continuous data #pause
-    - Adversarial random forests (ARF)\
+    - Adversarial random forest (ARF) #sideref[@blesch2025conditionalfeaturea] #pause \
       #to handles _mixed_ data, _missing values_, computationally more expensive
 ]
 
@@ -121,7 +120,7 @@
   #pause
   - *Learner-level FI*: explain the _prediction method_, not one fit
     - *LOCO* automatically refits, includes learner variability #pause
-    - *Any method*: Repeat across resampling (e.g. 15 subsampling iters)
+    - *Any method*: Repeat across resampling (e.g. bootstrap, subsampling, CV)
     - Captures variability from data sampling and learner stochasticity
   // #pause
   // - Estimand should match the research question
@@ -134,17 +133,16 @@
   title: [Analysis dataset: NAKO],
   subtitle: [German National Cohort],
 )[
-  - $N approx 66250$ participants reporting $gt.eq 1$ SARS-CoV-2 infection
-  - $approx 24%$ classified as *"any PCC"* #h(1em)#small[("Severe PCC" much rarer #to not shown today)] #pause
-  - #to Goal: Predict "any PCC" vs. "no PCC"
+  - $N approx 66.000$ participants reporting $gt.eq 1$ SARS-CoV-2 infection
+  - #blue[$approx 24%$ classified as "any PCC"] #h(1em)#small[("Severe PCC" much rarer #to not shown today)] #pause
+  - #to *Goal*: Predict "any PCC" vs. "no PCC" (binary classif)
   #pause
   - Mix of _survey_ + _in-person assessment_:
     - demographics, anthropometrics, socioeconomic
     - comorbidities, smoking history,  biomarker labs (where available)
     - mental-health questionnaires
   #pause
-  - $approx 150$ features used (dropping near-constant / near-fully-missing)
-  - Rare-event indicators retained despite low prevalence
+  - $approx$ 50 features used
 ]
 
 #bips-slide(
@@ -152,12 +150,11 @@
   subtitle: [Preliminary, exploratory],
 )[
   - Learners: Gradient boosting (`XGBoost`), random forest (`ranger`)
-  - Tuned on *PR-AUC* (baseline = 24%)
+  - Tuned on *PR-AUC* (baseline = 24%) #pause
   - General performance:
     - PR-AUC $approx$ 43%
     - ROC-AUC $approx$ 64% #pause
-  - *PFI*, *CFI* (+ARF), *LOCO* computed via `xplainfi` #pause
-  - FI here on test set (i.e. *model importance*)
+  - *PFI*, *CFI* (+ARF), *LOCO* computed on _test set_ (model importance)
 ]
 
 #bips-slide(
@@ -184,62 +181,34 @@
   #image("img/top10_loco_narrow.png", height: 75%)
 ]
 
-// #bips-slide(
-//   title: [Results: LOCO],
-//   subtitle: [Top 10 features],
-//   content-align: horizon + center,
-// )[
-//   #three-columns(columns: (1fr, 1fr, 1fr))[
-//     #image("img/plot-pfi-1.png", height: 55%)
-//   ][
-//     #image("img/plot-cfi-1.png", height: 55%)
-//   ][
-//     #image("img/plot-loco-1.png", height: 55%)
-//   ]
-// ]
-
-// #bips-slide(
-//   title: [Same features, different rankings],
-//   subtitle: [What changes between methods?],
-// )[
-//   - Top-ranked features under PFI not always top under CFI / LOCO
-//     - CFI _should_ de-value importance of correlated features
-//     - PFI can over-credit features that are easy to extrapolate around
-//   #pause
-//   - *Ranks more interpretable than raw values* #pause
-//     - Raw PFI/CFI/LOCO are on the scale of the evaluation metrics
-//     - Magnitudes hard to compare across methods
-// ]
-
 #bips-slide(
   title: [Conclusion],
   subtitle: [Everything is complicated, always],
 )[
   - Feature importance is useful, but *not a single number*
-  - Each method answers a slightly different question
-    - *PFI*: marginal, model-faithful but extrapolation issue
-    - *CFI*: conditional, more faithful to joint distr., sampling-dependent
-    - *LOCO*: refit-based, expensive but assumption-light
-  #pause
-  // - Match the *estimand* to the *research question*
-  - Compare methods #to robustness check, not contradiction
-  - `xplainfi` provides a unified interface for all of the above #sideref(size: "small")[@burk2026xplainfifeature]
+  - Each method answers a slightly different question #pause
+    - *PFI*: marginal, model-faithful but extrapolation issue #pause
+    - *CFI*: conditional, more faithful to joint distr., sampling-dependent #pause
+    - *LOCO*: refit-based, expensive but assumption-light #pause
+  - Don't forget the role of the *learner*
+  - Compare methods #to robustness check, not contradiction #pause
+  - `xplainfi` provides a unified interface for all of the above #pause #sideref(size: "small")[@burk2026xplainfifeature]
 ]
 
 #thanks-slide(
   contact-author: me,
   email: "burk@leibniz-bips.de",
-  qr-url: "https://slides.lukasburk.de/2026/05-cen/slides.pdf",
+  qr-url: "https://slides.lukasburk.de/2026/05-cen/20260519_1345_Machine_learning_1_Burk_Identifying_risk.pdf",
 )
 
 #bibliography-slide(
   title: "References",
-  text-size: 12pt,
+  text-size: 13pt,
 )[
   #bibliography(
     "refs.bib",
     title: none,
-    style: "apa",
+    style: "springer-basic-author-date",
     full: true,
   )
 ]
