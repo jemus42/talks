@@ -586,10 +586,10 @@
 )[
 
   1. Ask me for an account, I will send you login credentials
-  2. Read (and bookmark) the docs:
-    - #link("https://cluster.bips.coffee")[cluster.bips.coffee] (public)
-  3. Bookmark the dashboard (current cluster usage):
+  2. Bookmark the dashboard (current cluster usage):
     - #link("http://srvcluster.bips.de/")[http://srvcluster.bips.de/] (no https!)
+  3. Read (and bookmark) the docs:
+    - #link("http://srvcluster.bips.de/docs")[http://srvcluster.bips.de/docs] 
   4. Try demos / usage examples for `batchtools`, `mirai`, `targets`:
     - #link("https://srvgit.bips.eu/bips/bips-cluster-demos")[srvgit.bips.eu/bips/bips-cluster-demos]
 ]
