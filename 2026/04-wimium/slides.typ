@@ -1,4 +1,4 @@
-#import "@preview/bypst:0.2.0": *
+#import "@local/bypst:0.4.0": *
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, edge, node
 
 #show: bips-theme.with(
@@ -7,6 +7,7 @@
   slide-title-size: 26pt, // Smaller slide titles
   slide-subtitle-size: 20pt, // Smaller slide subtitles
   code-inline-scale: 1,
+  handout: true,
 )
 
 #title-slide(
