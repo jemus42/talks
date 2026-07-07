@@ -1,8 +1,9 @@
-#import "@preview/bypst:0.2.0": *
+#import "@preview/bypst:0.4.0": *
 #show: bips-theme.with(
   logo: image("bips-logo.png"),
   base-size: 17pt,
   code-inline-scale: 1,
+  handout: true,
 )
 
 #let me = "Lukas Burk"
