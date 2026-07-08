@@ -54,3 +54,4 @@ vignettes/*.pdf
 *.fdb_latexmk
 *.synctex.gz
 CLAUDE.md
+.claude/settings.json
