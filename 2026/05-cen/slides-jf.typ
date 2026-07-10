@@ -3,7 +3,7 @@
   logo: image("bips-logo.png"),
   base-size: 17pt,
   code-inline-scale: 1,
-  handout: true,
+  handout: false,
 )
 
 #let me = "Lukas Burk"
@@ -22,8 +22,8 @@
   author: me,
   author-size: 24pt,
   institute: [#bips-en \ Bremen, Germany],
-  date: datetime(day: 19, month: 5, year: 2026).display(),
-  occasion: [CEN 2026 (adapted for RESOLVE-PCC Jour Fixe)],
+  date: [#datetime(day: 19, month: 5, year: 2026).display() / #datetime(day: 10, month: 7, year: 2026).display()],
+  occasion: [Originally at CEN 2026, adapted for RESOLVE-PCC Jour Fixe],
 )
 
 
@@ -36,8 +36,6 @@
   - Working definition based on symptom catalogue (using grouped sympoms):
     - "Any" PCC: at least *1* symptom persistent *4+ months after* infection #pause
     - "Severe" PCC: at least *9*
-  #pause
-  - Here: Used aggregated symptom groups ()
 ]
 
 #bips-slide(
