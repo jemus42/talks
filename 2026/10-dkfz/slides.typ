@@ -5,6 +5,8 @@
 #let talk-subtitle = [From model inspection to statistical inference]
 #let to = sym.arrow
 #let indep = math.class("relation", $perp #h(-5pt) perp$)
+// Citation next to the text it supports, not flushed to the right margin
+#let sideref = sideref.with(gap: 1em)
 
 #show: bips-theme.with(
   config-info(
@@ -44,10 +46,10 @@
   )),
 )
 
-// $importance() output for one method, ranger, as on the console
+// $importance() output for one method, xgboost, as on the console
 #let fi-table(method, path: "results/bike.csv") = {
   let rows = csv(path, row-type: dictionary)
-    .filter(r => r.learner == "ranger" and r.method == method)
+    .filter(r => r.learner == "xgboost" and r.method == method)
     .sorted(key: r => -float(r.importance))
   table(
     columns: 2,
@@ -121,9 +123,9 @@
 #bips-slide(title: [Why feature importance?], content-align: horizon)[
   - Feature _selection_: which candidate predictors carry most signal?
   - _Sanity_ check: does a model rely on plausible signal? #pause
-  - _Hypothesis_ generation
+  - _Hypothesis_ generation #pause
   - _Inference_ on the data-generating process #pause
-  - *Caveat*: FI #sym.eq.not causal effect, but associations are still informative #sideref(<ewald2024guidefeatureb>) #pause
+  - *Caveat*: FI #sym.eq.not causal effect, but associations are still informative #sideref(<ewald2024guidefeatureb>, gap: 1em)
 
   #pause
   #vfill
@@ -136,7 +138,7 @@
 #bips-slide(title: [Which features matter?], content-align: horizon)[
   #two-columns(columns: (1fr, 1.5fr))[
     #lm-table()
-    #small[`lm(count ~ .)` on bike-sharing data (more later)]
+    #small[`lm(count ~ .)` on bike sharing data (more later)]
   ][
     - Linear model: compare $|hat(beta)_j|$, t-test $p$-values #pause
     - Random forest, XGBoost, neural net: no $beta$ to read #pause
@@ -152,7 +154,7 @@
     == Effect
     - "What happens to $hat(y)$ _when $X_j$ changes_?"
     - Linear model: $beta_j$
-    - _Signed_, in units of $X_j$
+    - _Signed_, in units of $X_j$ #pause
     - For arbitrary prediction methods:
       - Partial dependence (_PDP_)
       - Accumulated local effects (_ALE_)
@@ -160,9 +162,9 @@
     #pause
     == Importance
     - "_How much_ does the model / learner rely on $X_j$?"
-    - Linear model: $|beta_j|$ #small[(eyeballing)], t-test
+    - Linear model: $|beta_j|$ #small[(eyeballing)], t-test #pause
     - Unsigned #small[(generally)], one number per feature
-    - Extends to nonlinear effects + interactions (depending on learner)
+    - Extends to nonlinear relationships + interactions, depending on learner #pause
     - Scale depends on the loss #to read as a _ranking_
   ]
 ]
@@ -231,7 +233,7 @@
 ]
 
 #bips-slide(title: [What are we estimating?])[
-  #two-columns(columns: (1fr, 1.1fr))[
+  #two-columns(columns: (1fr, 1.13fr))[
     == Which question?
     - *Marginal* ("crude"): $X_j cancel(indep) Y$ \
       Is $X_j$ related to $Y$ at all? #pause
@@ -242,13 +244,13 @@
     == Which target?
     - *Model*: this one fitted model
     - *Learner*: the fitting procedure, across datasets
-    - *Data-generating process* #sideref(<williamson2023generalframeworkb>)
+    - *Data-generating process* #sideref(<williamson2023generalframeworkb>, gap: 1em)
+      - Learner importance + Bayes-optimal predictor
   ]
   #pause
   #vfill
   #callout-warning[
     Most methods estimate _model_ importance, research questions usually target the _data_ \
-    Linear model: $t$-test for $beta_j$ is the closest analogue, not the same thing
   ]
 ]
 
@@ -257,18 +259,21 @@
 
 // == Methods (~9 min) ==========================================================
 
-#bips-slide(title: [Why not just refit?], subtitle: [Leave-one-covariate-out (LOCO)])[
+#bips-slide(
+  title: [Why not just refit?],
+  subtitle: [Leave-one-covariate-out (LOCO) #sideref(<lei2018distributionfreepredictivec>)],
+)[
   #two-columns(columns: (1fr, 1.5fr))[
     == Calculation
     + Fit model $hat(f)$ with all features
     + Refit $hat(f)_(-j)$ without $X_j$
-    + Compare test loss
+    + Compare test loss #pause
     $ "LOCO"_j = L(hat(f)_(-j)) - L(hat(f)) $
   ][
     #pause
     - Effectively: one step of backward selection
-    - Groups: leave-one-_group_-out (LOGO)
-    - Leave-one-covariate-_in_ (LOCI): univariate association #pause
+    - Groups: leave-one-_group_-out (LOGO) #pause
+    - Leave-one-covariate-_in_ (LOCI) = univariate association #pause
     - _Cost_: one refit per feature #to expensive for
       - Complex algorithms / tuning
       - Huge datasets
@@ -280,12 +285,15 @@
   ]
 ]
 
-#bips-slide(title: [Don't refit, perturb], subtitle: [Permutation feature importance (PFI)])[
-  #two-columns(columns: (1fr, 1.4fr))[
+#bips-slide(
+  title: [Don't refit, perturb],
+  subtitle: [Permutation feature importance (PFI) #sideref(<breiman2001randomforests>)],
+)[
+  #two-columns(columns: (1fr, 1.2fr))[
     == Calculation
     + Fit model $hat(f)$ once
     + Shuffle $X_j$ in the test data: $tilde(x)_j$
-    + Compare test loss before and after
+    + Compare test loss before and after #pause
       $ "PFI"_j = L(hat(f), tilde(x)_j) - L(hat(f)) $
     + Repeat $k$ times for stability
 
@@ -293,8 +301,9 @@
     #pause
     - No refits, works with any learner
     - Breaks the link to $Y$ _and_ to the other features #pause
-    - Correlated features #to implausible combinations
-      - Ex. A 20-year-old with 30 years of smoking history
+    - Correlated features #to implausible combinations #pause
+      - "Off-manifold" problem / forced extrapolation
+      - #to A 20-year-old patient with 30 years of smoking history
   ]
 ]
 
@@ -309,13 +318,12 @@
 #bips-slide(title: [Perturb, but keep the dependence], subtitle: [Conditional feature importance (CFI)])[
   - Sample replacement values $tilde(x)_j$ from $X_j | X_(-j)$ instead of marginal shuffling
   - Removes only the part of $X_j$ _not_ explained by the others
-  - Stays on the data manifold
+  - Stays on the data manifold #pause
   - Otherwise: Same procedure as PFI:
   $ "CFI"_j = L(hat(f); tilde(x)_j) - L(hat(f)), quad tilde(x)_j tilde X_j | X_(-j) $
 
   #pause
   #vfill
-  #pause
   #callout-important[Needs samples from $X_j | X_(-j)$, which are not easy to get]
 ]
 
@@ -342,26 +350,29 @@
 
 #bips-slide(title: [Where do conditional samples come from?])[
   - _Gaussian_: fast, continuous features only
-  - _Knockoff_ framework #sideref(<candes2018panninggoldd>)
+  - _Knockoff_ framework #sideref(<candes2018panninggoldd>, gap: 1em)
   - Tabular data is usually _mixed_: continuous, categorical, missing values
 
   #pause
   #v(3em)
-  #callout-tip(title: "Adversarial random forests (ARF)")[
-    - Generative model for tabular data #sideref(<watson2023adversarialrandom>)
+  #callout-note(title: "Adversarial random forests (ARF)")[
+    - Generative model for tabular data, estimates conditional density #sideref(<watson2023adversarialrandom>, gap: 1em)
     - Mixed types, missing values
-    - Sampler for CFI and RFI in `{xplainfi}` #sideref(<blesch2025conditionalfeaturea>)
+    - Default sampler for CFI and RFI in `{xplainfi}` #sideref(<blesch2025conditionalfeaturea>, gap: 1em)
   ]
 
 ]
 
 #bips-slide(title: [Is it more than noise?], subtitle: [Inference for CFI])[
-  - CFI is a mean of per-observation loss differences, $tilde(x)_i$: $x_i$ with $x_(i j)$ resampled
-    $ Delta_i = (y_i - hat(f)(tilde(x)_i))^2 - (y_i - hat(f)(x_i))^2, quad "CFI"_j = overline(Delta) = 1/n sum_(i=1)^n Delta_i $
+  - CFI is a mean of per-observation loss differences, $tilde(x)_i$: $x_i$ with $x_(i j)$ perturbed
+    $
+      Delta_i = (y_i - hat(f)(tilde(x)_i))^2 - (y_i - hat(f)(x_i))^2, quad "CFI"_j = overline(Delta) = 1/n sum_(i=1)^n Delta_i
+    $
+    #pause
   - One-sided paired test on $overline(Delta)$ (e.g., t-test, Wilcoxon)
-    - _CPI_: conditional predictive impact #sideref(<watson2021testingconditional>)
-    - _cARFi_: same test with ARF sampling #sideref(<blesch2025conditionalfeaturea>) #pause
-  
+    - _CPI_: "conditional predictive impact" test using knockoffs #sideref(<watson2021testingconditional>, gap: 1em)
+    - _cARFi_: same test with ARF sampling #sideref(<blesch2025conditionalfeaturea>, gap: 1em) #pause
+
   #vfill
 
   #two-columns[
@@ -371,40 +382,47 @@
   ]
 ]
 
-#bips-slide(title: [And now for some game theory], subtitle: [Shapley Additive Global importancE (SAGE)])[
-    - Value of a feature set $S$: loss reduction when only features in $S$ are known
-      $ v(S) = L(f_emptyset) - L(f_S) $
-      #pause
-    - *Shapley value*: average gain from adding $j$ #sideref(<shapley1953value>, gap: 1em)
-      $ phi_j = sum_(S subset.eq D without {j}) (|S|! (p - |S| - 1)!) / p! [v(S union {j}) - v(S)] $
-
+#bips-slide(
+  title: [And now for some game theory],
+  subtitle: [Shapley Additive Global importancE (SAGE) #sideref(<covert2020understandingglobalb>)],
+  text-size: 16pt,
+)[
+  - Value of a feature set $S$ ("coalition"):\ _Expected_ loss reduction when only features in $S$ are known
+    $ v(S) = EE[ell(Y, f_emptyset)] - EE[ell(Y, f_S (X_S))] $
     #pause
-    
-    - Unknown features: MC integration over marginal or conditional samples, like PFI vs. CFI
-    
-    #pause
+  - *Shapley value*: average gain from adding $j$ #sideref(<shapley1953value>, gap: 1em)
+    $ phi_j = sum_(S subset.eq D without {j}) (|S|! (p - |S| - 1)!) / p! [v(S union {j}) - v(S)] $
 
-    #callout-note(title: "SAGE vs. SHAP")[
-      #two-columns(columns: (1fr, 1.1fr))[
+  #pause
+
+  - Unknown features: MC integration over marginal or conditional samples, like PFI vs. CFI
+
+  #pause
+
+  #callout-note(title: "SAGE vs. SHAP")[
+    #two-columns(columns: (1fr, 1.1fr))[
 
       SAGE: _global_, explains the loss\ #sideref(<covert2020understandingglobalb>, gap: 0em)
-      ][
-
+    ][
       SHAP: _local_, explains one prediction\ #sideref(<lundberg2017unifiedapproacha>, gap: 0em)
-      ]
     ]
-  
+  ]
+
 ]
 
 #section-slide([Application Example])
 
 // == Application (~10 min) =====================================================
 
-#bips-slide(title: [The bike sharing dataset], subtitle: [Capital Bikeshare, Washington, D.C., 2011--2012])[
-  #two-columns(columns: (2fr, 3fr))[
+#bips-slide(
+  title: [The bike sharing dataset],
+  subtitle: [Capital Bikeshare, Washington, D.C., 2011--2012],
+  content-align: horizon,
+)[
+  #two-columns(columns: (1.1fr, 1fr))[
     - _Outcome_: bike rentals per hour
     - 3000 hours sampled from \~17k
-    - Random forest (`ranger`) and `lm`
+    - Gradient boosting (`xgboost`, pre-tuned) and `lm`
     - Holdout: 80% train, 20% test
   ][
     #callout(title: "9 features")[
@@ -412,17 +430,25 @@
       - *Weather*: temperature, humidity, wind speed, weather type
     ]
   ]
+]
 
-#pause
-
-    #code(
-    size: 1.2em,
+#bips-slide(
+  title: [Setup for code example],
+  subtitle: [`{mlr3}` objects, defined once],
+  content-align: horizon,
+)[
+  #code(
+    size: 1.3em,
     "
 library(xplainfi)
 library(mlr3learners)
+library(mlr3pipelines)
 
 task <- tsk(\"bike_sharing\")
-learner <- lrn(\"regr.ranger\", num.trees = 1000)
+learner <- as_learner(
+  po(\"encode\") %>>%
+    lrn(\"regr.xgboost\", nrounds = 4932, eta = 0.0023, max_depth = 8)
+)
 measure <- msr(\"regr.mse\")
 resampling <- rsmp(\"holdout\", ratio = 0.8)
 ",
@@ -447,7 +473,7 @@ pfi$importance()
   ]
 ]
 
-#bips-slide(title: [CFI],  content-align: horizon)[
+#bips-slide(title: [CFI], content-align: horizon)[
   #two-columns(columns: (2fr, 1fr))[
     #code(
       hl: (1, 5),
@@ -517,20 +543,27 @@ sage$importance()
   #image("img/bike-methods.png", height: 100%)
 ]
 
-#bips-slide(title: [Inference], subtitle: [CFI with CPI, 600 held-out hours])[
+#bips-slide(
+  title: [Inference],
+  subtitle: [CFI with CPI, 600 held-out hours],
+)[
   #code("cfi$importance(ci_method = \"cpi\", p_adjust = \"BH\")")
-  #two-columns(columns: (1.5fr, 1fr))[
-    #ci-table()
+  #two-columns(columns: (1fr, 1fr))[
+    #align(center)[#ci-table()]
   ][
     #pause
+    #vfill
     - `hour`, `year`, `temperature` clearly important
-    - `windspeed`, `holiday`: no evidence
+    - `windspeed`: no evidence after BH adjustment
+    #vfill
   ]
 ]
 
 // == Close (~2 min) ============================================================
 
 #bips-slide(title: [Summary])[
+  #align(center)[
+
   #table(
     columns: 3,
     stroke: none,
@@ -544,6 +577,7 @@ sage$importance()
     [Share of the explained loss?], [SAGE], [cost, estimator noise],
     table.hline(),
   )
+  ]
   - CFI and LOCO: near-identical estimands, different estimation #sideref(<ewald2024guidefeatureb>)
   #vfill
   #callout-important[Pick the method by the question, then check the estimand]
@@ -573,6 +607,28 @@ sage$importance()
 // == Backup ====================================================================
 
 #section-slide([Backup])
+
+#bips-slide(
+  title: [Prediction-based: decomposing $hat(f)$],
+  subtitle: [Functional decomposition of the `xgboost` model with `glex` #sideref(<hiabu2023glex>)],
+)[
+  #two-columns(columns: (1fr, 1.4fr))[
+    $ hat(f)(x) = m_0 + sum_j m_j (x_j) + sum_(j < k) m_(j k)(x_j, x_k) + dots $
+    - Components on the scale of the _prediction_ (rentals), not the loss
+    - Importance of a component: mean $|m_S|$
+    - No refits, no sampling: read off the trees
+  ][
+    #image("img/glex-vi.png", width: 100%)
+  ]
+]
+
+#bips-slide(
+  title: [Low importance #sym.eq.not no effect],
+  subtitle: [`working_day` matters through its interaction with `hour`],
+  content-align: horizon + center,
+)[
+  #image("img/glex-hour-wd.png", height: 100%)
+]
 
 #bibliography-slide(
   title: "References",
