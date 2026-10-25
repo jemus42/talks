@@ -586,7 +586,7 @@ sage$importance()
 #bips-slide(title: [Where to go next])[
   + `install.packages("xplainfi")`
   + Documentation: #link("https://mlr-org.github.io/xplainfi")
-  + `xplainfi` and practical guidance: \
+  + `{xplainfi}` and practical guidance: \
     #link(
       "https://doi.org/10.48550/arXiv.2603.15306",
     )[_xplainfi: Feature Importance and Statistical Inference for Machine Learning in R_] \
