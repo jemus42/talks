@@ -137,12 +137,13 @@
 
 #bips-slide(title: [Which features matter?], content-align: horizon)[
   #two-columns(columns: (1fr, 1.5fr))[
+    Example: Predicting bike rentals
     #lm-table()
     #small[`lm(count ~ .)` on bike sharing data (more later)]
   ][
     - Linear model: compare $|hat(beta)_j|$, t-test $p$-values #pause
     - Random forest, XGBoost, neural net: no $beta$ to read #pause
-    - Feature importance (FI) generalizes into that gap
+    - Feature importance (FI) fills into that gap
   ]
   #pause
   #vfill
@@ -156,22 +157,22 @@
     - Linear model: $beta_j$
     - _Signed_, in units of $X_j$ #pause
     - For arbitrary prediction methods:
-      - Partial dependence (_PDP_)
+      - Partial dependence plots (_PDP_)
       - Accumulated local effects (_ALE_)
   ][
     #pause
     == Importance
     - "_How much_ does the model / learner rely on $X_j$?"
     - Linear model: $|beta_j|$ #small[(eyeballing)], t-test #pause
-    - Unsigned #small[(generally)], one number per feature
+    - _Unsigned_ #small[(generally)], one number per feature
     - Extends to nonlinear relationships + interactions, depending on learner #pause
-    - Scale depends on the loss #to read as a _ranking_
+    - Scale depends on importance method and loss\ #to Usually read as a _ranking_
   ]
 ]
 
 
 // == Taxonomy & estimand (~4 min) ==============================================
-#section-slide([Taxonomy & Estimands])
+#section-slide([Feature Importance Estimands])
 
 #bips-slide(
   title: [A rough taxonomy of interpretibility methods],
@@ -192,7 +193,7 @@
 
     #callout()[
       == Model-agnostic
-      supports any learner
+      supports any model / learner
     ]
   ][
     #pause
@@ -209,7 +210,7 @@
 
     #callout()[
       == Loss-based
-      how much "worse" does the model get without a feature?
+      how much worse does the model get without a feature?
     ]
   ][
     #pause
@@ -235,22 +236,22 @@
 #bips-slide(title: [What are we estimating?])[
   #two-columns(columns: (1fr, 1.13fr))[
     == Which question?
-    - *Marginal* ("crude"): $X_j cancel(indep) Y$ \
+    - *Marginal*: $X_j cancel(indep) Y$ \
       Is $X_j$ related to $Y$ at all? #pause
-    - *Conditional* ("adjusted"): $X_j cancel(indep) Y | X_(-j)$ \
+    - *Conditional*: $X_j cancel(indep) Y | X_(-j)$ \
       Does $X_j$ add information _given the others_?
   ][
     #pause
     == Which target?
-    - *Model*: this one fitted model
-    - *Learner*: the fitting procedure, across datasets
+    - *Model*: this one fitted model #pause
+    - *Learner*: the fitting procedure, across datasets #pause
     - *Data-generating process* #sideref(<williamson2023generalframeworkb>, gap: 1em)
-      - Learner importance + Bayes-optimal predictor
+      - $approx$ Learner importance + Bayes-optimal predictor
   ]
   #pause
   #vfill
   #callout-warning[
-    Most methods estimate _model_ importance, research questions usually target the _data_ \
+    Popular methods estimate _model_ importance first, research questions often target _data_ \
   ]
 ]
 
@@ -266,12 +267,12 @@
   #two-columns(columns: (1fr, 1.5fr))[
     == Calculation
     + Fit model $hat(f)$ with all features
-    + Refit $hat(f)_(-j)$ without $X_j$
+    + _Refit_ $hat(f)_(-j)$ without $X_j$
     + Compare test loss #pause
     $ "LOCO"_j = L(hat(f)_(-j)) - L(hat(f)) $
   ][
     #pause
-    - Effectively: one step of backward selection
+    - Effectively: one step of backward selection #pause
     - Groups: leave-one-_group_-out (LOGO) #pause
     - Leave-one-covariate-_in_ (LOCI) = univariate association #pause
     - _Cost_: one refit per feature #to expensive for
@@ -279,6 +280,7 @@
       - Huge datasets
   ]
   // #meanwhile
+  #pause
   #vfill
   #callout-note(title: [Test loss, e.g. mean squared error])[
     $L(hat(f)) = 1/n sum_(i=1)^n (y_i - hat(f)(x_i))^2$ #h(1em) #to importance is on the scale of the _loss_
@@ -292,18 +294,18 @@
   #two-columns(columns: (1fr, 1.2fr))[
     == Calculation
     + Fit model $hat(f)$ once
-    + Shuffle $X_j$ in the test data: $tilde(x)_j$
+    + _Shuffle_ $X_j$ in the test data: $tilde(x)_j$
     + Compare test loss before and after #pause
       $ "PFI"_j = L(hat(f), tilde(x)_j) - L(hat(f)) $
-    + Repeat $k$ times for stability
+    + Repeat $k$ times and average for stability
 
   ][
     #pause
-    - No refits, works with any learner
+    - No refits, works with any learner #pause
     - Breaks the link to $Y$ _and_ to the other features #pause
     - Correlated features #to implausible combinations #pause
-      - "Off-manifold" problem / forced extrapolation
-      - #to A 20-year-old patient with 30 years of smoking history
+    \ #to A 20-year-old patient with 30 years of smoking
+
   ]
 ]
 
@@ -312,19 +314,33 @@
   subtitle: [Model is evaluated where it has never seen data #sideref(<hooker2021unrestrictedpermutationb>)],
   content-align: horizon + center,
 )[
-  #image("img/pfi-extrapolation.png", height: 100%)
+  #image("img/pfi-extrapolation.png", height: 105%)
 ]
 
 #bips-slide(title: [Perturb, but keep the dependence], subtitle: [Conditional feature importance (CFI)])[
-  - Sample replacement values $tilde(x)_j$ from $X_j | X_(-j)$ instead of marginal shuffling
+  - Sample replacement values $tilde(x)_j$ from $X_j | X_(-j)$ instead of marginal shuffling #pause
   - Removes only the part of $X_j$ _not_ explained by the others
-  - Stays on the data manifold #pause
+  - #to Stays on the data manifold, no extrapolation #pause
   - Otherwise: Same procedure as PFI:
   $ "CFI"_j = L(hat(f); tilde(x)_j) - L(hat(f)), quad tilde(x)_j tilde X_j | X_(-j) $
 
   #pause
   #vfill
-  #callout-important[Needs samples from $X_j | X_(-j)$, which are not easy to get]
+  #callout-important[Needs samples $tilde(x)_j$ from $X_j | X_(-j)$, which are not easy to get]
+]
+
+#bips-slide(title: [Where do conditional samples come from?])[
+  - _Gaussian_: fast, continuous features only
+  - _Knockoff_ framework #sideref(<candes2018panninggoldd>, gap: 1em)
+  - Tabular data is usually _mixed_: continuous, categorical, missing values
+
+  #pause
+  #v(3em)
+  #callout-note(title: "Adversarial random forests (ARF)")[
+    - Generative model for tabular data, estimates conditional density #sideref(<watson2023adversarialrandom>, gap: 1em)
+    - Categorical features, missing values
+    - Default sampler for CFI in `{xplainfi}`
+  ]
 ]
 
 #bips-slide(
@@ -348,21 +364,6 @@
   ]
 ]
 
-#bips-slide(title: [Where do conditional samples come from?])[
-  - _Gaussian_: fast, continuous features only
-  - _Knockoff_ framework #sideref(<candes2018panninggoldd>, gap: 1em)
-  - Tabular data is usually _mixed_: continuous, categorical, missing values
-
-  #pause
-  #v(3em)
-  #callout-note(title: "Adversarial random forests (ARF)")[
-    - Generative model for tabular data, estimates conditional density #sideref(<watson2023adversarialrandom>, gap: 1em)
-    - Mixed types, missing values
-    - Default sampler for CFI and RFI in `{xplainfi}` #sideref(<blesch2025conditionalfeaturea>, gap: 1em)
-  ]
-
-]
-
 #bips-slide(title: [Is it more than noise?], subtitle: [Inference for CFI])[
   - CFI is a mean of per-observation loss differences, $tilde(x)_i$: $x_i$ with $x_(i j)$ perturbed
     $
@@ -375,19 +376,15 @@
 
   #vfill
 
-  #two-columns[
-    #callout-tip[Holdout set, model fixed\ #to _model_ importance]
-  ][
-    #callout-note[Many features:\ Control FWER or FDR\ (Holm, Benjamini--Hochberg, ...)]
-  ]
+  #callout-tip[Holdout set, model fixed #to _model_ importance]
 ]
 
 #bips-slide(
   title: [And now for some game theory],
   subtitle: [Shapley Additive Global importancE (SAGE) #sideref(<covert2020understandingglobalb>)],
-  text-size: 16pt,
+  text-size: 15pt,
 )[
-  - Value of a feature set $S$ ("coalition"):\ _Expected_ loss reduction when only features in $S$ are known
+  - Value of a feature set $S$ ("coalition"):\ _Expected_ loss reduction when only features in $S$ are known #pause
     $ v(S) = EE[ell(Y, f_emptyset)] - EE[ell(Y, f_S (X_S))] $
     #pause
   - *Shapley value*: average gain from adding $j$ #sideref(<shapley1953value>, gap: 1em)
@@ -395,16 +392,15 @@
 
   #pause
 
-  - Unknown features: MC integration over marginal or conditional samples, like PFI vs. CFI
+  - Unknown features: MC integration over marginal or conditional samples ($approx$ PFI vs. CFI)
 
   #pause
 
   #callout-note(title: "SAGE vs. SHAP")[
     #two-columns(columns: (1fr, 1.1fr))[
-
-      SAGE: _global_, explains the loss\ #sideref(<covert2020understandingglobalb>, gap: 0em)
+      SAGE: _global_, explains the _loss_ for features\ #sideref(<covert2020understandingglobalb>, gap: 0em)
     ][
-      SHAP: _local_, explains one prediction\ #sideref(<lundberg2017unifiedapproacha>, gap: 0em)
+      SHAP: _local_, explains _prediction_ for observations\ #sideref(<lundberg2017unifiedapproacha>, gap: 0em)
     ]
   ]
 
@@ -421,7 +417,7 @@
 )[
   #two-columns(columns: (1.1fr, 1fr))[
     - _Outcome_: bike rentals per hour
-    - 3000 hours sampled from \~17k
+    - 3000 samples from \~17k
     - Gradient boosting (`xgboost`, pre-tuned) and `lm`
     - Holdout: 80% train, 20% test
   ][
@@ -578,9 +574,10 @@ sage$importance()
     table.hline(),
   )
   ]
-  - CFI and LOCO: near-identical estimands, different estimation #sideref(<ewald2024guidefeatureb>)
-  #vfill
-  #callout-important[Pick the method by the question, then check the estimand]
+  #pause
+  - CFI and LOCO: near-identical estimands, different estimation #sideref(<ewald2024guidefeatureb>) #pause
+  - Generalize to learner/DGP importance: Combine with resampling procedure\ 
+    #to inference becomes more complicated (e.g., Nadeau-Bengio correction)
 ]
 
 #bips-slide(title: [Where to go next])[
@@ -588,9 +585,9 @@ sage$importance()
   + Documentation: #link("https://mlr-org.github.io/xplainfi")
   + `{xplainfi}` and practical guidance: \
     #link(
-      "https://doi.org/10.48550/arXiv.2603.15306",
+      "https://journal.r-project.org/articles/RJ-2026-054",
     )[_xplainfi: Feature Importance and Statistical Inference for Machine Learning in R_] \
-    #small[Burk et al. (2026), arXiv:2603.15306]
+    #small[Burk et al. (2026), The R Journal]
   + Methodological background: \
     #link(
       "https://doi.org/10.1007/978-3-031-63797-1_22",
