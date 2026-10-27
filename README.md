@@ -42,6 +42,26 @@ Context
 
 <td style="text-align:left;">
 
+Feature Importance
+</td>
+
+<td style="text-align:left;">
+
+<a href="2026/10-dkfz/slides-handout.pdf">Biostats colloquium at
+DKFZ</a>
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:right;">
+
+2026
+</td>
+
+<td style="text-align:left;">
+
 resolve-xplainfi-cen
 </td>
 
