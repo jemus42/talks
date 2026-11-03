@@ -589,7 +589,7 @@
   2. Bookmark the dashboard (current cluster usage):
     - #link("http://srvcluster.bips.de/")[http://srvcluster.bips.de/] (no https!)
   3. Read (and bookmark) the docs:
-    - #link("http://srvcluster.bips.de/docs")[http://srvcluster.bips.de/docs] 
+    - #link("http://pages-gitlab.bips.eu/bips/hpc/bips-cluster-user-docs")[http://pages-gitlab.bips.eu/bips/hpc/bips-cluster-user-docs] 
   4. Try demos / usage examples for `batchtools`, `mirai`, `targets`:
     - #link("https://srvgit.bips.eu/bips/bips-cluster-demos")[srvgit.bips.eu/bips/bips-cluster-demos]
 ]
